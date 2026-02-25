@@ -1,0 +1,18 @@
+{
+  "name": "jbactad-plugins",
+  "owner": {
+    "name": "jbactad"
+  },
+  "plugins": [
+    {
+      "name": "automaker-skills",
+      "source": "./automaker-skills",
+      "description": "Claude Code skills for working with Automaker projects — context optimization, feature management, memory, specs, worktrees, and project initialization."
+    },
+    {
+      "name": "mission-control",
+      "source": "./mission-control",
+      "description": "Autonomous AI orchestration engine — decomposes goals into tasks, executes with specialized agents, learns from outcomes, and delivers results with minimal human intervention."
+    }
+  ]
+}
