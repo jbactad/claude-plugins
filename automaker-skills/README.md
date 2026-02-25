@@ -15,13 +15,12 @@ Claude Code plugin providing specialized skills for working with [Automaker](htt
 
 ## Installation
 
-Use the `--plugin-dir` flag to load the plugin:
+Add the marketplace and install the plugin:
 
-```bash
-claude --plugin-dir /path/to/automaker-skills
 ```
-
-Or add it to your Claude Code settings for persistent use.
+/plugin marketplace add jbactad/claude-plugins
+/plugin install automaker-skills@jbactad-claude-plugins
+```
 
 ## Usage
 

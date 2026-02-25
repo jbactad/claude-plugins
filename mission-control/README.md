@@ -16,10 +16,11 @@ Mission Control takes high-level goals, decomposes them into task dependency gra
 
 ## Quick Start
 
-Install the plugin:
+Add the marketplace and install the plugin:
 
 ```bash
-claude plugin add jbactad/claude-plugins/mission-control
+/plugin marketplace add jbactad/claude-plugins
+/plugin install mission-control@jbactad-claude-plugins
 ```
 
 Launch your first mission:

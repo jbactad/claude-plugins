@@ -14,14 +14,22 @@ A Claude Code plugin marketplace by [jbactad](https://github.com/jbactad).
 Add this marketplace to Claude Code:
 
 ```
-/plugin marketplace add github:jbactad/claude-plugins
+/plugin marketplace add jbactad/claude-plugins
 ```
 
 Then install a plugin:
 
 ```
-/plugin add automaker-skills
-/plugin add mission-control
+/plugin install automaker-skills@jbactad-claude-plugins
+/plugin install mission-control@jbactad-claude-plugins
+```
+
+To install for a specific scope:
+
+```
+/plugin install automaker-skills@jbactad-claude-plugins --scope user      # personal (default)
+/plugin install automaker-skills@jbactad-claude-plugins --scope project   # shared with team
+/plugin install automaker-skills@jbactad-claude-plugins --scope local     # personal, gitignored
 ```
 
 ## License

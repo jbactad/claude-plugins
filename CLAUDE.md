@@ -49,6 +49,6 @@ claude-plugins/
 ## Marketplace Install
 
 ```
-/plugin marketplace add github:jbactad/claude-plugins
-/plugin add {plugin-name}
+/plugin marketplace add jbactad/claude-plugins
+/plugin install {plugin-name}@jbactad-claude-plugins
 ```
