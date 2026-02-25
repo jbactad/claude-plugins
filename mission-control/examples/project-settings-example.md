@@ -1,9 +1,9 @@
 # Mission Control - Project Settings
 
-Copy this file to `.claude/mission-control.local.md` in your project root and adjust
+Copy this file to `.mission-control/settings.md` in your project root and adjust
 settings to match your project's needs. Mission Control reads this file at the start
 of every mission and merges these settings with organization-level defaults from
-`~/.claude/mission-control.local.md`.
+`~/.mission-control/settings.md`.
 
 Project settings override organization defaults for any key present in both files.
 
@@ -38,7 +38,7 @@ maxRetries: 2                   # Maximum retry attempts per task (total attempt
 escalateModelOnRetry: true      # Upgrade model on retry (haiku -> sonnet -> opus)
 
 # Memory & Learning
-memoryEnabled: true             # Load learnings from .claude/mission-memory/ at mission start
+memoryEnabled: true             # Load learnings from .mission-control/memory/ at mission start
 autoLearn: true                 # Extract and save learnings during /debrief
 ---
 ```

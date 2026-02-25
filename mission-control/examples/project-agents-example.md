@@ -1,6 +1,6 @@
 # Mission Control - Project Agents
 
-Copy this file to `.claude/mission-control.local.md` in your project root and customize the
+Copy this file to `.mission-control/settings.md` in your project root and customize the
 agent types for your stack. Mission Control reads this file at the start of every mission
 and merges these types with the built-in defaults.
 
@@ -102,4 +102,4 @@ Context: Follow existing endpoint patterns in src/api/
 - **Type names** should be kebab-case and descriptive (e.g., `frontend-expert`, not `fe`)
 - **Notes** column is shown in the agent registry but not required
 - Custom types **extend** the built-in agents; they never replace them
-- If no `.claude/mission-control.local.md` exists, Mission Control silently falls back to built-in types only
+- If no `.mission-control/settings.md` exists, Mission Control silently falls back to built-in types only

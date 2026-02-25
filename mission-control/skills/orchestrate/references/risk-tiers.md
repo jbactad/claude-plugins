@@ -210,7 +210,7 @@ When in doubt, assign the higher tier. It is always safe to over-classify; under
 
 Risk tiers can be adjusted at multiple levels:
 
-1. **Project settings** (`.claude/mission-control.local.md`): Set `requireApproval: always` to treat all tasks as Tier 2+.
+1. **Project settings** (`.mission-control/settings.md`): Set `requireApproval: always` to treat all tasks as Tier 2+.
 2. **Mission scope**: Override default tier for the entire mission (e.g., "this is a security audit, minimum Tier 2").
 3. **Task card**: Override tier for individual tasks when decomposition reveals different risk.
 4. **Supervisor decision**: During execution, the supervisor can escalate a task's tier if unexpected complexity or risk emerges.

@@ -4,7 +4,7 @@
 # Reads hook input from stdin (JSON with stop_hook_active field).
 # If stop_hook_active is true, exits 0 immediately to prevent looping.
 #
-# If .claude/missions/active.json exists and has incomplete tasks,
+# If .mission-control/missions/active.json exists and has incomplete tasks,
 # outputs a warning to stderr and exits 2 (which prevents Claude from
 # stopping and asks it to remind the user about the active mission).
 #
@@ -28,7 +28,7 @@ if [ "$STOP_ACTIVE" = "true" ]; then
   exit 0
 fi
 
-MISSION_FILE=".claude/missions/active.json"
+MISSION_FILE=".mission-control/missions/active.json"
 
 if [ ! -f "$MISSION_FILE" ]; then
   exit 0

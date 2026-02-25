@@ -12,7 +12,7 @@ Close the active mission, produce a completion summary, extract learnings for fu
 
 ### Step 1: Load Active Mission
 
-Read `.claude/missions/active.json`.
+Read `.mission-control/missions/active.json`.
 
 If the file does not exist, report the following and stop:
 
@@ -113,11 +113,11 @@ Check whether `autoLearn` is enabled in the mission settings (from `settings` in
 Spawn the **retrospective** agent to analyze the completed mission and extract structured learnings. Pass the agent:
 - The full mission state (goal, tasks, log, checkpoints, artifacts).
 - The completion summary from Step 3.
-- Existing learnings from `.claude/mission-memory/` (to avoid duplicates).
+- Existing learnings from `.mission-control/memory/` (to avoid duplicates).
 
-The retrospective agent will produce structured learnings. For each learning, save it to `.claude/mission-memory/` as a markdown file with YAML frontmatter.
+The retrospective agent will produce structured learnings. For each learning, save it to `.mission-control/memory/` as a markdown file with YAML frontmatter.
 
-Create the `.claude/mission-memory/` directory if it does not exist.
+Create the `.mission-control/memory/` directory if it does not exist.
 
 **Learning file format**:
 
@@ -153,14 +153,14 @@ When appending to an existing category file, add the new learning under a new he
 
 ### Step 5: Archive Mission State
 
-1. Create `.claude/missions/archive/` directory if it does not exist.
+1. Create `.mission-control/missions/archive/` directory if it does not exist.
 2. Update the mission state:
    - Set `status` to `"completed"` (or `"completed_partial"` if tasks were cancelled).
    - Set `updatedAt` to the current ISO-8601 timestamp.
    - Add a final checkpoint with the completion summary.
    - Add references to any extracted learning files.
-3. Copy `.claude/missions/active.json` to `.claude/missions/archive/{mission-id}.json`.
-4. Remove `.claude/missions/active.json`.
+3. Copy `.mission-control/missions/active.json` to `.mission-control/missions/archive/{mission-id}.json`.
+4. Remove `.mission-control/missions/active.json`.
 
 ### Step 6: Present Summary
 
@@ -170,8 +170,8 @@ Display a final confirmation to the user:
 Mission debriefed and archived.
 
   ID: [mission-id]
-  Archive: .claude/missions/archive/[mission-id].json
-  Learnings: [N] learnings extracted to .claude/mission-memory/
+  Archive: .mission-control/missions/archive/[mission-id].json
+  Learnings: [N] learnings extracted to .mission-control/memory/
     [list of learning files created or updated]
 
 Use /mission to start a new mission.
@@ -184,7 +184,7 @@ If no learnings were extracted (either because `autoLearn` was disabled or the r
 Mission debriefed and archived.
 
   ID: [mission-id]
-  Archive: .claude/missions/archive/[mission-id].json
+  Archive: .mission-control/missions/archive/[mission-id].json
   Learnings: None extracted
 
 Use /mission to start a new mission.

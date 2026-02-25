@@ -83,7 +83,7 @@ Look for unexpected behaviors, codebase quirks, or environmental issues that cau
 
 ## Deduplication
 
-Before saving a new learning, the retrospective agent checks existing memory files in `.claude/mission-memory/`:
+Before saving a new learning, the retrospective agent checks existing memory files in `.mission-control/memory/`:
 
 1. **Read all existing memory files** and build an index of topics, tags, and summaries.
 2. **For each candidate learning**, check if an existing file covers the same topic:
@@ -112,10 +112,10 @@ Before saving a new learning, the retrospective agent checks existing memory fil
 
 ## Output Format
 
-Each extracted learning is saved as a markdown file in `.claude/mission-memory/`:
+Each extracted learning is saved as a markdown file in `.mission-control/memory/`:
 
 ```
-.claude/mission-memory/{descriptive-kebab-case-name}.md
+.mission-control/memory/{descriptive-kebab-case-name}.md
 ```
 
 The file follows the format documented in `memory-format.md`: YAML frontmatter with `tags`, `source`, `extractedAt`, `confidence`, and `category`, followed by a markdown body.

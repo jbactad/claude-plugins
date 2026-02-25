@@ -1,0 +1,42 @@
+# .mission-control/.gitignore
+#
+# By default, ignore everything in .mission-control/ to keep mission state,
+# logs, and transient data out of version control.
+#
+# Teams can selectively whitelist directories and files they want to share
+# across the team by uncommenting (or adding) negation patterns below.
+
+# Ignore everything by default
+*
+
+# Always keep this .gitignore
+!.gitignore
+
+# ─── Team-Shared Configuration ───────────────────────────────────────────────
+# Uncomment to share project-level settings with your team:
+# !settings.md
+
+# ─── Playbooks ────────────────────────────────────────────────────────────────
+# Uncomment to share custom playbooks (reusable mission templates):
+# !playbooks/
+# !playbooks/**
+
+# ─── Mission Memory ──────────────────────────────────────────────────────────
+# Uncomment to share learnings extracted from past missions:
+# !memory/
+# !memory/**
+
+# ─── Selective Memory Sharing ─────────────────────────────────────────────────
+# Alternatively, share only high-confidence learnings by pattern:
+# !memory/gotcha-*.md
+# !memory/pattern-*.md
+
+# ─── Things You Should Almost Never Commit ────────────────────────────────────
+# Active mission state (transient, session-specific):
+#   missions/active.json
+#
+# Mission archive (can be very large over time):
+#   missions/archive/
+#
+# Mission logs (transient):
+#   missions/log.jsonl

@@ -60,7 +60,7 @@ Mission Control will scope the work, assess risk, decompose it into tasks, assig
 
 ## Configuration
 
-Create `.claude/mission-control.local.md` in your project root to customize Mission Control for your project. This file supports YAML frontmatter for settings and a markdown body for custom agent type definitions.
+Create `.mission-control/settings.md` in your project root to customize Mission Control for your project. This file supports YAML frontmatter for settings and a markdown body for custom agent type definitions.
 
 ```yaml
 ---
@@ -94,10 +94,10 @@ See `examples/project-settings-example.md` for a complete settings reference wit
 Settings cascade through four levels. Each level overrides the one above it:
 
 ```
-Organization defaults  (~/.claude/mission-control.local.md)
+Organization defaults  (~/.mission-control/settings.md)
     |
     v  overridden by
-Project settings       (.claude/mission-control.local.md)
+Project settings       (.mission-control/settings.md)
     |
     v  overridden by
 Mission overrides      (per-mission flags at launch time)
@@ -120,11 +120,11 @@ Playbooks are reusable mission templates that pre-configure the task decompositi
 
 ### Custom Playbooks
 
-Create project-specific playbooks in `.claude/missions/playbooks/`. Each playbook is a markdown file with YAML frontmatter defining phases, agent assignments, and success criteria. Use `/playbook create` for guided creation.
+Create project-specific playbooks in `.mission-control/playbooks/`. Each playbook is a markdown file with YAML frontmatter defining phases, agent assignments, and success criteria. Use `/playbook create` for guided creation.
 
 ## Memory
 
-Mission Control learns from completed missions. During `/debrief`, the retrospective agent extracts structured learnings and saves them to `.claude/mission-memory/`. These learnings are automatically loaded at the start of future missions when their tags match the mission goal.
+Mission Control learns from completed missions. During `/debrief`, the retrospective agent extracts structured learnings and saves them to `.mission-control/memory/`. These learnings are automatically loaded at the start of future missions when their tags match the mission goal.
 
 Learning categories:
 

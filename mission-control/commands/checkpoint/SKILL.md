@@ -12,7 +12,7 @@ Produce a structured checkpoint report for the active mission. This command read
 
 ### Step 1: Load Active Mission
 
-Read `.claude/missions/active.json`.
+Read `.mission-control/missions/active.json`.
 
 If the file does not exist, report the following and stop:
 
@@ -130,7 +130,7 @@ If the decision is RESCOPE, include specific recommendations:
 
 ### Step 7: Update Mission State
 
-Update `.claude/missions/active.json`:
+Update `.mission-control/missions/active.json`:
 
 1. Set `updatedAt` to the current ISO-8601 timestamp.
 2. Update all task statuses to reflect current state.
@@ -148,4 +148,4 @@ Update `.claude/missions/active.json`:
 }
 ```
 
-Save the updated state back to `.claude/missions/active.json`.
+Save the updated state back to `.mission-control/missions/active.json`.

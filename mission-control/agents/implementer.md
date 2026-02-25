@@ -23,7 +23,7 @@ Before writing any code:
 2. **Read existing code in the area you will modify.** Understand the patterns, naming conventions, import styles, error handling approach, and test structure already in use.
 3. **Find similar implementations.** Use Grep and Glob to locate analogous features or modules. These are your templates. Follow them closely.
 4. **Read related test files.** Understand how existing code is tested so you can write tests in the same style.
-5. **Check for project conventions.** Look for `.claude/mission-control.local.md`, linting configs, `.editorconfig`, or contributing guides that define conventions.
+5. **Check for project conventions.** Look for `.mission-control/settings.md`, linting configs, `.editorconfig`, or contributing guides that define conventions.
 
 ### Phase 2: Plan Your Changes
 

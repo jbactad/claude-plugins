@@ -18,8 +18,8 @@ Follow these steps in order. Do not skip steps.
 
 ### Step 1: Load Project Context
 
-- Read `.claude/mission-control.local.md` if it exists. This file contains project-specific settings, custom agent type definitions, naming conventions, and override rules. Respect everything defined there.
-- Read files in `.claude/mission-memory/` for relevant learnings from past missions. Pay attention to gotcha-category learnings -- these represent mistakes that must not be repeated.
+- Read `.mission-control/settings.md` if it exists. This file contains project-specific settings, custom agent type definitions, naming conventions, and override rules. Respect everything defined there.
+- Read files in `.mission-control/memory/` for relevant learnings from past missions. Pay attention to gotcha-category learnings -- these represent mistakes that must not be repeated.
 
 ### Step 2: Explore the Codebase
 
@@ -43,7 +43,7 @@ If a task is too large for a single agent session (more than ~10 files or ~500 l
 
 For each task, determine:
 
-- **Agent type**: One of the built-in types (`mission-planner`, `researcher`, `implementer`, `reviewer`, `retrospective`) or a custom agent type defined in `.claude/mission-control.local.md`.
+- **Agent type**: One of the built-in types (`mission-planner`, `researcher`, `implementer`, `reviewer`, `retrospective`) or a custom agent type defined in `.mission-control/settings.md`.
 - **Model**: Choose based on task complexity:
   - `haiku` -- simple exploration, file listing, pattern searching, boilerplate generation.
   - `sonnet` -- standard implementation, refactoring, test writing, code review.
@@ -116,5 +116,5 @@ After all task cards, output the execution plan:
 4. **Research before implementation.** If the goal touches unfamiliar parts of the codebase, insert a researcher task before implementation tasks.
 5. **Prefer small tasks over large ones.** Smaller tasks are easier to review, easier to retry on failure, and enable more parallelism.
 6. **Include a retrospective task** at the end of every mission plan. It depends on all other tasks completing and uses the `retrospective` agent type.
-7. **Respect project conventions.** If `.claude/mission-control.local.md` defines custom agent types, model preferences, or naming rules, follow them. They override these defaults.
+7. **Respect project conventions.** If `.mission-control/settings.md` defines custom agent types, model preferences, or naming rules, follow them. They override these defaults.
 8. **Surface uncertainty.** If a task's scope or approach is unclear, say so in the Notes field. Recommend a researcher task to resolve ambiguity before committing to implementation.

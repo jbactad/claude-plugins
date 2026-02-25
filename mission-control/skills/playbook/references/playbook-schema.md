@@ -5,13 +5,13 @@ Playbooks are markdown files with YAML frontmatter. They define reusable mission
 ## File Location
 
 ```
-.claude/missions/playbooks/{name}.md
+.mission-control/playbooks/{name}.md
 ```
 
 The file name (without `.md`) is the playbook name used in commands:
 
 ```
-/playbook use full-stack-feature    # loads .claude/missions/playbooks/full-stack-feature.md
+/playbook use full-stack-feature    # loads .mission-control/playbooks/full-stack-feature.md
 ```
 
 ## YAML Frontmatter Schema
@@ -75,7 +75,7 @@ The body is standard markdown. It must contain a `## Phases` section with one or
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| Agents | Yes | Agent type and count. Format: `<type>` or `<type> (x<N>)` for multiple agents. Valid types: `researcher`, `mission-planner`, `implementer`, `reviewer`, `retrospective`, or custom types from `.claude/mission-control.local.md`. |
+| Agents | Yes | Agent type and count. Format: `<type>` or `<type> (x<N>)` for multiple agents. Valid types: `researcher`, `mission-planner`, `implementer`, `reviewer`, `retrospective`, or custom types from `.mission-control/settings.md`. |
 | Parallel | Yes | Whether agents within this phase run in parallel (`true`) or sequentially (`false`). |
 | Depends On | Yes | Phase dependencies. Use `none` for phases with no dependencies. Reference phases by name: `Phase 1`, `Phase 2`, etc. Multiple dependencies: `Phase 1, Phase 2`. |
 | Model | No | Override the playbook's `defaultModel` for this phase. Useful when a specific phase needs a stronger or weaker model. |

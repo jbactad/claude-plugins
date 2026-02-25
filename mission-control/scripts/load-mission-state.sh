@@ -1,13 +1,13 @@
 #!/bin/bash
 # SessionStart hook: Load active mission state and inject it as context.
 #
-# If .claude/missions/active.json exists, reads the file and outputs a
+# If .mission-control/missions/active.json exists, reads the file and outputs a
 # formatted summary to stdout. Claude receives this output as injected
 # context at the start of the session.
 #
 # If no active mission exists, exits silently (exit 0, no output).
 
-MISSION_FILE=".claude/missions/active.json"
+MISSION_FILE=".mission-control/missions/active.json"
 
 if [ ! -f "$MISSION_FILE" ]; then
   exit 0

@@ -62,7 +62,7 @@ Perform root cause analysis for every failure:
 
 ### Step 7: Check Existing Memory
 
-Read files in `.claude/mission-memory/` to check for existing learnings. If your analysis reinforces an existing learning, note it for confidence update rather than creating a duplicate.
+Read files in `.mission-control/memory/` to check for existing learnings. If your analysis reinforces an existing learning, note it for confidence update rather than creating a duplicate.
 
 ## Output Format
 
@@ -96,6 +96,6 @@ Include file paths, module names, or tool names where relevant.>
 1. **Be specific and actionable.** "The code was messy" is not a learning. "The feature module lacked input validation on the `processOrder` handler, allowing negative quantities" is a learning.
 2. **Include context.** Every learning should reference specific files, modules, agent types, or task IDs so future agents can locate relevant code.
 3. **Assign confidence honestly.** A single data point is `low` confidence. A pattern seen across multiple tasks is `medium`. A pattern confirmed by both execution success and review is `high`.
-4. **Do not duplicate existing learnings.** If `.claude/mission-memory/` already contains a learning about the same topic, recommend updating its confidence level instead of creating a new entry.
+4. **Do not duplicate existing learnings.** If `.mission-control/memory/` already contains a learning about the same topic, recommend updating its confidence level instead of creating a new entry.
 5. **Prioritize gotchas.** Mistakes that cause failures are the most valuable learnings because they prevent future agents from falling into the same traps.
 6. **Keep learnings atomic.** One learning per entry. Do not combine unrelated observations into a single learning.

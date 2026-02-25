@@ -38,7 +38,7 @@ See `references/built-in-playbooks.md` for full definitions of each playbook inc
 /playbook list
 ```
 
-Lists all built-in playbooks and any project-specific playbooks found in `.claude/missions/playbooks/`.
+Lists all built-in playbooks and any project-specific playbooks found in `.mission-control/playbooks/`.
 
 ### Apply a playbook to the current mission
 
@@ -54,14 +54,14 @@ Loads the named playbook and applies its phases to the current mission. The play
 /playbook create [name]
 ```
 
-Scaffolds a new playbook file in `.claude/missions/playbooks/` with the required YAML frontmatter and phase structure. You then edit it to define your custom workflow.
+Scaffolds a new playbook file in `.mission-control/playbooks/` with the required YAML frontmatter and phase structure. You then edit it to define your custom workflow.
 
 ## Project Playbooks Location
 
 Custom playbooks are stored in the project directory:
 
 ```
-.claude/missions/playbooks/
+.mission-control/playbooks/
 ├── full-stack-feature.md    (built-in, copied on first use)
 ├── bug-investigation.md     (built-in, copied on first use)
 ├── refactoring.md           (built-in, copied on first use)
@@ -70,7 +70,7 @@ Custom playbooks are stored in the project directory:
 └── my-custom-playbook.md    (user-created)
 ```
 
-Project playbooks override built-in playbooks of the same name. If you want to customize the `full-stack-feature` playbook for your project, copy it to `.claude/missions/playbooks/full-stack-feature.md` and modify it.
+Project playbooks override built-in playbooks of the same name. If you want to customize the `full-stack-feature` playbook for your project, copy it to `.mission-control/playbooks/full-stack-feature.md` and modify it.
 
 ## Integration with Orchestration
 

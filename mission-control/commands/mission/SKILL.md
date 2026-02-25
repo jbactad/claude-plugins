@@ -34,9 +34,9 @@ Capture the user's response as the mission goal. If they selected a category pre
 
 Read settings from two locations and merge them. Project settings override organization defaults for any key present in both.
 
-1. **Organization defaults**: Read `~/.claude/mission-control.local.md`. Parse the YAML frontmatter to extract default settings. If the file does not exist, use built-in defaults.
+1. **Organization defaults**: Read `~/.mission-control/settings.md`. Parse the YAML frontmatter to extract default settings. If the file does not exist, use built-in defaults.
 
-2. **Project overrides**: Read `.claude/mission-control.local.md`. Parse the YAML frontmatter to extract project-specific settings. If the file does not exist, use organization defaults only.
+2. **Project overrides**: Read `.mission-control/settings.md`. Parse the YAML frontmatter to extract project-specific settings. If the file does not exist, use organization defaults only.
 
 3. **Merge**: For each setting key, the project value wins if present. Otherwise the org value applies. If neither exists, use built-in defaults.
 
@@ -81,8 +81,8 @@ Also note any custom agent types defined in the project settings file's markdown
 
 If `memoryEnabled` is true in the effective settings:
 
-1. Check if `.claude/mission-memory/` exists. If it does not, skip this step.
-2. Read all `.md` files in `.claude/mission-memory/`.
+1. Check if `.mission-control/memory/` exists. If it does not, skip this step.
+2. Read all `.md` files in `.mission-control/memory/`.
 3. For each file, parse the YAML frontmatter and extract `tags`, `category`, and the markdown body.
 4. Match tags against keywords in the mission goal using simple term overlap.
 5. Always include files with `category: gotcha` regardless of tag match.
@@ -113,7 +113,7 @@ Check for playbooks that match the mission goal:
    - `security-audit` -- matches goals mentioning "security", "audit", "vulnerability", "auth", "permissions"
    - `migration` -- matches goals mentioning "migrate", "upgrade", "move", "convert", "transition"
 
-2. **Project playbooks**: Check `.claude/missions/playbooks/` for any `.md` files. Parse their frontmatter for `name` and `description`. Match descriptions against the mission goal.
+2. **Project playbooks**: Check `.mission-control/playbooks/` for any `.md` files. Parse their frontmatter for `name` and `description`. Match descriptions against the mission goal.
 
 3. If one or more playbooks match, ask the user:
 
@@ -151,11 +151,11 @@ Pass the following context to the orchestrate workflow:
 
 ### Step 6: Save Initial Mission State
 
-Create the `.claude/missions/` directory if it does not exist.
+Create the `.mission-control/missions/` directory if it does not exist.
 
 Generate a mission ID using the format `mission-{timestamp}` where timestamp is the current Unix timestamp in milliseconds.
 
-Save the initial mission state to `.claude/missions/active.json`:
+Save the initial mission state to `.mission-control/missions/active.json`:
 
 ```json
 {
@@ -228,6 +228,6 @@ After saving the initial state, confirm to the user:
 ```
 Mission launched: [mission-id]
 Goal: [goal]
-State saved to .claude/missions/active.json
+State saved to .mission-control/missions/active.json
 Use /checkpoint to check progress, /debrief to close the mission.
 ```

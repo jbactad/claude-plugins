@@ -9,7 +9,7 @@ user-invocable: false
 
 # Mission Memory System
 
-Mission memory stores learnings extracted from completed missions in `.claude/mission-memory/`. These learnings are loaded into new missions to avoid repeating mistakes and reuse successful patterns. Over time, the memory builds a project-specific knowledge base that makes every mission smarter than the last.
+Mission memory stores learnings extracted from completed missions in `.mission-control/memory/`. These learnings are loaded into new missions to avoid repeating mistakes and reuse successful patterns. Over time, the memory builds a project-specific knowledge base that makes every mission smarter than the last.
 
 ## What Mission Memory Is
 
@@ -20,7 +20,7 @@ Learnings are not documentation. They are operational knowledge -- the kind of t
 ## Where Files Live
 
 ```
-.claude/mission-memory/
+.mission-control/memory/
 ├── use-named-exports.md
 ├── vitest-root-flag.md
 ├── circular-dep-gotcha.md
@@ -87,11 +87,11 @@ See `references/memory-format.md` for the full schema, field-by-field documentat
 
 ## Manually Creating or Editing Memory Files
 
-You do not need to run a mission to create memory files. Any markdown file with the correct YAML frontmatter placed in `.claude/mission-memory/` will be picked up by the system.
+You do not need to run a mission to create memory files. Any markdown file with the correct YAML frontmatter placed in `.mission-control/memory/` will be picked up by the system.
 
 To manually create a learning:
 
-1. Create a new `.md` file in `.claude/mission-memory/` with a descriptive kebab-case name.
+1. Create a new `.md` file in `.mission-control/memory/` with a descriptive kebab-case name.
 2. Add YAML frontmatter with the required fields (`tags`, `source`, `extractedAt`, `confidence`, `category`).
 3. For the `source` field, use `manual` to indicate a human-created learning.
 4. Write the learning body in markdown.

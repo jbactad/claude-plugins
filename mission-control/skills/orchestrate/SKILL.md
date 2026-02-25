@@ -21,19 +21,19 @@ You are coordinating a multi-agent mission. Follow this 7-step workflow precisel
 
 Before scoping, load configuration from all available sources. Read in this order (later sources override earlier):
 
-1. Read `~/.claude/mission-control.local.md` — organization-level defaults (defaultModel, maxConcurrentAgents, requireApproval, retryOnFailure, maxRetries, escalateModelOnRetry, autoReview, autoTest, autoLearn, memoryEnabled).
-2. Read `.claude/mission-control.local.md` — project-level overrides (same fields plus testCommand, devCommand, useWorktrees, custom agent types).
+1. Read `~/.mission-control/settings.md` — organization-level defaults (defaultModel, maxConcurrentAgents, requireApproval, retryOnFailure, maxRetries, escalateModelOnRetry, autoReview, autoTest, autoLearn, memoryEnabled).
+2. Read `.mission-control/settings.md` — project-level overrides (same fields plus testCommand, devCommand, useWorktrees, custom agent types).
 3. If neither file exists, proceed with built-in defaults: model=sonnet, maxConcurrentAgents=3, requireApproval=tier2+, retryOnFailure=true, maxRetries=2, escalateModelOnRetry=true, autoReview=true, autoTest=true, autoLearn=true, memoryEnabled=true.
 
 Merge settings. Project wins over organization. Mission-level overrides (from user request or playbook) win over project.
 
 ### 1b. Load Learnings
 
-If `memoryEnabled` is true and `.claude/mission-memory/` exists, read all `.md` files in that directory. Always load files tagged `gotcha` regardless of relevance. For other files, match tags against the mission goal terms and load the top 5 most relevant. Incorporate loaded learnings into your planning — they contain patterns, anti-patterns, and gotchas from past missions.
+If `memoryEnabled` is true and `.mission-control/memory/` exists, read all `.md` files in that directory. Always load files tagged `gotcha` regardless of relevance. For other files, match tags against the mission goal terms and load the top 5 most relevant. Incorporate loaded learnings into your planning — they contain patterns, anti-patterns, and gotchas from past missions.
 
 ### 1c. Check for Matching Playbook
 
-Check `.claude/missions/playbooks/` for project-specific playbooks. Also check built-in playbooks provided by this plugin (see `references/orchestration-patterns.md` for pattern-based templates). If a playbook matches the mission type (full-stack-feature, bug-investigation, refactoring, security-audit, migration), suggest it to the user:
+Check `.mission-control/playbooks/` for project-specific playbooks. Also check built-in playbooks provided by this plugin (see `references/orchestration-patterns.md` for pattern-based templates). If a playbook matches the mission type (full-stack-feature, bug-investigation, refactoring, security-audit, migration), suggest it to the user:
 
 ```
 PLAYBOOK MATCH: "full-stack-feature"
@@ -102,7 +102,7 @@ Apply these rules throughout the mission:
 
 ### 3a. Load Agent Registry
 
-Load the agent registry before decomposing. Read `.claude/mission-control.local.md` if not already loaded in Step 1. The full registry consists of built-in agents from this plugin plus any custom agents from the project settings file.
+Load the agent registry before decomposing. Read `.mission-control/settings.md` if not already loaded in Step 1. The full registry consists of built-in agents from this plugin plus any custom agents from the project settings file.
 
 **Built-in agents:**
 
@@ -114,7 +114,7 @@ Load the agent registry before decomposing. Read `.claude/mission-control.local.
 | reviewer         | Independent quality assurance and validation   | sonnet        | Read, Grep, Glob, Bash    |
 | retrospective    | Post-mission learning extraction               | sonnet        | Read, Grep, Glob          |
 
-Custom agents from `.claude/mission-control.local.md` extend (never replace) the built-in agents. Each custom agent maps to one of the four core `subagent_type` values: `Explore`, `Plan`, `Bash`, or `general-purpose`.
+Custom agents from `.mission-control/settings.md` extend (never replace) the built-in agents. Each custom agent maps to one of the four core `subagent_type` values: `Explore`, `Plan`, `Bash`, or `general-purpose`.
 
 Output the merged registry:
 
@@ -315,7 +315,7 @@ For Tier 1+ tasks, spawn a reviewer agent AFTER the implementation agent complet
 
 ### 5d. Save Mission State
 
-Save the mission state to `.claude/missions/active.json`. Include the mission scope, risk tier, task graph, pattern, settings, and current status. This enables session recovery if the conversation is interrupted.
+Save the mission state to `.mission-control/missions/active.json`. Include the mission scope, risk tier, task graph, pattern, settings, and current status. This enables session recovery if the conversation is interrupted.
 
 ```json
 {
@@ -409,7 +409,7 @@ After each wave, identify tasks whose dependencies are now satisfied. Spawn agen
 
 ### 6e. Save Checkpoint to Mission State
 
-After each checkpoint, update `.claude/missions/active.json` with current progress: task statuses, completed artifacts, log entries, and timestamp.
+After each checkpoint, update `.mission-control/missions/active.json` with current progress: task statuses, completed artifacts, log entries, and timestamp.
 
 ---
 
@@ -448,7 +448,7 @@ If `autoLearn` is enabled in settings:
 
 1. Spawn a retrospective agent to analyze the completed mission.
 2. The retrospective agent examines: which patterns worked, which failed, what the root causes were, which models were right for which tasks, and what prompt patterns produced good results.
-3. Save extracted learnings to `.claude/mission-memory/` as tagged markdown files.
+3. Save extracted learnings to `.mission-control/memory/` as tagged markdown files.
 4. Each learning file uses this format:
 
 ```yaml
@@ -467,7 +467,7 @@ category: pattern | gotcha | architecture | tooling | prompt
 
 ### 7d. Archive Mission State
 
-1. Move `.claude/missions/active.json` to `.claude/missions/archive/<mission-id>.json`.
+1. Move `.mission-control/missions/active.json` to `.mission-control/missions/archive/<mission-id>.json`.
 2. Update the archive entry with the completion summary, final task statuses, and extracted learnings.
 3. The active mission file is now cleared. A new mission can begin.
 
@@ -484,7 +484,7 @@ Apply these principles throughout every mission:
 
 1. **Load settings before scoping.** Always read organization and project settings files before producing the mission scope. Settings control planning depth, approval requirements, model selection, and retry behavior.
 
-2. **Save state after each checkpoint.** Persist mission state to `.claude/missions/active.json` after every checkpoint report. This enables session recovery and provides an audit trail.
+2. **Save state after each checkpoint.** Persist mission state to `.mission-control/missions/active.json` after every checkpoint report. This enables session recovery and provides an audit trail.
 
 3. **Use playbooks when available.** If a playbook matches the mission type, use it. Playbooks encode proven task graphs and save decomposition time. Suggest matches but allow the user to override.
 
@@ -542,7 +542,7 @@ Never do these:
 
 ### Step 1 — Scope the Mission
 
-Settings loaded from `.claude/mission-control.local.md`: testCommand="npm test", useWorktrees=true, autoReview=true.
+Settings loaded from `.mission-control/settings.md`: testCommand="npm test", useWorktrees=true, autoReview=true.
 
 No matching playbook found. No relevant learnings loaded (fresh project).
 
@@ -724,7 +724,7 @@ Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "
   Claim task 'Find i18n configuration' via TaskUpdate. Mark completed when done.")
 ```
 
-Save mission state to `.claude/missions/active.json`.
+Save mission state to `.mission-control/missions/active.json`.
 
 ### Step 6 — Monitor
 
@@ -785,7 +785,7 @@ Lessons Learned:
 
 Retrospective agent spawned (autoLearn=true). Learning extracted: "Always register i18n namespaces before implementing components that use translations."
 
-Mission state archived to `.claude/missions/archive/mission-<id>.json`. Active mission cleared.
+Mission state archived to `.mission-control/missions/archive/mission-<id>.json`. Active mission cleared.
 
 ---
 

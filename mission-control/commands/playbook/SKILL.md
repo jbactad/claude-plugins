@@ -51,7 +51,7 @@ Display these built-in playbooks. These are always available regardless of proje
 
 #### Project Playbooks
 
-Check `.claude/missions/playbooks/` for any `.md` files. For each file found:
+Check `.mission-control/playbooks/` for any `.md` files. For each file found:
 
 1. Parse the YAML frontmatter to extract `name`, `description`, `planningDepth`, and `riskTier`.
 2. Count the number of `### Phase` headings in the markdown body to determine the phase count.
@@ -72,7 +72,7 @@ Built-in:
   security-audit         Comprehensive security review                   5 phases
   migration              Incremental technology migration                5 phases
 
-Project (.claude/missions/playbooks/):
+Project (.mission-control/playbooks/):
   [name]                 [description]                                   [N] phases
   [name]                 [description]                                   [N] phases
 
@@ -182,9 +182,9 @@ Approval:
 
 #### Step 6: Save Playbook
 
-Create `.claude/missions/playbooks/` directory if it does not exist.
+Create `.mission-control/playbooks/` directory if it does not exist.
 
-Save the playbook to `.claude/missions/playbooks/{name}.md` with the following format:
+Save the playbook to `.mission-control/playbooks/{name}.md` with the following format:
 
 ```markdown
 ---
@@ -224,7 +224,7 @@ riskTier: [selected tier]
 Confirm to the user:
 
 ```
-Playbook created: .claude/missions/playbooks/[name].md
+Playbook created: .mission-control/playbooks/[name].md
 
   Name: [name]
   Phases: [N] ([phase names])
@@ -248,8 +248,8 @@ Load the specified playbook and launch a mission with it.
 Search for the playbook by name:
 
 1. Check built-in playbooks first. Match against: `full-stack-feature`, `bug-investigation`, `refactoring`, `security-audit`, `migration`.
-2. Check `.claude/missions/playbooks/{name}.md`.
-3. If not found, check `.claude/missions/playbooks/` for partial name matches.
+2. Check `.mission-control/playbooks/{name}.md`.
+3. If not found, check `.mission-control/playbooks/` for partial name matches.
 
 If the playbook is not found, report:
 

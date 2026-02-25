@@ -2,7 +2,7 @@
 # PreToolUse[Task] hook: Log agent delegation events.
 #
 # Reads tool input from stdin, extracts the subagent_type being spawned.
-# If an active mission exists, appends a log entry to .claude/missions/log.jsonl
+# If an active mission exists, appends a log entry to .mission-control/missions/log.jsonl
 # with the event type "delegate", agent type, and timestamp.
 #
 # This hook is informational only — it always exits 0 and never blocks
@@ -24,10 +24,10 @@ AGENT_TYPE=$(echo "$INPUT" | node -e "
 " 2>/dev/null)
 
 # Log delegation if an active mission exists
-MISSION_FILE=".claude/missions/active.json"
+MISSION_FILE=".mission-control/missions/active.json"
 
 if [ -f "$MISSION_FILE" ]; then
-  LOG_DIR=".claude/missions"
+  LOG_DIR=".mission-control/missions"
   TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
   echo "{\"event\":\"delegate\",\"agent\":\"$AGENT_TYPE\",\"time\":\"$TIMESTAMP\"}" >> "$LOG_DIR/log.jsonl"
 fi
