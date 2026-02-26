@@ -39,6 +39,8 @@ claude-plugins/
 
 **Naming**: Lowercase kebab-case for all directory and file names. No plugin-name prefix on skill directories.
 
+**Versioning**: Bump the plugin version in `.claude-plugin/plugin.json` whenever any plugin component is modified. Use semver patch increments (`0.1.0` → `0.1.1`) for fixes and improvements, minor increments (`0.1.0` → `0.2.0`) for new components.
+
 ## Adding a Plugin
 
 1. Create `{plugin-name}/.claude-plugin/plugin.json`
