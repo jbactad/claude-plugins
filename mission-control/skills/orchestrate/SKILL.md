@@ -105,13 +105,15 @@ Load the agent registry before decomposing. Read `.mission-control/settings.md` 
 
 **Built-in agents:**
 
-| Agent            | Role                                          | Default Model | Tools                     |
-|------------------|-----------------------------------------------|---------------|---------------------------|
-| mission-planner  | Goal decomposition into task dependency graphs | sonnet        | Read, Grep, Glob, Bash    |
-| researcher       | Read-only codebase exploration and analysis    | haiku         | Read, Grep, Glob, Bash    |
-| implementer      | Code implementation from specifications        | sonnet        | Read, Grep, Glob, Bash, Edit, Write |
-| reviewer         | Independent quality assurance and validation   | sonnet        | Read, Grep, Glob, Bash    |
-| retrospective    | Post-mission learning extraction               | sonnet        | Read, Grep, Glob          |
+| Agent            | subagent_type                      | Role                                          | Default Model | Isolation |
+|------------------|------------------------------------|-----------------------------------------------|---------------|-----------|
+| mission-planner  | `mission-control:mission-planner`  | Goal decomposition into task dependency graphs | sonnet        | none      |
+| researcher       | `mission-control:researcher`       | Read-only codebase exploration and analysis    | haiku         | none      |
+| implementer      | `mission-control:implementer`      | Code implementation from specifications        | sonnet        | worktree  |
+| reviewer         | `mission-control:reviewer`         | Independent quality assurance and validation   | sonnet        | none      |
+| retrospective    | `mission-control:retrospective`    | Post-mission learning extraction               | sonnet        | none      |
+
+Always use the exact `subagent_type` value shown above when spawning built-in agents. This ensures each agent runs with the correct tool permissions and isolation settings defined in its agent file. In particular, `mission-control:implementer` must be used for all implementation tasks — it is the only agent type that runs in an isolated git worktree.
 
 Custom agents from `.mission-control/settings.md` extend (never replace) the built-in agents. Each custom agent maps to one of the four core `subagent_type` values: `Explore`, `Plan`, `Bash`, or `general-purpose`.
 
@@ -349,10 +351,10 @@ TaskCreate(subject: "Find theme implementation", ...)
 TaskCreate(subject: "Find i18n config", ...)
 
 [Spawn 4 agents in ONE message — all with no dependencies]
-Task(team_name: "preferences-feature", name: "researcher-auth", subagent_type: "Explore", ...)
-Task(team_name: "preferences-feature", name: "researcher-routing", subagent_type: "Explore", ...)
-Task(team_name: "preferences-feature", name: "researcher-theme", subagent_type: "Explore", ...)
-Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "Explore", ...)
+Task(team_name: "preferences-feature", name: "researcher-auth", subagent_type: "mission-control:researcher", ...)
+Task(team_name: "preferences-feature", name: "researcher-routing", subagent_type: "mission-control:researcher", ...)
+Task(team_name: "preferences-feature", name: "researcher-theme", subagent_type: "mission-control:researcher", ...)
+Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "mission-control:researcher", ...)
 ```
 
 ---

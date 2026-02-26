@@ -12,14 +12,14 @@ A typical web application with frontend, backend, database, security, testing, a
 
 ### Custom Agent Types
 
-| Type | Description | subagent_type | model | Notes |
-|------|-------------|---------------|-------|-------|
-| `frontend-expert` | React/TypeScript UI specialist | general-purpose | sonnet | Use for components, styling, and accessibility |
-| `backend-expert` | Node/Python API and business logic specialist | general-purpose | sonnet | Use for endpoints, services, and data access |
-| `db-architect` | Database schema design and query optimization | general-purpose | opus | Use for schema decisions and complex queries |
-| `security-auditor` | Security review and vulnerability analysis | general-purpose | opus | Required for all Tier 2+ tasks |
-| `test-runner` | Test execution and coverage analysis | Bash | haiku | Runs test suites, lint, and type checks |
-| `devops-agent` | CI/CD, Docker, and infrastructure | Bash | sonnet | Use for build pipelines and deployment scripts |
+| Type               | Description                                   | subagent_type   | model  | Notes                                          |
+| ------------------ | --------------------------------------------- | --------------- | ------ | ---------------------------------------------- |
+| `frontend-expert`  | React/TypeScript UI specialist                | general-purpose | sonnet | Use for components, styling, and accessibility |
+| `backend-expert`   | Node/Python API and business logic specialist | general-purpose | sonnet | Use for endpoints, services, and data access   |
+| `db-architect`     | Database schema design and query optimization | general-purpose | opus   | Use for schema decisions and complex queries   |
+| `security-auditor` | Security review and vulnerability analysis    | general-purpose | opus   | Required for all Tier 2+ tasks                 |
+| `test-runner`      | Test execution and coverage analysis          | Bash            | haiku  | Runs test suites, lint, and type checks        |
+| `devops-agent`     | CI/CD, Docker, and infrastructure             | Bash            | sonnet | Use for build pipelines and deployment scripts |
 
 ---
 
@@ -29,10 +29,10 @@ A focused project may only need one or two custom types. Here is an example for 
 
 ### Custom Agent Types
 
-| Type | Description | subagent_type | model | Notes |
-|------|-------------|---------------|-------|-------|
-| `ml-researcher` | Model training, evaluation, and experiment tracking | general-purpose | opus | Use for all ML pipeline tasks |
-| `data-engineer` | ETL pipelines and data quality | general-purpose | sonnet | Use for ingestion and transformation |
+| Type            | Description                                         | subagent_type   | model  | Notes                                |
+| --------------- | --------------------------------------------------- | --------------- | ------ | ------------------------------------ |
+| `ml-researcher` | Model training, evaluation, and experiment tracking | general-purpose | opus   | Use for all ML pipeline tasks        |
+| `data-engineer` | ETL pipelines and data quality                      | general-purpose | sonnet | Use for ingestion and transformation |
 
 ---
 
