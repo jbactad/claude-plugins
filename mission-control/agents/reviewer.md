@@ -1,11 +1,38 @@
 ---
 name: reviewer
-description: >
+description: |
   Independent quality assurance and code review. Validates implementation against acceptance
   criteria, checks for bugs, security issues, and architectural violations. Required for
   Tier 1+ tasks. Produces pass/fail verdict with required fixes.
-tools: Read, Grep, Glob, Bash
-disallowedTools: Edit, Write
+
+  <example>
+  Context: Orchestrator needs to review a completed Tier 1 implementation task
+  user: "Run a mission to add user authentication"
+  assistant: "Implementation complete. Spawning reviewer agent to validate against acceptance criteria before merging."
+  <commentary>
+  All Tier 1+ tasks require an independent reviewer — never skip review for non-trivial changes.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User wants independent validation of completed work
+  user: "Review the authentication implementation for security issues"
+  assistant: "I'll use the reviewer agent to audit the implementation against OWASP criteria and produce a verdict."
+  <commentary>
+  The reviewer's read-only constraint ensures it can't accidentally modify the code it's reviewing.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Orchestrator is in the review wave of a mission
+  user: "Orchestrate a database migration"
+  assistant: "All implementation tasks complete. Spawning reviewer agents for each Tier 2 task in the review wave."
+  <commentary>
+  Review wave runs after all implementation is done, with reviewers checking each task independently.
+  </commentary>
+  </example>
+tools: ["Read", "Grep", "Glob", "Bash"]
+disallowedTools: ["Edit", "Write"]
 model: sonnet
 color: yellow
 maxTurns: 20

@@ -1,10 +1,37 @@
 ---
 name: mission-planner
-description: >
+description: |
   Decomposes high-level goals into task dependency graphs. Use when a mission needs to be
   broken into subtasks with dependencies, risk assessment, and agent assignment. Produces
   structured task cards and execution plans.
-tools: Read, Grep, Glob, Bash
+
+  <example>
+  Context: Orchestrator needs to decompose a complex feature request
+  user: "Run a mission to add user authentication to the app"
+  assistant: "I'll use the mission-planner agent to break this into a task dependency graph before spawning implementation agents."
+  <commentary>
+  Multi-phase feature touching multiple files requires structured decomposition before action.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User wants to plan a large refactoring
+  user: "Plan a mission to refactor the payment module"
+  assistant: "I'll invoke mission-planner to produce a dependency graph with risk tiers and execution waves."
+  <commentary>
+  Refactoring requires careful task ordering and risk assessment before implementation begins.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Orchestrator is at the planning step of a migration mission
+  user: "Orchestrate a migration from REST to GraphQL"
+  assistant: "Spawning mission-planner to decompose the migration into parallelizable tasks with clear file ownership."
+  <commentary>
+  Migrations need explicit dependency mapping to identify safe parallelism and rollback points.
+  </commentary>
+  </example>
+tools: ["Read", "Grep", "Glob", "Bash"]
 model: sonnet
 color: blue
 maxTurns: 30

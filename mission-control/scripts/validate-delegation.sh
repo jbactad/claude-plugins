@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # PreToolUse[Task] hook: Log agent delegation events.
 #
 # Reads tool input from stdin, extracts the subagent_type being spawned.
@@ -21,15 +22,20 @@ AGENT_TYPE=$(echo "$INPUT" | node -e "
   } catch (e) {
     console.log('unknown');
   }
-" 2>/dev/null)
+" 2>/dev/null || echo "unknown")
+
+# Sanitize agent type — allow only alphanumeric, hyphens, underscores
+if [[ ! "$AGENT_TYPE" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+  AGENT_TYPE="unknown"
+fi
 
 # Log delegation if an active mission exists
-MISSION_FILE=".mission-control/missions/active.json"
+MISSION_FILE="${CLAUDE_PROJECT_DIR}/.mission-control/missions/active.json"
 
 if [ -f "$MISSION_FILE" ]; then
-  LOG_DIR=".mission-control/missions"
+  LOG_DIR="${CLAUDE_PROJECT_DIR}/.mission-control/missions"
   TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-  echo "{\"event\":\"delegate\",\"agent\":\"$AGENT_TYPE\",\"time\":\"$TIMESTAMP\"}" >> "$LOG_DIR/log.jsonl"
+  printf '{"event":"delegate","agent":"%s","time":"%s"}\n' "$AGENT_TYPE" "$TIMESTAMP" >> "$LOG_DIR/log.jsonl"
 fi
 
 # Always allow — this hook is informational only

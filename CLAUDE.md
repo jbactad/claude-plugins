@@ -21,6 +21,18 @@ claude-plugins/
 └── mission-control-plan.md    # Implementation plan (reference only)
 ```
 
+## Development Guidelines
+
+Always consult the available `plugin-dev` skills before developing or modifying any plugin component. If a skill is not available, use the `claude-code-guide` agent as a fallback.
+
+- **Skills** → invoke `plugin-dev:skill-development`
+- **Commands** → invoke `plugin-dev:command-development`
+- **Agents** → invoke `plugin-dev:agent-development`
+- **Hooks** → invoke `plugin-dev:hook-development`
+- **Plugin structure / scaffolding** → invoke `plugin-dev:plugin-structure`
+- **Plugin settings** → invoke `plugin-dev:plugin-settings`
+- **MCP integration** → invoke `plugin-dev:mcp-integration`
+
 ## Plugin Conventions
 
 **Manifest**: Every plugin has `.claude-plugin/plugin.json` with `name`, `version`, `description`, `author`

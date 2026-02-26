@@ -1,10 +1,7 @@
 ---
-name: playbook-knowledge
-description: >
-  Knowledge about mission playbooks — reusable templates for common orchestration workflows.
-  Use when the user asks about playbooks, wants to know available playbook types, or needs
-  guidance on creating custom playbooks. Also use when deciding which playbook fits a mission.
-user-invocable: false
+name: playbook
+description: This skill should be used when the user asks about "playbooks", "available playbook types", "create a custom playbook", "which playbook fits", or "reusable mission templates". Also use when deciding whether a built-in playbook matches a mission type or when the user needs guidance on orchestration workflow selection.
+user-invokable: false
 ---
 
 # Playbook System

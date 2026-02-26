@@ -1,11 +1,38 @@
 ---
 name: researcher
-description: >
+description: |
   Deep codebase exploration and analysis. Read-only agent for finding patterns, understanding
   architecture, mapping dependencies, and answering questions about the codebase. Use when
   tasks require understanding before action.
-tools: Read, Grep, Glob, Bash
-disallowedTools: Edit, Write
+
+  <example>
+  Context: Orchestrator needs to investigate an unfamiliar codebase area
+  user: "Run a mission to fix the flaky test suite"
+  assistant: "I'll spawn a researcher agent first to map the test infrastructure before planning fixes."
+  <commentary>
+  Investigation before action prevents misguided implementation in unfamiliar areas.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User asks a question requiring codebase exploration
+  user: "How does authentication work in this codebase?"
+  assistant: "I'll use the researcher agent to trace the auth flow and map all relevant files."
+  <commentary>
+  Read-only exploration is a natural fit for the researcher's constrained toolset.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Implementer task needs prior investigation
+  user: "Orchestrate adding rate limiting to all API endpoints"
+  assistant: "Spawning researcher to identify all API endpoint locations before the implementer task is planned."
+  <commentary>
+  Research phase ensures implementers have complete file ownership lists before they start.
+  </commentary>
+  </example>
+tools: ["Read", "Grep", "Glob", "Bash"]
+disallowedTools: ["Edit", "Write"]
 model: haiku
 color: cyan
 maxTurns: 20

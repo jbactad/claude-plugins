@@ -1,10 +1,7 @@
 ---
-name: mission-memory-knowledge
-description: >
-  Knowledge about the mission memory system — persistent learnings extracted from completed
-  missions. Use when the user asks about mission learnings, wants to view or manage memory
-  files, or needs guidance on how the learning system works.
-user-invocable: false
+name: mission-memory
+description: This skill should be used when the user asks about "mission learnings", "memory files", "view or manage memory", "how the learning system works", or wants to understand how mission-control persists and loads learnings from past missions.
+user-invokable: false
 ---
 
 # Mission Memory System

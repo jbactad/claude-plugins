@@ -1,11 +1,38 @@
 ---
 name: retrospective
-description: >
+description: |
   Post-mission learning extraction. Analyzes completed missions to identify patterns,
   anti-patterns, and reusable knowledge. Produces structured learnings for mission memory.
   Use during /debrief to extract lessons learned.
-tools: Read, Grep, Glob
-disallowedTools: Edit, Write, Bash
+
+  <example>
+  Context: User runs /debrief after a completed mission
+  user: "/debrief"
+  assistant: "Spawning retrospective agent to analyze the mission and extract learnings for mission memory."
+  <commentary>
+  The /debrief command always triggers the retrospective agent to ensure learnings are captured.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Orchestrator reaches the final task in a mission plan
+  user: "Run a mission to migrate the database schema"
+  assistant: "All tasks complete. Spawning retrospective agent as the final step to extract learnings from this mission."
+  <commentary>
+  Every mission plan includes a retrospective task as the last step to build project memory over time.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User wants to review what was learned from past missions
+  user: "What did we learn from the last mission?"
+  assistant: "I'll use the retrospective agent to analyze the completed mission logs and summarize the key learnings."
+  <commentary>
+  Retrospective agents analyze mission state and logs — they never need to write or run commands.
+  </commentary>
+  </example>
+tools: ["Read", "Grep", "Glob"]
+disallowedTools: ["Edit", "Write", "Bash"]
 model: sonnet
 color: magenta
 maxTurns: 15

@@ -1,10 +1,37 @@
 ---
 name: implementer
-description: >
+description: |
   Code implementation from detailed specifications. Writes code, creates files, runs builds.
   Use when a task has a clear specification and needs code written. Always follows existing
   patterns found in the codebase.
-tools: Read, Grep, Glob, Bash, Edit, Write
+
+  <example>
+  Context: Orchestrator assigns an implementation task from the mission plan
+  user: "Run a mission to add a user preferences page"
+  assistant: "Spawning implementer agent with the task card for the PreferencesPage component."
+  <commentary>
+  Clear spec with defined file ownership and acceptance criteria makes this a perfect implementer task.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Task card is ready after planning phase
+  user: "Orchestrate adding email notifications"
+  assistant: "Plan complete. Spawning implementer agents for the notification service and email template tasks in parallel."
+  <commentary>
+  Implementers can run in parallel when their file ownership lists don't overlap.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User wants code written from a detailed spec
+  user: "Implement the task described in this spec: create a retry middleware for the API client"
+  assistant: "I'll use the implementer agent to write this from the spec, running in an isolated worktree."
+  <commentary>
+  Isolated worktree prevents partial changes from contaminating the working branch during implementation.
+  </commentary>
+  </example>
+tools: ["Read", "Grep", "Glob", "Bash", "Edit", "Write"]
 model: sonnet
 color: green
 isolation: worktree

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # SessionStart hook: Load active mission state and inject it as context.
 #
 # If .mission-control/missions/active.json exists, reads the file and outputs a
@@ -7,7 +8,7 @@
 #
 # If no active mission exists, exits silently (exit 0, no output).
 
-MISSION_FILE=".mission-control/missions/active.json"
+MISSION_FILE="${CLAUDE_PROJECT_DIR}/.mission-control/missions/active.json"
 
 if [ ! -f "$MISSION_FILE" ]; then
   exit 0
@@ -17,7 +18,7 @@ fi
 node -e "
   const fs = require('fs');
   try {
-    const data = JSON.parse(fs.readFileSync('$MISSION_FILE', 'utf8'));
+    const data = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
 
     const name = data.name || 'Unnamed mission';
     const status = data.status || 'unknown';
@@ -47,4 +48,4 @@ node -e "
     // Malformed JSON or read error — exit silently
     process.exit(0);
   }
-" 2>/dev/null
+" "$MISSION_FILE" 2>/dev/null

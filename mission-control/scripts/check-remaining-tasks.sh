@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 # Stop hook: Check for remaining tasks in the active mission.
 #
 # Reads hook input from stdin (JSON with stop_hook_active field).
@@ -22,32 +23,32 @@ STOP_ACTIVE=$(echo "$INPUT" | node -e "
   } catch (e) {
     console.log('false');
   }
-" 2>/dev/null)
+" 2>/dev/null || echo "false")
 
 if [ "$STOP_ACTIVE" = "true" ]; then
   exit 0
 fi
 
-MISSION_FILE=".mission-control/missions/active.json"
+MISSION_FILE="${CLAUDE_PROJECT_DIR}/.mission-control/missions/active.json"
 
 if [ ! -f "$MISSION_FILE" ]; then
   exit 0
 fi
 
 # Count remaining (non-completed) tasks
-REMAINING=$(cat "$MISSION_FILE" | node -e "
+REMAINING=$(node -e "
   const fs = require('fs');
   try {
-    const d = JSON.parse(fs.readFileSync('/dev/stdin', 'utf8'));
+    const d = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
     const tasks = d.tasks || [];
     const remaining = tasks.filter(t => t.status !== 'completed').length;
     console.log(remaining);
   } catch (e) {
     console.log('0');
   }
-" 2>/dev/null)
+" "$MISSION_FILE" 2>/dev/null || echo "0")
 
-if [ "$REMAINING" -gt 0 ] 2>/dev/null; then
+if [[ "$REMAINING" =~ ^[0-9]+$ ]] && [ "$REMAINING" -gt 0 ]; then
   echo "Mission Control: $REMAINING task(s) remaining in active mission. Consider running /checkpoint or /debrief before ending the session." >&2
   exit 2
 fi
