@@ -70,11 +70,11 @@ If the user's request is ambiguous, ask one clarifying question. Do not ask more
 
 Assign a risk tier (0-3) to the overall mission and to each subtask you will create in Step 3. Reference `references/risk-tiers.md` for full tier definitions and the failure-mode checklist.
 
-| Tier | Name     | Criteria                                                       | Required Controls                                          |
-|------|----------|----------------------------------------------------------------|------------------------------------------------------------|
-| 0    | Low      | Read-only, low blast radius, easy rollback                     | Basic validation evidence, rollback step recorded          |
-| 1    | Medium   | User-visible changes, moderate impact, partial coupling        | Independent reviewer agent, negative test, rollback note   |
-| 2    | High     | Security/compliance/data integrity, high blast radius          | Reviewer + adversarial failure-mode checklist, go/no-go gate |
+| Tier | Name     | Criteria                                                         | Required Controls                                                            |
+| ---- | -------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| 0    | Low      | Read-only, low blast radius, easy rollback                       | Basic validation evidence, rollback step recorded                            |
+| 1    | Medium   | User-visible changes, moderate impact, partial coupling          | Independent reviewer agent, negative test, rollback note                     |
+| 2    | High     | Security/compliance/data integrity, high blast radius            | Reviewer + adversarial failure-mode checklist, go/no-go gate                 |
 | 3    | Critical | Irreversible actions, regulated data, severe incident on failure | Human confirmation before execution, two-step verification, contingency plan |
 
 Output the tier assignment inline with the mission scope.
@@ -105,25 +105,31 @@ Load the agent registry before decomposing. Read `.mission-control/settings.md` 
 
 **Built-in agents:**
 
-| Agent            | subagent_type                      | Role                                          | Default Model | Isolation |
-|------------------|------------------------------------|-----------------------------------------------|---------------|-----------|
-| mission-planner  | `mission-control:mission-planner`  | Goal decomposition into task dependency graphs | sonnet        | none      |
-| researcher       | `mission-control:researcher`       | Read-only codebase exploration and analysis    | haiku         | none      |
-| implementer      | `mission-control:implementer`      | Code implementation from specifications        | sonnet        | worktree  |
-| reviewer         | `mission-control:reviewer`         | Independent quality assurance and validation   | sonnet        | none      |
-| retrospective    | `mission-control:retrospective`    | Post-mission learning extraction               | sonnet        | none      |
+| Agent           | subagent_type                     | Role                                           | Default Model | Isolation |
+| --------------- | --------------------------------- | ---------------------------------------------- | ------------- | --------- |
+| mission-planner | `mission-control:mission-planner` | Goal decomposition into task dependency graphs | sonnet        | none      |
+| researcher      | `mission-control:researcher`      | Read-only codebase exploration and analysis    | haiku         | none      |
+| implementer     | `mission-control:implementer`     | Code implementation from specifications        | sonnet        | worktree  |
+| reviewer        | `mission-control:reviewer`        | Independent quality assurance and validation   | sonnet        | none      |
+| retrospective   | `mission-control:retrospective`   | Post-mission learning extraction               | sonnet        | none      |
 
 Always use the exact `subagent_type` value shown above when spawning built-in agents. This ensures each agent runs with the correct tool permissions and isolation settings defined in its agent file. In particular, `mission-control:implementer` must be used for all implementation tasks — it is the only agent type that runs in an isolated git worktree.
 
-Custom agents from `.mission-control/settings.md` extend (never replace) the built-in agents. Each custom agent maps to one of the four core `subagent_type` values: `Explore`, `Plan`, `Bash`, or `general-purpose`.
+Custom agents from `.mission-control/settings.md` extend (never replace) the built-in agents. Each custom agent maps to one of the four core `subagent_type` values: `Explore`, `Plan`, `Bash`, or `general-purpose`. Never apply the `mission-control:*` prefix to custom agents — only built-in agents have registered agent files under that namespace.
 
-Output the merged registry:
+Output the merged registry, including the exact `subagent_type` to use for each agent:
 
 ```
 AGENT REGISTRY
 ---------------------------------------------------------------------
-Built-in:  mission-planner | researcher | implementer | reviewer | retrospective
-Custom:    [list from project settings, or "none"]
+Built-in:
+  mission-planner  → mission-control:mission-planner
+  researcher       → mission-control:researcher
+  implementer      → mission-control:implementer  (isolated worktree)
+  reviewer         → mission-control:reviewer
+  retrospective    → mission-control:retrospective
+Custom:
+  [agent-name]     → [subagent_type from settings]  (or "none")
 ---------------------------------------------------------------------
 ```
 
@@ -131,12 +137,12 @@ Custom:    [list from project settings, or "none"]
 
 Choose the planning depth based on task size:
 
-| Depth  | When to Use                              | What It Produces                           |
-|--------|------------------------------------------|--------------------------------------------|
-| skip   | 1 file, trivial change                   | Directly execute, no task graph needed      |
-| lite   | 2-3 files, straightforward               | Flat task list, minimal dependencies        |
-| spec   | 4+ files, moderate complexity            | Full task graph with dependencies and waves |
-| full   | Architectural changes, cross-cutting work | Detailed spec document + task graph + risk analysis |
+| Depth | When to Use                               | What It Produces                                    |
+| ----- | ----------------------------------------- | --------------------------------------------------- |
+| skip  | 1 file, trivial change                    | Directly execute, no task graph needed              |
+| lite  | 2-3 files, straightforward                | Flat task list, minimal dependencies                |
+| spec  | 4+ files, moderate complexity             | Full task graph with dependencies and waves         |
+| full  | Architectural changes, cross-cutting work | Detailed spec document + task graph + risk analysis |
 
 If `skip` depth is selected, bypass the rest of the orchestration workflow. Execute the change directly with tools. For all other depths, continue.
 
@@ -157,6 +163,7 @@ TASK [ID]: [Name]
 ```
 
 Rules for task cards:
+
 - Every task must have exactly one agent type.
 - File ownership must not overlap between concurrent tasks. If two tasks need the same file, they must be sequential.
 - Implementation tasks must depend on their corresponding research tasks.
@@ -253,13 +260,13 @@ Reference `references/orchestration-patterns.md` for detailed examples of each p
 
 Select the execution mode based on mission characteristics:
 
-| Mission Characteristics                          | Execution Mode                            |
-|--------------------------------------------------|-------------------------------------------|
-| Sequential work or same files                    | Direct tools (no subagents)               |
-| 2-3 independent read-only queries                | Standalone subagents (no team)            |
-| Parallel work (3+ agents or any writes)          | **Agent-team (DEFAULT)**                  |
-| Parallel work + agent-to-agent coordination      | Agent-team with peer messaging            |
-| High risk (Tier 2+)                              | Agent-team + dedicated reviewer teammate  |
+| Mission Characteristics                     | Execution Mode                           |
+| ------------------------------------------- | ---------------------------------------- |
+| Sequential work or same files               | Direct tools (no subagents)              |
+| 2-3 independent read-only queries           | Standalone subagents (no team)           |
+| Parallel work (3+ agents or any writes)     | **Agent-team (DEFAULT)**                 |
+| Parallel work + agent-to-agent coordination | Agent-team with peer messaging           |
+| High risk (Tier 2+)                         | Agent-team + dedicated reviewer teammate |
 
 Default to agent-team mode. Only use standalone subagents for trivial fan-out of 2-3 read-only research agents where no coordination is needed. Only use direct tools for `skip` planning depth.
 
@@ -308,6 +315,7 @@ For each agent, write a self-contained prompt that includes:
 6. **Task management** — "Claim your task via TaskUpdate when starting. Mark it completed when done."
 
 Choose the right model per agent:
+
 - `haiku` — Simple searches, running commands, straightforward tasks.
 - `sonnet` — Moderate complexity, most implementation work (default).
 - `opus` — Complex reasoning, architecture decisions, security review.
@@ -460,7 +468,6 @@ extractedAt: <ISO-8601>
 confidence: high | medium | low
 category: pattern | gotcha | architecture | tooling | prompt
 ---
-
 # Learning Title
 
 [Structured description of the learning with specific details and examples.]
