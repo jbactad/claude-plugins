@@ -19,13 +19,12 @@ You are coordinating a multi-agent mission. Follow this 7-step workflow precisel
 
 ### 1a. Load Settings
 
-Before scoping, load configuration from all available sources. Read in this order (later sources override earlier):
+Before scoping, load configuration from available sources:
 
-1. Read `~/.mission-control/settings.md` — organization-level defaults (defaultModel, maxConcurrentAgents, requireApproval, retryOnFailure, maxRetries, escalateModelOnRetry, autoReview, autoTest, autoLearn, memoryEnabled).
-2. Read `.mission-control/settings.md` — project-level overrides (same fields plus testCommand, devCommand, useWorktrees, custom agent types).
-3. If neither file exists, proceed with built-in defaults: model=sonnet, maxConcurrentAgents=3, requireApproval=tier2+, retryOnFailure=true, maxRetries=2, escalateModelOnRetry=true, autoReview=true, autoTest=true, autoLearn=true, memoryEnabled=true.
+1. Read `.mission-control/settings.md` — project-level settings (defaultModel, maxConcurrentAgents, requireApproval, retryOnFailure, maxRetries, escalateModelOnRetry, autoReview, autoTest, autoLearn, memoryEnabled, testCommand, devCommand, useWorktrees, custom agent types).
+2. If the file does not exist, proceed with built-in defaults: model=sonnet, maxConcurrentAgents=3, requireApproval=tier2+, retryOnFailure=true, maxRetries=2, escalateModelOnRetry=true, autoReview=true, autoTest=true, autoLearn=true, memoryEnabled=true.
 
-Merge settings. Project wins over organization. Mission-level overrides (from user request or playbook) win over project.
+Mission-level overrides (from user request or playbook) win over project settings.
 
 ### 1b. Load Learnings
 

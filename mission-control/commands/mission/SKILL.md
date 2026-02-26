@@ -32,13 +32,9 @@ Capture the user's response as the mission goal. If they selected a category pre
 
 ### Step 2: Load Settings
 
-Read settings from two locations and merge them. Project settings override organization defaults for any key present in both.
+Read settings from the project settings file.
 
-1. **Organization defaults**: Read `~/.mission-control/settings.md`. Parse the YAML frontmatter to extract default settings. If the file does not exist, use built-in defaults.
-
-2. **Project overrides**: Read `.mission-control/settings.md`. Parse the YAML frontmatter to extract project-specific settings. If the file does not exist, use organization defaults only.
-
-3. **Merge**: For each setting key, the project value wins if present. Otherwise the org value applies. If neither exists, use built-in defaults.
+1. **Project settings**: Read `.mission-control/settings.md`. Parse the YAML frontmatter to extract settings. If the file does not exist, use built-in defaults.
 
 **Built-in defaults** (used when no settings files exist):
 
