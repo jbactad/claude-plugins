@@ -245,13 +245,13 @@ Load the specified playbook and launch a mission with it.
 
 #### Step 1: Find the Playbook
 
-Search for the playbook by name:
+Search for the playbook by name in this exact order. **Do NOT report "not found" until all three steps have been attempted.**
 
-1. Check built-in playbooks first. Match against: `full-stack-feature`, `bug-investigation`, `refactoring`, `security-audit`, `migration`.
-2. Check `.mission-control/playbooks/{name}.md`.
-3. If not found, check `.mission-control/playbooks/` for partial name matches.
+1. Check built-in playbooks. Match against: `full-stack-feature`, `bug-investigation`, `refactoring`, `security-audit`, `migration`. If matched, use the built-in definition below — skip steps 2 and 3.
+2. **Always check `.mission-control/playbooks/{name}.md` if step 1 did not match.** Read the file if it exists and use it as the playbook definition.
+3. If step 2 found no file, check `.mission-control/playbooks/` for any `.md` files whose filename contains the requested name as a substring.
 
-If the playbook is not found, report:
+Only after completing all three steps without a match, report:
 
 ```
 Playbook "[name]" not found.
