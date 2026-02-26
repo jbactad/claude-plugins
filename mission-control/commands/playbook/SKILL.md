@@ -122,21 +122,51 @@ Parse the comma-separated list into individual phase names.
 
 #### Step 3: Agent Assignments
 
-For each phase, ask which agent type should handle it:
+**Discover available agents:**
+
+Read `.claude/agents/*.md` and extract `name` and `description` from each file's YAML frontmatter. These are project agents and have **higher precedence** than built-in agents. Built-in agents are fallbacks only:
+
+- `researcher` — Read-only exploration and analysis
+- `mission-planner` — Goal decomposition and planning
+- `implementer` — Code writing and file creation
+- `reviewer` — Quality assurance and validation
+- `retrospective` — Learning extraction
+
+**Infer agent assignments:**
+
+For each phase, infer the best agent by matching the phase name against agent names and descriptions. **Always prefer a project agent over a built-in if the project agent's name or description is a plausible match.** Only fall back to built-ins when no project agent fits.
+
+Use these keywords as signals when no project agent matches:
+
+| Phase name keywords | Built-in fallback |
+|---|---|
+| research, explore, investigate, discover, audit, scan, trace, analyze | `researcher` |
+| plan, design, architect, decompose, spec, strategy | `mission-planner` |
+| implement, build, code, fix, migrate, execute, create, develop, write | `implementer` |
+| review, verify, validate, test, check, qa, regression | `reviewer` |
+| debrief, retrospective, learn, extract, summarize | `retrospective` |
+
+**Present inferred assignments for confirmation:**
+
+Display all phases with their inferred agents and ask the user to approve or override:
 
 ```
+Here are the proposed agent assignments:
+
+  Phase 1: [Name] → [agent]  ([project agent] / built-in fallback)
+  Phase 2: [Name] → [agent]
+  ...
+
 AskUserQuestion:
-  question: "Which agent should handle the '[phase-name]' phase?"
+  question: "Do these agent assignments look right?"
   options:
-    - "researcher — Read-only exploration and analysis"
-    - "mission-planner — Goal decomposition and planning"
-    - "implementer — Code writing and file creation"
-    - "reviewer — Quality assurance and validation"
-    - "retrospective — Learning extraction"
-    - "Custom agent (defined in project settings)"
+    - "Looks good, confirm all"
+    - "Change Phase 1: [Name]"
+    - "Change Phase 2: [Name]"
+    ...
 ```
 
-If the user selects "Custom agent", ask them to specify the custom agent type name.
+If the user selects a phase to change, present the full agent list with **project agents listed first**, then built-ins. Repeat until the user confirms all assignments.
 
 #### Step 4: Phase Dependencies
 
