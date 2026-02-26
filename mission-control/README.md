@@ -94,9 +94,6 @@ See `examples/project-settings-example.md` for a complete settings reference wit
 Settings cascade through four levels. Each level overrides the one above it:
 
 ```
-Organization defaults  (~/.mission-control/settings.md)
-    |
-    v  overridden by
 Project settings       (.mission-control/settings.md)
     |
     v  overridden by

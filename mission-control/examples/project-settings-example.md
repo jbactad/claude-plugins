@@ -2,10 +2,7 @@
 
 Copy this file to `.mission-control/settings.md` in your project root and adjust
 settings to match your project's needs. Mission Control reads this file at the start
-of every mission and merges these settings with organization-level defaults from
-`~/.mission-control/settings.md`.
-
-Project settings override organization defaults for any key present in both files.
+of every mission.
 
 ---
 
