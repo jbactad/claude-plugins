@@ -1,0 +1,8 @@
+{
+  "name": "essentials",
+  "description": "Essential Claude Code skills and commands for everyday workflows — CLAUDE.md management, quality auditing, and session learning capture.",
+  "version": "0.1.0",
+  "author": {
+    "name": "jbactad"
+  }
+}

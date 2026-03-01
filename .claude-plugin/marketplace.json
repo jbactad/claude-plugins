@@ -13,6 +13,11 @@
       "name": "mission-control",
       "source": "./mission-control",
       "description": "Autonomous AI orchestration engine — decomposes goals into tasks, executes with specialized agents, learns from outcomes, and delivers results with minimal human intervention."
+    },
+    {
+      "name": "essentials",
+      "source": "./essentials",
+      "description": "Essential Claude Code skills and commands for everyday workflows — CLAUDE.md management, quality auditing, and session learning capture."
     }
   ]
 }
