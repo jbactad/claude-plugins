@@ -170,6 +170,14 @@ Rules for task cards:
 - Reviewer tasks must depend on the implementation they review.
 - Tasks with no dependencies form the first wave and launch in parallel.
 
+After listing all subtasks, create each one in the persistent task store:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T1 --name "Task name" --agent researcher --model haiku --wave 1 --deliverable "Description" --dependencies T2,T3
+```
+
+Repeat for every task in the plan. Tasks are now persisted as individual files in `.mission-control/missions/tasks/` and survive session restarts.
+
 ### 3d. Identify Waves
 
 Group tasks into execution waves based on dependencies:
@@ -313,6 +321,10 @@ For each agent, write a self-contained prompt that includes:
 4. **Expected output format** — What the deliverable looks like (report, code, review verdict).
 5. **Constraints** — Forbidden actions, file ownership boundaries, risk tier.
 6. **Task management** — "Claim your task via TaskUpdate when starting. Mark it completed when done."
+7. **Task state management** — "Update your task status using the task-manager CLI:
+   - When starting: `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T{id} --status in_progress`
+   - When done: `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T{id} --status completed --result 'Summary of what you delivered'`
+   - If blocked: `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T{id} --status blocked --result 'What is blocking you'`"
 
 Choose the right model per agent:
 
@@ -338,11 +350,12 @@ Save the mission state to `.mission-control/missions/active.json`. Include the m
   "settings": { ... },
   "pattern": "<pattern>",
   "riskTier": <tier>,
-  "tasks": [ ... ],
   "log": [],
   "playbook": "<playbook name or null>"
 }
 ```
+
+Tasks are stored individually in `.mission-control/missions/tasks/`. Use `node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list` to read all tasks.
 
 ### Standalone Subagent Fallback
 
@@ -371,7 +384,21 @@ Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "
 
 ### 6a. Track Progress
 
-Use `TaskList` to check team progress after each wave. Teammates send messages when they complete tasks or need help.
+Use the task-manager to check progress:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js stats
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list --status in_progress
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list --status blocked
+```
+
+Or display the full visual board:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/mission-board.js
+```
+
+Teammates send messages when they complete tasks or need help.
 
 ### 6b. Produce Checkpoint Reports
 
@@ -475,9 +502,11 @@ category: pattern | gotcha | architecture | tooling | prompt
 
 ### 7d. Archive Mission State
 
-1. Move `.mission-control/missions/active.json` to `.mission-control/missions/archive/<mission-id>.json`.
-2. Update the archive entry with the completion summary, final task statuses, and extracted learnings.
-3. The active mission file is now cleared. A new mission can begin.
+1. Create `.mission-control/missions/archive/<mission-id>/` directory.
+2. Move `.mission-control/missions/active.json` to `.mission-control/missions/archive/<mission-id>/mission.json`.
+3. Move `.mission-control/missions/tasks/` to `.mission-control/missions/archive/<mission-id>/tasks/`.
+4. Update the archived mission.json with the completion summary, final task statuses, and extracted learnings.
+5. The active mission file and tasks directory are now cleared. A new mission can begin.
 
 ### 7e. Clean Up
 
@@ -693,6 +722,20 @@ Rationale:      4 independent research tasks fan out, then sequential plan/imple
 
 ### Step 5 — Launch
 
+First, create all tasks in the persistent store:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T1 --name "Find existing settings/preferences patterns" --agent researcher --model haiku --wave 1 --deliverable "List of files implementing settings UI with code snippets"
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T2 --name "Find routing config and layout components" --agent researcher --model haiku --wave 1 --deliverable "Routing file paths and layout component structure"
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T3 --name "Find current theme/dark-mode implementation" --agent researcher --model haiku --wave 1 --deliverable "Theme system architecture and toggle mechanism"
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T4 --name "Find i18n/language configuration" --agent researcher --model haiku --wave 1 --deliverable "i18n setup, language switching, namespace registration"
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T5 --name "Design preferences page architecture" --agent mission-planner --model sonnet --wave 2 --deliverable "Implementation plan with file structure and component hierarchy" --dependencies T1,T2,T3,T4
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T6 --name "Implement preferences data model and API" --agent implementer --model sonnet --wave 3 --deliverable "API endpoint, data model, persistence layer" --dependencies T5
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T7 --name "Implement preferences UI page" --agent implementer --model sonnet --wave 3 --deliverable "React component with dark mode, language, notification sections" --dependencies T5
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T8 --name "Review i18n integration" --agent reviewer --model sonnet --wave 4 --deliverable "Review report — PASS / PASS WITH NOTES / FAIL" --dependencies T7
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T9 --name "Run tests and type checks" --agent implementer --model haiku --wave 5 --deliverable "Test results and type check output — all green" --dependencies T6,T7,T8
+```
+
 **Wave 1:** Launch Tasks 1-4 in a single message with 4 `Task` tool calls:
 
 ```
@@ -708,6 +751,10 @@ Task(team_name: "preferences-feature", name: "researcher-settings", subagent_typ
   Task: Find all existing settings or preferences UI patterns in this project.
   Search for: settings pages, preferences components, user configuration UI.
   Report: file paths, component structure, state management approach, API patterns used.
+  Task state management:
+    - When starting: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T1 --status in_progress
+    - When done: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T1 --status completed --result 'Found settings patterns in: ...'
+    - If blocked: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T1 --status blocked --result 'What is blocking you'
   Claim task 'Find settings/preferences patterns' via TaskUpdate. Mark completed when done.")
 
 Task(team_name: "preferences-feature", name: "researcher-routing", subagent_type: "Explore", model: "haiku",
@@ -715,6 +762,10 @@ Task(team_name: "preferences-feature", name: "researcher-routing", subagent_type
   Task: Find the routing configuration and layout components.
   Search for: route definitions, layout wrappers, navigation components, page templates.
   Report: exact file paths, how new routes are added, which layout wraps authenticated pages.
+  Task state management:
+    - When starting: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T2 --status in_progress
+    - When done: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T2 --status completed --result 'Routing config found at: ...'
+    - If blocked: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T2 --status blocked --result 'What is blocking you'
   Claim task 'Find routing config' via TaskUpdate. Mark completed when done.")
 
 Task(team_name: "preferences-feature", name: "researcher-theme", subagent_type: "Explore", model: "haiku",
@@ -722,6 +773,10 @@ Task(team_name: "preferences-feature", name: "researcher-theme", subagent_type: 
   Task: Find the current theme and dark mode implementation.
   Search for: theme provider, dark mode toggle, CSS variables, theme context.
   Report: architecture of the theme system, how to toggle dark mode, where theme state is stored.
+  Task state management:
+    - When starting: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T3 --status in_progress
+    - When done: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T3 --status completed --result 'Theme system found at: ...'
+    - If blocked: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T3 --status blocked --result 'What is blocking you'
   Claim task 'Find theme/dark-mode implementation' via TaskUpdate. Mark completed when done.")
 
 Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "Explore", model: "haiku",
@@ -729,6 +784,10 @@ Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "
   Task: Find the i18n and language configuration.
   Search for: i18n provider, translation files, language switching, namespace registration.
   Report: i18n library used, how translations are organized, how to add a new namespace, how language selection is persisted.
+  Task state management:
+    - When starting: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T4 --status in_progress
+    - When done: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T4 --status completed --result 'i18n config found at: ...'
+    - If blocked: node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T4 --status blocked --result 'What is blocking you'
   Claim task 'Find i18n configuration' via TaskUpdate. Mark completed when done.")
 ```
 
@@ -737,6 +796,20 @@ Save mission state to `.mission-control/missions/active.json`.
 ### Step 6 — Monitor
 
 **After Wave 1 completes:**
+
+Check progress using the task-manager CLI:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js stats
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list --status in_progress
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list --status blocked
+```
+
+Or display the full visual board:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/mission-board.js
+```
 
 ```
 CHECKPOINT REPORT
@@ -793,7 +866,7 @@ Lessons Learned:
 
 Retrospective agent spawned (autoLearn=true). Learning extracted: "Always register i18n namespaces before implementing components that use translations."
 
-Mission state archived to `.mission-control/missions/archive/mission-<id>.json`. Active mission cleared.
+Mission state archived to `.mission-control/missions/archive/mission-<id>/mission.json` and tasks archived to `.mission-control/missions/archive/mission-<id>/tasks/`. Active mission and tasks directory cleared.
 
 ---
 
