@@ -179,5 +179,5 @@ After creating all files, verify:
 
 ### Reference Files
 
-- **`references/directory-structure.md`** — Complete `.automaker/` directory tree with every file and subdirectory documented, including runtime-generated files
-- **`references/settings-schema.md`** — Full `ProjectSettings` interface documentation with all fields, types, defaults, and usage examples
+- For the complete `.automaker/` directory tree with every file and subdirectory documented, including runtime-generated files, see [references/directory-structure.md](references/directory-structure.md)
+- For the full `ProjectSettings` interface documentation with all fields, types, defaults, and usage examples, see [references/settings-schema.md](references/settings-schema.md)

@@ -32,7 +32,7 @@ If `memoryEnabled` is true and `.mission-control/memory/` exists, read all `.md`
 
 ### 1c. Check for Matching Playbook
 
-Check `.mission-control/playbooks/` for project-specific playbooks. Also check built-in playbooks provided by this plugin (see `references/orchestration-patterns.md` for pattern-based templates). If a playbook matches the mission type (full-stack-feature, bug-investigation, refactoring, security-audit, migration), suggest it to the user:
+Check `.mission-control/playbooks/` for project-specific playbooks. Also check built-in playbooks provided by this plugin (see [references/orchestration-patterns.md](references/orchestration-patterns.md) for pattern-based templates). If a playbook matches the mission type (full-stack-feature, bug-investigation, refactoring, security-audit, migration), suggest it to the user:
 
 ```
 PLAYBOOK MATCH: "full-stack-feature"
@@ -68,7 +68,7 @@ If the user's request is ambiguous, ask one clarifying question. Do not ask more
 
 ### 2a. Classify Risk
 
-Assign a risk tier (0-3) to the overall mission and to each subtask you will create in Step 3. Reference `references/risk-tiers.md` for full tier definitions and the failure-mode checklist.
+Assign a risk tier (0-3) to the overall mission and to each subtask you will create in Step 3. Reference [references/risk-tiers.md](references/risk-tiers.md) for full tier definitions and the failure-mode checklist.
 
 | Tier | Name     | Criteria                                                         | Required Controls                                                            |
 | ---- | -------- | ---------------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -146,7 +146,7 @@ Choose the planning depth based on task size:
 
 If `skip` depth is selected, bypass the rest of the orchestration workflow. Execute the change directly with tools. For all other depths, continue.
 
-Reference `references/task-decomposition.md` for dependency graph construction, parallel grouping, critical path identification, and Kahn's algorithm for topological ordering.
+Reference [references/task-decomposition.md](references/task-decomposition.md) for dependency graph construction, parallel grouping, critical path identification, and Kahn's algorithm for topological ordering.
 
 ### 3c. List Subtasks
 
@@ -254,7 +254,7 @@ Use when: retryOnFailure is true in settings. Applied automatically when an agen
 Agent A (haiku) -> [fail] -> Agent A' (sonnet) -> [fail] -> Agent A'' (opus) -> [fail] -> Escalate to user
 ```
 
-Reference `references/orchestration-patterns.md` for detailed examples of each pattern.
+Reference [references/orchestration-patterns.md](references/orchestration-patterns.md) for detailed examples of each pattern.
 
 ### 4b. Choose Execution Mode
 
@@ -799,7 +799,7 @@ Mission state archived to `.mission-control/missions/archive/mission-<id>.json`.
 
 ## References
 
-- **`references/risk-tiers.md`** — Full tier definitions (0-3), required controls per tier, and the failure-mode checklist for Tier 1+ tasks.
-- **`references/task-decomposition.md`** — Dependency graph construction, parallel grouping, critical path identification, Kahn's algorithm for topological ordering, and planning depth selection criteria.
-- **`references/orchestration-patterns.md`** — Detailed descriptions and examples for all 7 orchestration patterns: Fan-Out/Fan-In, Pipeline, Explore-Then-Act, Competitive, Iterative Refinement, Supervisor with Workers, and Adaptive Retry.
-- **`references/templates.md`** — Reusable templates for mission scope, task cards, checkpoint reports, and completion summaries.
+- For full tier definitions (0-3), required controls per tier, and the failure-mode checklist for Tier 1+ tasks, see [references/risk-tiers.md](references/risk-tiers.md)
+- For dependency graph construction, parallel grouping, critical path identification, Kahn's algorithm for topological ordering, and planning depth selection criteria, see [references/task-decomposition.md](references/task-decomposition.md)
+- For detailed descriptions and examples for all 7 orchestration patterns: Fan-Out/Fan-In, Pipeline, Explore-Then-Act, Competitive, Iterative Refinement, Supervisor with Workers, and Adaptive Retry, see [references/orchestration-patterns.md](references/orchestration-patterns.md)
+- For reusable templates for mission scope, task cards, checkpoint reports, and completion summaries, see [references/templates.md](references/templates.md)

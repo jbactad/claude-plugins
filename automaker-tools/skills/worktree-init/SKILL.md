@@ -106,5 +106,5 @@ echo "=== Init complete ==="
 
 ### Reference Files
 
-- **`references/init-script-patterns.md`** — Complete script templates for Node.js, Python, Go, Rust, Ruby, Docker, and monorepo projects
-- **`references/environment-variables.md`** — Full documentation of available and excluded environment variables with security considerations
+- For complete script templates for Node.js, Python, Go, Rust, Ruby, Docker, and monorepo projects, see [references/init-script-patterns.md](references/init-script-patterns.md)
+- For full documentation of available and excluded environment variables with security considerations, see [references/environment-variables.md](references/environment-variables.md)

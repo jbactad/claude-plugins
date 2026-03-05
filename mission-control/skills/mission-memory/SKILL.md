@@ -51,7 +51,7 @@ The extraction process:
 4. Extract prompt patterns (did any prompting techniques improve or degrade output quality?).
 5. Identify gotchas (traps or unexpected behaviors that wasted time).
 
-See `references/learning-extraction.md` for the full extraction process and examples.
+See [references/learning-extraction.md](references/learning-extraction.md) for the full extraction process and examples.
 
 ## How Learnings Are Loaded
 
@@ -80,7 +80,7 @@ category: <pattern|gotcha|architecture|tooling|prompt>
 
 The body is a markdown description of the learning. It should be concise (1-3 paragraphs), specific (include file paths and commands where applicable), and actionable (tell the agent what to do or avoid).
 
-See `references/memory-format.md` for the full schema, field-by-field documentation, and examples for each category.
+See [references/memory-format.md](references/memory-format.md) for the full schema, field-by-field documentation, and examples for each category.
 
 ## Manually Creating or Editing Memory Files
 
@@ -99,5 +99,5 @@ To remove a learning, delete the file.
 
 ## References
 
-- `references/memory-format.md` -- Full schema documentation, field guidelines, and examples for each category.
-- `references/learning-extraction.md` -- How the retrospective agent extracts learnings, deduplication, confidence assignment, and examples of good vs bad extractions.
+- For full schema documentation, field guidelines, and examples for each category, see [references/memory-format.md](references/memory-format.md)
+- For how the retrospective agent extracts learnings, deduplication, confidence assignment, and examples of good vs bad extractions, see [references/learning-extraction.md](references/learning-extraction.md)

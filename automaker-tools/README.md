@@ -1,4 +1,4 @@
-# automaker-skills
+# automaker-tools
 
 Claude Code plugin providing specialized skills for working with [Automaker](https://github.com/AutoMaker-Org/automaker) projects.
 
@@ -19,7 +19,7 @@ Add the marketplace and install the plugin:
 
 ```
 /plugin marketplace add jbactad/claude-plugins
-/plugin install automaker-skills@jbactad-claude-plugins
+/plugin install automaker-tools@jbactad-claude-plugins
 ```
 
 ## Usage

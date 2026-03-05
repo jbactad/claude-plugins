@@ -117,5 +117,5 @@ Apply these optimization techniques:
 
 ### Reference Files
 
-- **`references/context-patterns.md`** — Detailed templates for React, Express, monorepo, Python, and other project types with complete CLAUDE.md examples
-- **`references/metadata-format.md`** — Full `context-metadata.json` schema and description writing guide
+- For detailed templates for React, Express, monorepo, Python, and other project types with complete CLAUDE.md examples, see [references/context-patterns.md](references/context-patterns.md)
+- For the full `context-metadata.json` schema and description writing guide, see [references/metadata-format.md](references/metadata-format.md)

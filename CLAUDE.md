@@ -8,7 +8,7 @@ Claude Code plugin marketplace by jbactad. Hosts reusable plugins with skills, c
 claude-plugins/
 ├── .claude-plugin/
 │   └── marketplace.json       # Marketplace manifest — lists all plugins
-├── automaker-skills/          # Plugin: Automaker project optimization skills
+├── automaker-tools/          # Plugin: Automaker project optimization skills
 │   ├── .claude-plugin/plugin.json
 │   └── skills/                # 6 skills, each with SKILL.md + references/
 ├── mission-control/           # Plugin: Autonomous AI orchestration engine

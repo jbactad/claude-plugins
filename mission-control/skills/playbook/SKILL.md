@@ -25,7 +25,7 @@ Five playbooks ship with mission-control:
 4. **security-audit** -- For reviewing security posture. Four parallel research phases (dependencies, auth, input validation, data handling) followed by a consolidated report.
 5. **migration** -- For migrating between technologies or versions. Assesses scope, plans with rollback points, executes incrementally, verifies, and cleans up.
 
-See `references/built-in-playbooks.md` for full definitions of each playbook including phase tables, default settings, and success criteria.
+See [references/built-in-playbooks.md](references/built-in-playbooks.md) for full definitions of each playbook including phase tables, default settings, and success criteria.
 
 ## Usage
 
@@ -74,11 +74,11 @@ Project playbooks override built-in playbooks of the same name. If you want to c
 When the orchestrator runs Step 3 (task decomposition), it checks whether a playbook is active:
 
 1. **With a playbook**: The playbook's phases become the task decomposition skeleton. The mission planner fills in task-specific details (file ownership, acceptance criteria, exact prompts) but follows the phase ordering, agent assignments, and parallelism rules defined in the playbook.
-2. **Without a playbook**: The mission planner decomposes the goal from scratch, choosing its own phase structure, agent types, and parallelism strategy based on the orchestration patterns in `references/orchestration-patterns.md`.
+2. **Without a playbook**: The mission planner decomposes the goal from scratch, choosing its own phase structure, agent types, and parallelism strategy based on the orchestration patterns in [references/orchestration-patterns.md](references/orchestration-patterns.md).
 
 Playbooks and orchestration patterns are complementary. A playbook pre-selects which orchestration pattern to use (e.g., `full-stack-feature` uses a Pipeline pattern, `security-audit` uses Fan-Out/Fan-In), while orchestration patterns are the lower-level building blocks that the planner can combine freely when no playbook is active.
 
 ## References
 
-- `references/built-in-playbooks.md` -- Full definitions of all five built-in playbooks.
-- `references/playbook-schema.md` -- File format specification for creating custom playbooks.
+- For full definitions of all five built-in playbooks, see [references/built-in-playbooks.md](references/built-in-playbooks.md)
+- For file format specification for creating custom playbooks, see [references/playbook-schema.md](references/playbook-schema.md)

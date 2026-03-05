@@ -5,8 +5,8 @@
   },
   "plugins": [
     {
-      "name": "automaker-skills",
-      "source": "./automaker-skills",
+      "name": "automaker-tools",
+      "source": "./automaker-tools",
       "description": "Claude Code skills for working with Automaker projects — context optimization, feature management, memory, specs, worktrees, and project initialization."
     },
     {

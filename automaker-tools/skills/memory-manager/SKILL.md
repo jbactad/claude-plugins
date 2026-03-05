@@ -24,7 +24,7 @@ The Automaker memory system persists learnings across feature implementations so
 The function `loadRelevantMemory(projectPath, featureTitle, featureDescription, fsModule)` in `@automaker/utils` drives memory selection:
 
 1. Skip `_index.md` (excluded from scoring and loading — use it only as human-readable project documentation)
-2. Score each `.md` file using weighted term matching against the feature title and description (see `references/scoring-algorithm.md` for the complete algorithm)
+2. Score each `.md` file using weighted term matching against the feature title and description (see [references/scoring-algorithm.md](references/scoring-algorithm.md) for the complete algorithm)
 3. Include files with `score > 0` or `importance >= 0.9`
 4. Sort by score, select the top 5 files
 5. Always include `gotchas.md` even if not scored
@@ -38,7 +38,7 @@ Supporting functions:
 
 ### Frontmatter Structure
 
-Every memory file requires YAML frontmatter. See `references/memory-format.md` for the complete field specification.
+Every memory file requires YAML frontmatter. See [references/memory-format.md](references/memory-format.md) for the complete field specification.
 
 ```markdown
 ---
@@ -194,7 +194,7 @@ The scoring algorithm determines which memory files an agent receives. Understan
 
 Usage score uses rate-based formula: `0.5 + (referenced/loaded) * 0.3 + (successfulFeatures/referenced) * 0.2`. New files get a neutral score of 1.0.
 
-Final score: `(tagScore + relevantToScore + summaryScore) * importance * usageScore`. See `references/scoring-algorithm.md` for the complete algorithm with worked examples.
+Final score: `(tagScore + relevantToScore + summaryScore) * importance * usageScore`. See [references/scoring-algorithm.md](references/scoring-algorithm.md) for the complete algorithm with worked examples.
 
 ### Optimizing for Scoring
 
@@ -205,5 +205,5 @@ Final score: `(tagScore + relevantToScore + summaryScore) * importance * usageSc
 
 ## References
 
-- `references/memory-format.md` — Complete YAML frontmatter specification with field-by-field documentation
-- `references/scoring-algorithm.md` — Full scoring algorithm with weight factors and worked examples
+- For the complete YAML frontmatter specification with field-by-field documentation, see [references/memory-format.md](references/memory-format.md)
+- For the full scoring algorithm with weight factors and worked examples, see [references/scoring-algorithm.md](references/scoring-algorithm.md)

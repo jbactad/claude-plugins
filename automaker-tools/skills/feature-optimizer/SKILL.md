@@ -181,40 +181,42 @@ When using auto-mode to execute multiple features:
 
 ### Feature Discovery and Bulk Operations
 
-Use `scripts/features.py` for feature discovery, filtering, and bulk updates. Run from any directory inside the project (it walks up to find `.automaker/features/`).
+`features.py` is bundled with this skill. Use `${CLAUDE_SKILL_DIR}` to reference it.
+
+Run from any directory inside the project — the script walks up to find `.automaker/features/`.
 
 ```bash
 # List features by status or category
-python3 scripts/features.py list --status=pending
-python3 scripts/features.py list --category=Core
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --status=pending
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --category=Core
 
 # Filter by any field
-python3 scripts/features.py list --field=requirePlanApproval:true
-python3 scripts/features.py list --field=planningMode:skip
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --field=requirePlanApproval:true
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --field=planningMode:skip
 
 # Summary statistics (statuses, categories, planning modes)
-python3 scripts/features.py stats
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py stats
 
 # Bulk update matching features (always --dry-run first)
-python3 scripts/features.py update --filter=status:backlog --set=planningMode:skip --dry-run
-python3 scripts/features.py update --filter=status:backlog --set=requirePlanApproval:false
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py update --filter=status:backlog --set=planningMode:skip --dry-run
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py update --filter=status:backlog --set=requirePlanApproval:false
 
 # Get full JSON of a single feature
-python3 scripts/features.py get cache-policy
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py get cache-policy
 
 # Output formats: table (default), json, ids
-python3 scripts/features.py list --status=pending --format=ids
+python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --status=pending --format=ids
 ```
 
-Always use `scripts/features.py` instead of writing ad-hoc discovery scripts.
+Always use this bundled script instead of writing ad-hoc discovery scripts.
 
 ## Additional Resources
 
 ### Reference Files
 
-- **`references/feature-schema.md`** — Complete `Feature` TypeScript interface with all fields documented, including `PlanSpec`, `ParsedTask`, `DescriptionHistoryEntry`, and export/import types
-- **`references/planning-modes.md`** — Detailed comparison of planning modes with examples, token usage estimates, and decision flowchart for selecting the right mode
+- For the complete `Feature` TypeScript interface with all fields documented, including `PlanSpec`, `ParsedTask`, `DescriptionHistoryEntry`, and export/import types, see [references/feature-schema.md](references/feature-schema.md)
+- For detailed comparison of planning modes with examples, token usage estimates, and decision flowchart for selecting the right mode, see [references/planning-modes.md](references/planning-modes.md)
 
 ### Scripts
 
-- **`scripts/features.py`** — Feature discovery, filtering, statistics, and bulk update operations
+- For feature discovery, filtering, statistics, and bulk update operations, see [scripts/features.py](scripts/features.py)

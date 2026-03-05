@@ -29,7 +29,7 @@ Both files live in the `.automaker/` directory at the project root. The `app_spe
 
 ## The SpecOutput Schema
 
-Automaker's structured output uses the `SpecOutput` interface. Refer to `references/spec-schema.md` for the complete schema definition with field-by-field guidance.
+Automaker's structured output uses the `SpecOutput` interface. Refer to [references/spec-schema.md](references/spec-schema.md) for the complete schema definition with field-by-field guidance.
 
 **Required fields:** `project_name`, `overview`, `technology_stack`, `core_capabilities`, `implemented_features`
 
@@ -88,7 +88,7 @@ The spec generation model (default: Opus) produces a `SpecOutput` JSON object vi
 
 ## Optimization Techniques
 
-Refer to `references/optimization-techniques.md` for detailed before/after examples and anti-pattern catalog.
+Refer to [references/optimization-techniques.md](references/optimization-techniques.md) for detailed before/after examples and anti-pattern catalog.
 
 ### Write for AI Comprehension
 
