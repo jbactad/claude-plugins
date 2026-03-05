@@ -14,19 +14,33 @@ if [ ! -f "$MISSION_FILE" ]; then
   exit 0
 fi
 
-# Use node to parse JSON and produce a human-readable summary
+# Use node to parse mission metadata and task files
 node -e "
   const fs = require('fs');
+  const path = require('path');
   try {
     const data = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
+    const tasksDir = path.join(path.dirname(process.argv[1]), 'tasks');
 
     const name = data.name || 'Unnamed mission';
     const status = data.status || 'unknown';
-    const tasks = data.tasks || [];
-    const total = tasks.length;
-    const completed = tasks.filter(t => t.status === 'completed').length;
-    const inProgress = tasks.filter(t => t.status === 'in_progress');
-    const failed = tasks.filter(t => t.status === 'failed');
+
+    let total = 0, completed = 0;
+    const inProgress = [];
+    const failed = [];
+
+    if (fs.existsSync(tasksDir)) {
+      const files = fs.readdirSync(tasksDir).filter(f => f.match(/^T\d+\.json$/));
+      for (const f of files) {
+        try {
+          const t = JSON.parse(fs.readFileSync(path.join(tasksDir, f), 'utf8'));
+          total++;
+          if (t.status === 'completed') completed++;
+          else if (t.status === 'in_progress') inProgress.push(t.name || t.id);
+          else if (t.status === 'failed') failed.push(t.name || t.id);
+        } catch {}
+      }
+    }
 
     console.log('[Mission Control] Active mission detected:');
     console.log('');
@@ -35,17 +49,16 @@ node -e "
     console.log('  Progress: ' + completed + '/' + total + ' tasks completed');
 
     if (inProgress.length > 0) {
-      console.log('  In Progress: ' + inProgress.map(t => t.name || t.id).join(', '));
+      console.log('  In Progress: ' + inProgress.join(', '));
     }
 
     if (failed.length > 0) {
-      console.log('  Failed: ' + failed.map(t => t.name || t.id).join(', '));
+      console.log('  Failed: ' + failed.join(', '));
     }
 
     console.log('');
-    console.log('Use /checkpoint for full status or /debrief to close the mission.');
+    console.log('Use /checkpoint for full status, /board for task board, or /debrief to close the mission.');
   } catch (e) {
-    // Malformed JSON or read error — exit silently
     process.exit(0);
   }
 " "$MISSION_FILE" 2>/dev/null

@@ -35,13 +35,21 @@ if [ ! -f "$MISSION_FILE" ]; then
   exit 0
 fi
 
-# Count remaining (non-completed) tasks
+# Count remaining (non-completed) tasks from tasks/ directory
 REMAINING=$(node -e "
   const fs = require('fs');
+  const path = require('path');
   try {
-    const d = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
-    const tasks = d.tasks || [];
-    const remaining = tasks.filter(t => t.status !== 'completed').length;
+    const tasksDir = path.join(path.dirname(process.argv[1]), 'tasks');
+    if (!fs.existsSync(tasksDir)) { console.log('0'); process.exit(0); }
+    const files = fs.readdirSync(tasksDir).filter(f => f.match(/^T\d+\.json$/));
+    let remaining = 0;
+    for (const f of files) {
+      try {
+        const t = JSON.parse(fs.readFileSync(path.join(tasksDir, f), 'utf8'));
+        if (t.status !== 'completed' && t.status !== 'cancelled') remaining++;
+      } catch {}
+    }
     console.log(remaining);
   } catch (e) {
     console.log('0');
