@@ -8,7 +8,8 @@ Mission Control takes high-level goals, decomposes them into task dependency gra
 
 - **7-step operational workflow**: Scope, risk assess, decompose, pattern select, launch, monitor, close
 - **5 specialized agents**: mission-planner, researcher, implementer, reviewer, retrospective
-- **4 slash commands**: `/mission`, `/checkpoint`, `/debrief`, `/playbook`
+- **5 slash commands**: `/mission`, `/checkpoint`, `/debrief`, `/playbook`, `/board`
+- **Persistent task management**: File-based task store with individual JSON files per task, CLI tools, and terminal dashboard
 - **Playbooks**: Reusable mission templates for common workflows (full-stack feature, bug investigation, refactoring, security audit, migration)
 - **Mission memory**: Cross-session learnings extracted from completed missions, automatically applied to future work
 - **Adaptive execution**: Model escalation on failure (haiku to sonnet to opus), automatic task splitting, mid-mission replanning
@@ -39,6 +40,7 @@ Mission Control will scope the work, assess risk, decompose it into tasks, assig
 | `/checkpoint` | Produce a status report for the active mission. Shows progress, blockers, budget, and a CONTINUE / RESCOPE / STOP recommendation. |
 | `/debrief` | Close the active mission. Spawns a retrospective agent to extract learnings, archives mission state, and presents a completion summary. |
 | `/playbook [list\|create\|use] [name]` | List available playbooks, create a new one, or launch a mission from a playbook template. |
+| `/board [--view board\|list\|graph\|json] [--watch]` | Display the mission task board with progress, waves, and dependencies. |
 
 ## Agents
 
@@ -57,6 +59,43 @@ Mission Control will scope the work, assess risk, decompose it into tasks, assig
 | `orchestrate` | Core 7-step workflow for coordinating multiple agents through a structured mission. Auto-invoked when Claude detects multi-agent work is needed. |
 | `playbook-knowledge` | Knowledge about creating and using mission playbooks. Referenced by the `/playbook` command. |
 | `mission-memory-knowledge` | Knowledge about the mission memory system -- how learnings are extracted, scored, stored, and applied. |
+
+## Task Management
+
+Mission Control uses a persistent file-based task store. Each task is an individual JSON file in `.mission-control/missions/tasks/`, enabling concurrent agent access without conflicts.
+
+### Task Manager CLI
+
+```bash
+# Create a task
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --name "Find auth patterns" --agent researcher --model haiku --wave 1
+
+# Update task status
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js update T1 --status completed --result "Found 4 patterns"
+
+# List tasks (with optional filters)
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list --status pending
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list --wave 2
+
+# Get stats, waves, dependency graph, critical path
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js stats
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js waves
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js graph
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js critical-path
+```
+
+### Mission Board
+
+View task progress as a terminal dashboard:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/mission-board.js                # default board view
+node ${CLAUDE_PLUGIN_ROOT}/scripts/mission-board.js --view list    # flat list by status
+node ${CLAUDE_PLUGIN_ROOT}/scripts/mission-board.js --view graph   # dependency graph
+node ${CLAUDE_PLUGIN_ROOT}/scripts/mission-board.js --watch        # live dashboard (2s refresh)
+```
+
+Or use the `/board` command from within Claude.
 
 ## Configuration
 
