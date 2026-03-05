@@ -242,3 +242,130 @@ function getCriticalPath() {
   }
   return criticalPath;
 }
+
+// --- Exports (for use as module) ---
+
+module.exports = {
+  findProjectRoot,
+  getTasksDir,
+  getMissionsDir,
+  ensureDir,
+  createTask,
+  getTask,
+  updateTask,
+  listTasks,
+  getWaves,
+  getStats,
+  getDependencyGraph,
+  getCriticalPath,
+};
+
+// --- CLI Interface ---
+
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const command = args[0];
+
+  function parseFlags(args) {
+    const flags = {};
+    for (let i = 0; i < args.length; i++) {
+      if (args[i].startsWith('--')) {
+        const key = args[i].replace(/^--/, '');
+        const val = (i + 1 < args.length && !args[i + 1].startsWith('--')) ? args[++i] : true;
+        // Handle array values (comma-separated)
+        if (typeof val === 'string' && val.includes(',') && (key === 'dependencies' || key === 'fileOwnership' || key === 'acceptanceCriteria')) {
+          flags[key] = val.split(',').map(s => s.trim());
+        } else {
+          flags[key] = val;
+        }
+      }
+    }
+    return flags;
+  }
+
+  function output(data) {
+    console.log(JSON.stringify(data, null, 2));
+  }
+
+  try {
+    switch (command) {
+      case 'create': {
+        const flags = parseFlags(args.slice(1));
+        const task = createTask({
+          id: flags.id,
+          name: flags.name,
+          agentType: flags.agent || flags.agentType,
+          model: flags.model,
+          riskTier: flags.risk != null ? parseInt(flags.risk, 10) : undefined,
+          dependencies: flags.dependencies || [],
+          fileOwnership: flags.fileOwnership || [],
+          deliverable: flags.deliverable,
+          acceptanceCriteria: flags.acceptanceCriteria || [],
+          wave: flags.wave != null ? parseInt(flags.wave, 10) : undefined,
+          assignedAgent: flags.assignedAgent,
+        });
+        output(task);
+        break;
+      }
+      case 'get': {
+        const id = args[1];
+        if (!id) { console.error('Usage: task-manager get <id>'); process.exit(1); }
+        output(getTask(id));
+        break;
+      }
+      case 'update': {
+        const id = args[1];
+        if (!id) { console.error('Usage: task-manager update <id> --field value'); process.exit(1); }
+        const flags = parseFlags(args.slice(2));
+        // Parse numeric fields
+        if (flags.riskTier != null) flags.riskTier = parseInt(flags.riskTier, 10);
+        if (flags.wave != null) flags.wave = parseInt(flags.wave, 10);
+        if (flags.retryCount != null) flags.retryCount = parseInt(flags.retryCount, 10);
+        output(updateTask(id, flags));
+        break;
+      }
+      case 'list': {
+        const flags = parseFlags(args.slice(1));
+        const filter = {};
+        if (flags.status) filter.status = flags.status;
+        if (flags.wave != null) filter.wave = parseInt(flags.wave, 10);
+        if (flags.agent || flags.agentType) filter.agentType = flags.agent || flags.agentType;
+        output(listTasks(Object.keys(filter).length ? filter : undefined));
+        break;
+      }
+      case 'stats': {
+        output(getStats());
+        break;
+      }
+      case 'waves': {
+        output(getWaves());
+        break;
+      }
+      case 'graph': {
+        output(getDependencyGraph());
+        break;
+      }
+      case 'critical-path': {
+        output(getCriticalPath());
+        break;
+      }
+      default: {
+        console.error('Usage: task-manager <create|get|update|list|stats|waves|graph|critical-path> [args]');
+        console.error('');
+        console.error('Commands:');
+        console.error('  create  --name "..." --agent <type> --model <model> --wave <N>');
+        console.error('  get     <id>');
+        console.error('  update  <id> --status <status> [--result "..."]');
+        console.error('  list    [--status <status>] [--wave <N>] [--agent <type>]');
+        console.error('  stats');
+        console.error('  waves');
+        console.error('  graph');
+        console.error('  critical-path');
+        process.exit(1);
+      }
+    }
+  } catch (err) {
+    console.error('Error: ' + err.message);
+    process.exit(1);
+  }
+}
