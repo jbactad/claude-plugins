@@ -13,6 +13,21 @@ Each feature in Automaker is stored as `.automaker/features/{featureId}/feature.
 
 Features flow through statuses: `pending` → `running` → `completed` (or `failed`) → `verified`.
 
+### Valid Statuses
+
+| Status | Type | Meaning |
+|--------|------|---------|
+| `pending` | Core | Queued, not yet started |
+| `running` | Core | Agent is actively implementing |
+| `completed` | Core | Implementation finished |
+| `failed` | Core | Agent encountered an unrecoverable error |
+| `verified` | Core | Human or reviewer confirmed the implementation |
+| `backlog` | Pipeline | On the board but not prioritized |
+| `ready` | Pipeline | Prioritized and ready to run |
+| `in_progress` | Pipeline | In the execution pipeline |
+| `interrupted` | Pipeline | Execution was halted mid-run |
+| `waiting_approval` | Pipeline | Plan generated, awaiting human review |
+
 ## Creating Features
 
 ### Feature ID and Storage
@@ -174,7 +189,7 @@ When using auto-mode to execute multiple features:
 | `skipTests` | `boolean` | No | Skip test generation |
 | `imagePaths` | `array` | No | Reference screenshots/mockups |
 | `textFilePaths` | `array` | No | Reference text files with content |
-| `status` | `string` | No | Current status (managed by Automaker) |
+| `status` | `string` | No | Current status — see [Valid Statuses](#valid-statuses) |
 | `branchName` | `string` | No | Git branch for this feature |
 
 ## Helper Scripts

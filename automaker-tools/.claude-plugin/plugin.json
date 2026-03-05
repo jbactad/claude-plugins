@@ -1,6 +1,6 @@
 {
   "name": "automaker-tools",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Claude Code skills for working with Automaker projects — context optimization, feature management, memory, specs, worktrees, and project initialization.",
   "author": {
     "name": "jbactad"
