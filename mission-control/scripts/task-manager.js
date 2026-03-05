@@ -272,8 +272,8 @@ if (require.main === module) {
       if (args[i].startsWith('--')) {
         const key = args[i].replace(/^--/, '');
         const val = (i + 1 < args.length && !args[i + 1].startsWith('--')) ? args[++i] : true;
-        // Handle array values (comma-separated)
-        if (typeof val === 'string' && val.includes(',') && (key === 'dependencies' || key === 'fileOwnership' || key === 'acceptanceCriteria')) {
+        // Handle array fields (comma-separated or single value)
+        if (typeof val === 'string' && (key === 'dependencies' || key === 'fileOwnership' || key === 'acceptanceCriteria')) {
           flags[key] = val.split(',').map(s => s.trim());
         } else {
           flags[key] = val;
