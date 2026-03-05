@@ -186,7 +186,6 @@ Save the initial mission state to `.mission-control/missions/active.json`:
   },
   "pattern": "<selected orchestration pattern>",
   "riskTier": 1,
-  "tasks": [],
   "log": [],
   "artifacts": [],
   "playbook": "<playbook name or null>",
@@ -195,29 +194,17 @@ Save the initial mission state to `.mission-control/missions/active.json`:
 }
 ```
 
-The `tasks` array is empty at this point. It will be populated by the mission-planner agent during the decomposition step of the orchestrate workflow. Each task entry will follow this structure:
+> **Note:** Tasks are stored separately as individual JSON files in `.mission-control/missions/tasks/`. They are not embedded in `active.json`.
 
-```json
-{
-  "id": "task-1",
-  "name": "Task name",
-  "agentType": "researcher",
-  "deliverable": "Description of what this task produces",
-  "dependencies": [],
-  "riskTier": 0,
-  "fileOwnership": ["path/to/file1.ts", "path/to/file2.ts"],
-  "model": "haiku",
-  "status": "pending",
-  "assignedAgent": null,
-  "result": null,
-  "startedAt": null,
-  "completedAt": null,
-  "retryCount": 0,
-  "acceptanceCriteria": ["criterion 1", "criterion 2"]
-}
+### Step 6b: Initialize Task Directory
+
+Create the `.mission-control/missions/tasks/` directory. Tasks will be created here during the orchestrate workflow's decomposition step (Step 3 of orchestrate).
+
+Each task is saved as an individual JSON file via the task-manager:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js create --id T1 --name "Task name" --agent researcher --model haiku --wave 1 --deliverable "Description"
 ```
-
-Valid task statuses: `pending`, `in_progress`, `completed`, `failed`, `blocked`, `cancelled`.
 
 After saving the initial state, confirm to the user:
 
@@ -225,5 +212,6 @@ After saving the initial state, confirm to the user:
 Mission launched: [mission-id]
 Goal: [goal]
 State saved to .mission-control/missions/active.json
-Use /checkpoint to check progress, /debrief to close the mission.
+Tasks directory: .mission-control/missions/tasks/
+Use /checkpoint to check progress, /board for task board, /debrief to close the mission.
 ```
