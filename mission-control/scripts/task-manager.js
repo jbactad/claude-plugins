@@ -134,3 +134,111 @@ function listTasks(filter) {
   }
   return tasks;
 }
+
+// --- Aggregate Queries ---
+
+function getWaves() {
+  const tasks = listTasks();
+  const waves = {};
+  for (const task of tasks) {
+    const w = task.wave || 0;
+    if (!waves[w]) waves[w] = [];
+    waves[w].push(task);
+  }
+  // Return sorted by wave number
+  const sorted = Object.keys(waves)
+    .map(Number)
+    .sort((a, b) => a - b)
+    .map(w => ({ wave: w, tasks: waves[w] }));
+  return sorted;
+}
+
+function getStats() {
+  const tasks = listTasks();
+  const total = tasks.length;
+  const byStatus = {};
+  for (const t of tasks) {
+    byStatus[t.status] = (byStatus[t.status] || 0) + 1;
+  }
+  const completed = byStatus.completed || 0;
+  const cancelled = byStatus.cancelled || 0;
+  const denominator = total - cancelled;
+  const completionPct = denominator > 0 ? Math.round((completed / denominator) * 100) : 0;
+  return {
+    total,
+    completed,
+    inProgress: byStatus.in_progress || 0,
+    pending: byStatus.pending || 0,
+    blocked: byStatus.blocked || 0,
+    failed: byStatus.failed || 0,
+    cancelled,
+    completionPct,
+  };
+}
+
+function getDependencyGraph() {
+  const tasks = listTasks();
+  const graph = {};
+  const reverse = {};
+  for (const t of tasks) {
+    graph[t.id] = t.dependencies || [];
+    for (const dep of t.dependencies || []) {
+      if (!reverse[dep]) reverse[dep] = [];
+      reverse[dep].push(t.id);
+    }
+  }
+  return { forward: graph, reverse };
+}
+
+function getCriticalPath() {
+  const tasks = listTasks();
+  const taskMap = {};
+  for (const t of tasks) taskMap[t.id] = t;
+
+  // Compute longest path to each node
+  const longestPath = {};
+  const pathParent = {};
+
+  function computePath(id) {
+    if (longestPath[id] != null) return longestPath[id];
+    const deps = (taskMap[id] && taskMap[id].dependencies) || [];
+    if (deps.length === 0) {
+      longestPath[id] = 1;
+      pathParent[id] = null;
+      return 1;
+    }
+    let maxLen = 0;
+    let maxParent = null;
+    for (const dep of deps) {
+      const len = computePath(dep);
+      if (len > maxLen) {
+        maxLen = len;
+        maxParent = dep;
+      }
+    }
+    longestPath[id] = maxLen + 1;
+    pathParent[id] = maxParent;
+    return longestPath[id];
+  }
+
+  for (const t of tasks) computePath(t.id);
+
+  // Find the end of the critical path
+  let endId = null;
+  let maxLen = 0;
+  for (const [id, len] of Object.entries(longestPath)) {
+    if (len > maxLen) {
+      maxLen = len;
+      endId = id;
+    }
+  }
+
+  // Trace back
+  const criticalPath = [];
+  let current = endId;
+  while (current) {
+    criticalPath.unshift(current);
+    current = pathParent[current];
+  }
+  return criticalPath;
+}
