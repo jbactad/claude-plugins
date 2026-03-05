@@ -177,7 +177,7 @@ Display a final confirmation to the user:
 Mission debriefed and archived.
 
   ID: [mission-id]
-  Archive: .mission-control/missions/archive/[mission-id].json
+  Archive: .mission-control/missions/archive/[mission-id]/
   Learnings: [N] learnings extracted to .mission-control/memory/
     [list of learning files created or updated]
 
@@ -191,7 +191,7 @@ If no learnings were extracted (either because `autoLearn` was disabled or the r
 Mission debriefed and archived.
 
   ID: [mission-id]
-  Archive: .mission-control/missions/archive/[mission-id].json
+  Archive: .mission-control/missions/archive/[mission-id]/
   Learnings: None extracted
 
 Use /mission to start a new mission.
