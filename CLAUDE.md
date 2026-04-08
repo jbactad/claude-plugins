@@ -22,6 +22,9 @@ claude-plugins/
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/                # 1 skill (claude-md-improver)
 │   └── commands/              # 1 command (revise-claude-md)
+├── obsidian-rag/              # Plugin: Obsidian vault knowledge base manager
+│   ├── .claude-plugin/plugin.json
+│   └── skills/                # 4 skills (compile, audit, query, capture)
 └── mission-control-plan.md    # Implementation plan (reference only)
 ```
 

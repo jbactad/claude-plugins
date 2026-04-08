@@ -9,6 +9,7 @@ A Claude Code plugin marketplace by [jbactad](https://github.com/jbactad).
 | [automaker-tools](./automaker-tools/) | Skills for working with Automaker projects — context optimization, feature management, memory, specs, worktrees, and project initialization. |
 | [mission-control](./mission-control/) | Autonomous AI orchestration engine — decomposes goals into tasks, executes with specialized agents, learns from outcomes, and delivers results with minimal human intervention. |
 | [essentials](./essentials/) | Essential skills and commands for everyday workflows — CLAUDE.md management, quality auditing, and session learning capture. |
+| [obsidian-rag](./obsidian-rag/) | General-purpose Obsidian vault manager — compile sources into wiki articles, audit consistency, query with citations, and capture notes. |
 
 ## Installation
 

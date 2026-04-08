@@ -18,6 +18,11 @@
       "name": "essentials",
       "source": "./essentials",
       "description": "Essential Claude Code skills and commands for everyday workflows — CLAUDE.md management, quality auditing, and session learning capture."
+    },
+    {
+      "name": "obsidian-rag",
+      "source": "./obsidian-rag",
+      "description": "General-purpose Obsidian vault manager — compile sources into wiki articles, audit consistency, query with citations, and capture notes."
     }
   ]
 }
