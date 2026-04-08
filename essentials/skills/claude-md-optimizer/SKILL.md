@@ -194,7 +194,7 @@ Agent 4: "Explore configs - find package.json, pyproject.toml, Makefile, docker-
 For existing CLAUDE.md files, run the analysis script:
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/analyze_claude_md.py /path/to/CLAUDE.md
+${CLAUDE_SKILL_DIR}/scripts/analyze_claude_md.py /path/to/CLAUDE.md
 ```
 
 This generates an optimization report identifying:
@@ -946,7 +946,7 @@ Create all extracted skills simultaneously:
 
 **Step 0 — Scan**: Launch 4 parallel Explore agents (backend, frontend, tests, configs)
 
-**Step 1 — Analyze**: `python3 ${CLAUDE_SKILL_DIR}/scripts/analyze_claude_md.py /path/to/CLAUDE.md`
+**Step 1 — Analyze**: `${CLAUDE_SKILL_DIR}/scripts/analyze_claude_md.py /path/to/CLAUDE.md`
 
 **Step 2 — Classify**: Sort content into Tier 1 (CLAUDE.md) / Tier 1.5 (rules) / Tier 2 (examples) / Tier 3 (skills)
 

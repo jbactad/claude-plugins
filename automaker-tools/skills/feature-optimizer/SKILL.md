@@ -202,25 +202,25 @@ Run from any directory inside the project — the script walks up to find `.auto
 
 ```bash
 # List features by status or category
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --status=pending
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --category=Core
+${CLAUDE_SKILL_DIR}/scripts/features.py list --status=pending
+${CLAUDE_SKILL_DIR}/scripts/features.py list --category=Core
 
 # Filter by any field
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --field=requirePlanApproval:true
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --field=planningMode:skip
+${CLAUDE_SKILL_DIR}/scripts/features.py list --field=requirePlanApproval:true
+${CLAUDE_SKILL_DIR}/scripts/features.py list --field=planningMode:skip
 
 # Summary statistics (statuses, categories, planning modes)
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py stats
+${CLAUDE_SKILL_DIR}/scripts/features.py stats
 
 # Bulk update matching features (always --dry-run first)
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py update --filter=status:backlog --set=planningMode:skip --dry-run
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py update --filter=status:backlog --set=requirePlanApproval:false
+${CLAUDE_SKILL_DIR}/scripts/features.py update --filter=status:backlog --set=planningMode:skip --dry-run
+${CLAUDE_SKILL_DIR}/scripts/features.py update --filter=status:backlog --set=requirePlanApproval:false
 
 # Get full JSON of a single feature
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py get cache-policy
+${CLAUDE_SKILL_DIR}/scripts/features.py get cache-policy
 
 # Output formats: table (default), json, ids
-python3 ${CLAUDE_SKILL_DIR}/scripts/features.py list --status=pending --format=ids
+${CLAUDE_SKILL_DIR}/scripts/features.py list --status=pending --format=ids
 ```
 
 Always use this bundled script instead of writing ad-hoc discovery scripts.
