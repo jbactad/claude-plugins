@@ -28,7 +28,7 @@ Before any operation, resolve the vault path:
 2. Check if `wiki/_master-index.md` exists in the current working directory
 3. If neither, ask the user with `AskUserQuestion`
 
-Create any missing directories (`raw/`, `wiki/`, `output/`) silently.
+Create any missing directories (`raw/`, `wiki/`, `output/`) silently. If `wiki/_master-index.md` does not exist, create it using the format from [vault-conventions.md](references/vault-conventions.md) before processing any files.
 
 See [vault-conventions.md](references/vault-conventions.md) for full vault structure, naming rules, and article format.
 
@@ -52,7 +52,9 @@ For each unprocessed file:
 
 1. **Read the file** and identify its core topic(s)
 2. **Read the `project` field** from the raw file's frontmatter. If absent and the vault contains articles from multiple projects, ask the user with `AskUserQuestion`
-3. **Determine topic folder(s)** — map to existing topics in `wiki/` or create new ones
+3. **Determine topic folder(s)** — map to existing topics in `wiki/` or create new ones. For each new topic:
+   - Create the folder `wiki/<topic-name>/` (lowercase kebab-case)
+   - Create `wiki/<topic-name>/_index.md` using the `_index.md` format from [vault-conventions.md](references/vault-conventions.md)
 4. **Write the wiki article** following the article format in [vault-conventions.md](references/vault-conventions.md):
    - YAML frontmatter with `project` field carried from the raw file
    - Title derived from the source content
@@ -61,8 +63,10 @@ For each unprocessed file:
    - Content using bullet points over paragraphs
    - `[[wiki links]]` to related concepts across topics
    - **Related** section at the bottom
-5. **Update the topic's `_index.md`** — add the new article entry alphabetically
-6. **Update `wiki/_master-index.md`** — add the topic if new, keep alphabetical order
+5. **Update the topic's `_index.md`** — add the new article entry alphabetically using the format `- [[topic-name/article-name]] — one-line description`
+6. **Update `wiki/_master-index.md`**:
+   - If the topic is new, add `- [[topic-name/_index|Topic Display Name]] — one-line description` alphabetically
+   - If the topic already exists, no change needed
 7. **Mark the raw file as processed** — add or update YAML frontmatter with `processed: true` and `processed_date: YYYY-MM-DD`
 
 ### 3. Handle Multi-Topic Sources
