@@ -96,7 +96,7 @@ Run /compile when ready to process into wiki articles.
 
 ### Quick note capture (inside a project directory)
 
-User says from `/workspace/vthru/backend`: "Capture this — transformer models use self-attention to weigh input tokens against each other"
+User says from `/workspace/acme/backend`: "Capture this — transformer models use self-attention to weigh input tokens against each other"
 
 Result:
 ```markdown
