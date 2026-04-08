@@ -61,6 +61,7 @@ For each unprocessed file:
    - One-line summary
    - **Key Takeaways** section with 3-7 bullet points
    - Content using bullet points over paragraphs
+   - Mermaid diagram(s) where the content warrants it (see Mermaid Guidelines below)
    - `[[wiki links]]` to related concepts across topics
    - **Related** section at the bottom
 5. **Update the topic's `_index.md`** — add the new article entry alphabetically using the format `- [[topic-name/article-name]] — one-line description`
@@ -106,6 +107,50 @@ Compiled X files from raw/:
 - **Duplicate content (different project)**: If the topic already has an article from a different project, create a separate article with a project-disambiguated filename (e.g., `order-confirmation-flow-driver.md`). Do not merge cross-project content
 - **Unrecognizable content**: If a file cannot be meaningfully categorized, ask the user for guidance with `AskUserQuestion`
 - **Binary/non-text files**: Skip with a warning
+
+## Mermaid Guidelines
+
+Add a Mermaid diagram when the source material describes something inherently structural or sequential that a diagram communicates better than bullets. Use judgment — not every article needs one.
+
+### When to add a diagram
+
+- **Flows and processes** — multi-step sequences, request/response cycles, user journeys → `flowchart`
+- **State machines** — entities with discrete states and transitions → `stateDiagram-v2`
+- **System architecture** — components and their relationships → `flowchart` or `graph`
+- **Timelines and sequences** — interactions between actors over time → `sequenceDiagram`
+- **Hierarchies** — parent/child relationships, taxonomies → `flowchart TD`
+
+### When NOT to add a diagram
+
+- Simple lists or enumerations (bullets are clearer)
+- Concepts with no inherent structure (definitions, explanations)
+- When the diagram would just restate the bullet points without adding clarity
+
+### Placement
+
+Place the diagram immediately after the section it illustrates, not at the top or bottom of the article. Use a subheading to introduce it:
+
+```markdown
+## Order State Machine
+
+\`\`\`mermaid
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> Confirmed
+    Confirmed --> Shipped
+    Shipped --> Delivered
+    Delivered --> [*]
+    Pending --> Cancelled
+    Confirmed --> Cancelled
+\`\`\`
+```
+
+### Quality rules
+
+- Keep diagrams simple — if it needs more than ~15 nodes, split the article instead
+- Use descriptive node labels, not abbreviations
+- Prefer `stateDiagram-v2` over `stateDiagram`
+- Prefer `flowchart` over `graph` for compatibility
 
 ## Article Quality Guidelines
 
