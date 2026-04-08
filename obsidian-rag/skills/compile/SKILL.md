@@ -46,6 +46,8 @@ raw/**/*.pdf
 
 To determine if a file has already been processed, check for a `processed: true` line in the file's YAML frontmatter (if any). Files without frontmatter or without `processed: true` are unprocessed.
 
+If the user asks to "recompile", "force compile", "reprocess", or "compile everything", ignore `processed: true` and treat all raw files as unprocessed.
+
 ### 2. Process Each File
 
 For each unprocessed file:
