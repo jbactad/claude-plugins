@@ -45,9 +45,8 @@ Accept content from one of these sources:
 Determine which project this capture belongs to:
 
 1. If the user explicitly names a project, use that
-2. If the current working directory is inside a project directory (not the vault itself), infer the project name from the directory name
-3. If the vault already contains articles from multiple projects and the project is ambiguous, ask with `AskUserQuestion`
-4. For single-project vaults or general knowledge, omit the field
+2. Otherwise, infer the project name from the current working directory name (e.g., cwd `/workspace/acme/backend` → `project: backend`)
+3. If the cwd is the vault root itself and the project is ambiguous, ask with `AskUserQuestion`
 
 ### 3. Gather Metadata (Optional)
 
