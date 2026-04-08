@@ -6,7 +6,7 @@ Essential Claude Code skills and commands for everyday workflows.
 
 | Skill | Purpose |
 |-------|---------|
-| **claude-md-improver** | Audit, evaluate, and improve CLAUDE.md files across a codebase. Scores quality against a rubric, outputs a report, and proposes targeted updates. Also bootstraps CLAUDE.md for new projects. |
+| **claude-md-optimizer** | Optimize CLAUDE.md files using a 4-tier architecture (CLAUDE.md, rules, examples, skills). Analyzes existing files, classifies content into tiers, and restructures for token efficiency and sub-agent convention adherence. |
 
 ## Commands
 
@@ -27,10 +27,10 @@ Add the marketplace and install the plugin:
 
 Skills trigger automatically when you ask relevant questions. Examples:
 
-- "Audit my CLAUDE.md files"
-- "Check CLAUDE.md quality"
+- "Optimize my CLAUDE.md"
+- "Improve CLAUDE.md for sub-agent adherence"
 - "Set up CLAUDE.md for this project"
-- "Grade my CLAUDE.md"
+- "Reduce CLAUDE.md token usage"
 
 Use the command at the end of a session:
 

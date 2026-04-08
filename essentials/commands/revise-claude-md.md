@@ -57,4 +57,4 @@ For each addition:
 
 Ask if the user wants to apply the changes. Only edit files they approve.
 
-**Note:** For a comprehensive CLAUDE.md quality audit across the entire repository, use the `claude-md-improver` skill instead.
+**Note:** For a comprehensive CLAUDE.md optimization using the 4-tier architecture, use the `claude-md-optimizer` skill instead.
