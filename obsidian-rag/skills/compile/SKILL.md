@@ -51,17 +51,19 @@ To determine if a file has already been processed, check for a `processed: true`
 For each unprocessed file:
 
 1. **Read the file** and identify its core topic(s)
-2. **Determine topic folder(s)** — map to existing topics in `wiki/` or create new ones
-3. **Write the wiki article** following the article format in [vault-conventions.md](references/vault-conventions.md):
+2. **Read the `project` field** from the raw file's frontmatter. If absent and the vault contains articles from multiple projects, ask the user with `AskUserQuestion`
+3. **Determine topic folder(s)** — map to existing topics in `wiki/` or create new ones
+4. **Write the wiki article** following the article format in [vault-conventions.md](references/vault-conventions.md):
+   - YAML frontmatter with `project` field carried from the raw file
    - Title derived from the source content
    - One-line summary
    - **Key Takeaways** section with 3-7 bullet points
    - Content using bullet points over paragraphs
    - `[[wiki links]]` to related concepts across topics
    - **Related** section at the bottom
-4. **Update the topic's `_index.md`** — add the new article entry alphabetically
-5. **Update `wiki/_master-index.md`** — add the topic if new, keep alphabetical order
-6. **Mark the raw file as processed** — add or update YAML frontmatter with `processed: true` and `processed_date: YYYY-MM-DD`
+5. **Update the topic's `_index.md`** — add the new article entry alphabetically
+6. **Update `wiki/_master-index.md`** — add the topic if new, keep alphabetical order
+7. **Mark the raw file as processed** — add or update YAML frontmatter with `processed: true` and `processed_date: YYYY-MM-DD`
 
 ### 3. Handle Multi-Topic Sources
 
@@ -96,7 +98,8 @@ Compiled X files from raw/:
 ## Edge Cases
 
 - **Empty raw/**: Report "No unprocessed files found in raw/" and exit
-- **Duplicate content**: If a raw file covers a topic that already has an article, merge new information into the existing article rather than creating a duplicate. Add the new source as a reference
+- **Duplicate content (same project)**: If a raw file covers a topic that already has an article from the same project, merge new information into the existing article rather than creating a duplicate. Add the new source as a reference
+- **Duplicate content (different project)**: If the topic already has an article from a different project, create a separate article with a project-disambiguated filename (e.g., `order-confirmation-flow-driver.md`). Do not merge cross-project content
 - **Unrecognizable content**: If a file cannot be meaningfully categorized, ask the user for guidance with `AskUserQuestion`
 - **Binary/non-text files**: Skip with a warning
 

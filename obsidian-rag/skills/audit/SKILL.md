@@ -61,9 +61,11 @@ Identify related articles that should link to each other but don't:
 
 Read articles within the same topic and across related topics to find:
 
-- Contradictory claims (e.g., different dates, numbers, or definitions for the same concept)
-- Inconsistent terminology (same concept referred to by different names)
-- Duplicate coverage (multiple articles covering the same ground)
+- Contradictory claims **within the same project** (e.g., different dates, numbers, or definitions for the same concept in articles sharing the same `project` value)
+- Inconsistent terminology within the same project (same concept referred to by different names)
+- Duplicate coverage within the same project (multiple articles covering the same ground)
+
+**Cross-project differences are expected, not errors.** Different projects may legitimately have different conventions, architectures, or definitions. Report these separately as informational "Cross-Project Divergences" rather than issues
 
 ### 5. Article Quality
 
@@ -106,6 +108,7 @@ Write the report to `output/audit-YYYY-MM-DD.md` using today's date.
 
 - **Topics**: X total
 - **Articles**: Y total
+- **Projects**: N distinct projects
 - **Issues found**: Z
 - **Unprocessed raw files**: N
 
@@ -129,9 +132,15 @@ Write the report to `output/audit-YYYY-MM-DD.md` using today's date.
 |---|---|---|
 | path/a.md | path/b.md | A mentions concept covered in B |
 
-## Consistency Issues
+## Consistency Issues (within same project)
 
-- [list of contradictions or inconsistencies]
+- [list of contradictions or inconsistencies between articles sharing the same project value]
+
+## Cross-Project Divergences (informational)
+
+| Concept | Project A | Project B | Difference |
+|---|---|---|---|
+| order confirmation | backend: uses sync flow | driver: uses async events | Different architectural approaches |
 
 ## Article Quality Issues
 

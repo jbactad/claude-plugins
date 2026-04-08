@@ -38,6 +38,7 @@ Parse the user's question to identify:
 - **Key concepts** — the main topics or terms to search for
 - **Question type** — factual lookup, comparison, synthesis, or exploration
 - **Scope** — specific topic or cross-cutting across the knowledge base
+- **Project context** — if the user mentions a project name (e.g., "in backend", "for the driver app"), note it as a filter. If the current working directory is inside a project directory, use that as the default project context
 
 ### 2. Navigate the Index Hierarchy
 
@@ -66,6 +67,10 @@ Compose a response that:
 - **Cites sources** — every factual claim includes a `[[wiki link]]` to the article it came from
 - **Notes gaps** — if the wiki doesn't fully cover the question, say so explicitly
 - **Flags contradictions** — if different articles disagree, present both perspectives with citations
+- **Respects project scope** — if a project context was identified in step 1:
+  - Prioritize articles whose `project` frontmatter matches the target project
+  - If cross-project articles are included, label them clearly (e.g., "From driver project:" or "(cross-project)")
+  - If no project-matching articles exist, fall back to all articles and note the mismatch
 
 ### 5. Handle "Report" Requests
 

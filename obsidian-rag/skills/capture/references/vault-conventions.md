@@ -31,11 +31,48 @@ Once resolved, verify the vault has the expected subdirectories (`raw/`, `wiki/`
 - **Raw files**: timestamped prefix recommended (`2026-04-08-topic-name.md`)
 - **Output files**: descriptive name with date (`audit-2026-04-08.md`, `query-result-2026-04-08.md`)
 
+## Project Attribution
+
+Vaults that hold knowledge from multiple projects use a `project` frontmatter field to track provenance.
+
+### On Raw Files
+
+```yaml
+---
+captured: 2026-04-08
+project: backend
+---
+```
+
+### On Wiki Articles
+
+```yaml
+---
+project: backend
+---
+```
+
+- Single project: `project: backend`
+- Multiple projects: `project: [backend, driver]` (list format)
+- If a raw file has no `project` field and the source project is ambiguous, ask the user
+
+The `project` field is optional for single-project vaults. For multi-project vaults it is required on every raw file and wiki article.
+
+### Project-Scoped Behavior
+
+- **Compile**: when a topic already has an article on the same concept from a different project, create a separate article (e.g., `order-confirmation-flow-driver.md`) rather than merging
+- **Query**: when the user specifies a project context, prioritize articles matching that project. Show cross-project results separately
+- **Audit**: only flag contradictions between articles that share the same `project` value. Cross-project differences go in an informational "Cross-Project Divergences" section
+
 ## Wiki Article Format
 
 Every wiki article must follow this structure:
 
 ```markdown
+---
+project: <source project, if applicable>
+---
+
 # Article Title
 
 > One-line summary of the concept.

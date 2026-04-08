@@ -40,7 +40,16 @@ Accept content from one of these sources:
 - **Interactive** — if no content provided, ask with `AskUserQuestion`: "What would you like to capture?"
 - **File reference** — the user points to a file to read and capture
 
-### 2. Gather Metadata (Optional)
+### 2. Detect Project
+
+Determine which project this capture belongs to:
+
+1. If the user explicitly names a project, use that
+2. If the current working directory is inside a project directory (not the vault itself), infer the project name from the directory name
+3. If the vault already contains articles from multiple projects and the project is ambiguous, ask with `AskUserQuestion`
+4. For single-project vaults or general knowledge, omit the field
+
+### 3. Gather Metadata (Optional)
 
 If the user provides metadata, include it. Do not prompt for metadata unless the user's message suggests they want to add some. Common metadata fields:
 
@@ -48,7 +57,7 @@ If the user provides metadata, include it. Do not prompt for metadata unless the
 - **tags**: Comma-separated topic tags
 - **context**: Why this is being captured or how it relates to other work
 
-### 3. Create the Raw File
+### 4. Create the Raw File
 
 Write a timestamped file to `raw/`:
 
@@ -63,6 +72,7 @@ Write a timestamped file to `raw/`:
 ```markdown
 ---
 captured: YYYY-MM-DD
+project: <project name, if detected>
 source: <url or reference, if provided>
 tags: <comma-separated tags, if provided>
 context: <user-provided context, if any>
@@ -73,7 +83,7 @@ context: <user-provided context, if any>
 <captured content>
 ```
 
-### 4. Confirm
+### 5. Confirm
 
 After writing the file, print:
 
@@ -84,14 +94,15 @@ Run /compile when ready to process into wiki articles.
 
 ## Examples
 
-### Quick note capture
+### Quick note capture (inside a project directory)
 
-User says: "Capture this — transformer models use self-attention to weigh input tokens against each other"
+User says from `/workspace/vthru/backend`: "Capture this — transformer models use self-attention to weigh input tokens against each other"
 
 Result:
 ```markdown
 ---
 captured: 2026-04-08
+project: backend
 ---
 
 # Transformer Self-Attention
