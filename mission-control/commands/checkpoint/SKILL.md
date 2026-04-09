@@ -24,7 +24,19 @@ If the file exists, parse it and extract the mission ID, name, goal, status, tas
 
 ### Step 2: Gather Task Statuses
 
-Run `TaskList` to get the current statuses of all tasks tracked by the Task tool. Cross-reference with the tasks recorded in `active.json`.
+Read task state from the file-based task store:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list
+```
+
+This returns all tasks as a JSON array. Parse the output to get current statuses.
+
+Alternatively, get summary stats directly:
+
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js stats
+```
 
 For each task in the mission state, determine its current status:
 - **completed** -- task finished successfully
@@ -133,8 +145,7 @@ If the decision is RESCOPE, include specific recommendations:
 Update `.mission-control/missions/active.json`:
 
 1. Set `updatedAt` to the current ISO-8601 timestamp.
-2. Update all task statuses to reflect current state.
-3. Append a checkpoint entry to the `checkpoints` array:
+2. Append a checkpoint entry to the `checkpoints` array (task statuses are maintained in the `tasks/` directory, not in `active.json`):
 
 ```json
 {
@@ -149,3 +160,5 @@ Update `.mission-control/missions/active.json`:
 ```
 
 Save the updated state back to `.mission-control/missions/active.json`.
+
+> **Tip:** Run `/board` for a visual task board showing all task statuses at a glance.

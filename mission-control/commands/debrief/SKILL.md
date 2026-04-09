@@ -24,10 +24,15 @@ If the file exists, parse it and extract the full mission state: ID, name, goal,
 
 ### Step 2: Verify Task Completion
 
-Check all tasks in the mission:
+Read all tasks from the task store:
 
-- Count tasks by status: completed, failed, cancelled, in_progress, pending, blocked.
-- Determine whether the mission is ready to close.
+```bash
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js list
+node ${CLAUDE_PLUGIN_ROOT}/scripts/task-manager.js stats
+```
+
+Count tasks by status: completed, failed, cancelled, in_progress, pending, blocked.
+Determine whether the mission is ready to close.
 
 **If all tasks are completed or cancelled**: Proceed to Step 3.
 
@@ -153,14 +158,16 @@ When appending to an existing category file, add the new learning under a new he
 
 ### Step 5: Archive Mission State
 
-1. Create `.mission-control/missions/archive/` directory if it does not exist.
+1. Create `.mission-control/missions/archive/{mission-id}/` directory.
 2. Update the mission state:
    - Set `status` to `"completed"` (or `"completed_partial"` if tasks were cancelled).
    - Set `updatedAt` to the current ISO-8601 timestamp.
    - Add a final checkpoint with the completion summary.
    - Add references to any extracted learning files.
-3. Copy `.mission-control/missions/active.json` to `.mission-control/missions/archive/{mission-id}.json`.
-4. Remove `.mission-control/missions/active.json`.
+3. Copy `.mission-control/missions/active.json` to `.mission-control/missions/archive/{mission-id}/mission.json`.
+4. Copy the entire `.mission-control/missions/tasks/` directory to `.mission-control/missions/archive/{mission-id}/tasks/`.
+5. Remove `.mission-control/missions/active.json`.
+6. Remove `.mission-control/missions/tasks/` directory.
 
 ### Step 6: Present Summary
 
@@ -170,7 +177,7 @@ Display a final confirmation to the user:
 Mission debriefed and archived.
 
   ID: [mission-id]
-  Archive: .mission-control/missions/archive/[mission-id].json
+  Archive: .mission-control/missions/archive/[mission-id]/
   Learnings: [N] learnings extracted to .mission-control/memory/
     [list of learning files created or updated]
 
@@ -184,7 +191,7 @@ If no learnings were extracted (either because `autoLearn` was disabled or the r
 Mission debriefed and archived.
 
   ID: [mission-id]
-  Archive: .mission-control/missions/archive/[mission-id].json
+  Archive: .mission-control/missions/archive/[mission-id]/
   Learnings: None extracted
 
 Use /mission to start a new mission.
