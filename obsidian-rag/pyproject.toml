@@ -1,0 +1,10 @@
+[project]
+name = "obsidian-rag"
+version = "0.3.0"
+description = "Obsidian vault knowledge base manager scripts"
+requires-python = ">=3.12"
+dependencies = [
+    "claude-agent-sdk>=0.1.29",
+    "python-dotenv>=1.0.0",
+    "tzdata>=2024.1",
+]

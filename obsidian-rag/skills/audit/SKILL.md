@@ -2,11 +2,12 @@
 name: audit
 description: >
   Performs a comprehensive health check of an Obsidian wiki — checking
-  index integrity, broken links, consistency, and coverage gaps. This
-  skill should be used when the user asks to "audit my vault", "check
-  wiki consistency", "find broken links", "review knowledge base",
-  "check for missing articles", or "validate wiki indexes". Read-only
-  on wiki files; writes only the audit report to output/.
+  broken links, orphan pages, uncompiled sources, stale articles, missing
+  backlinks, sparse articles, and cross-article contradictions. This skill
+  should be used when the user asks to "audit my vault", "check wiki health",
+  "find broken links", "review knowledge base", "lint my wiki", or "validate
+  wiki indexes". Backed by lint.py. Read-only on wiki files; writes report
+  to output/.
 allowed-tools:
   - Read
   - Glob
@@ -17,7 +18,13 @@ allowed-tools:
 
 # Audit
 
-Perform a read-only review of the entire wiki and produce a comprehensive audit report. No wiki files are modified — the only file written is the output report.
+Perform a comprehensive health check of the wiki and produce an audit report. Backed by `${CLAUDE_SKILL_DIR}/scripts/lint.py` — run directly for automation or CI use.
+
+```bash
+uv run python ${CLAUDE_SKILL_DIR}/scripts/lint.py                     # all checks
+uv run python ${CLAUDE_SKILL_DIR}/scripts/lint.py --structural-only   # skip LLM contradiction check
+uv run python ${CLAUDE_SKILL_DIR}/scripts/lint.py --project backend   # scope contradictions to one project
+```
 
 ## Vault Discovery
 
@@ -29,146 +36,88 @@ Before any operation, resolve the vault path:
 
 See [vault-conventions.md](references/vault-conventions.md) for full vault structure and conventions.
 
-## Audit Checks
+## Checks
 
-### 1. Index Integrity
+Run all 7 checks. Each issue is tagged with severity: `error`, `warning`, or `suggestion`.
 
-Verify `wiki/_master-index.md` and each topic's `_index.md` are in sync with actual files:
+### 1. Broken Links (error)
 
-- **Missing from index**: Articles that exist on disk but are not listed in their topic's `_index.md`
-- **Missing from master index**: Topic folders that exist but are not listed in `_master-index.md`
-- **Ghost entries**: Index entries pointing to articles or topics that don't exist on disk
-- **Alphabetical order**: Flag indexes that aren't sorted alphabetically
-
-### 2. Broken Wiki Links
-
-Scan all articles for `[[wiki links]]` and verify each target exists:
-
+Scan all articles in `wiki/` for `[[wikilinks]]` and verify each target exists:
 - Parse all `[[...]]` patterns from every `.md` file in `wiki/`
-- Resolve each link to a file path (e.g., `[[topic/article]]` → `wiki/topic/article.md`)
-- Report links whose targets don't exist
-- Group broken links by source file for actionable output
+- Resolve to file path (e.g., `[[topic/article]]` → `wiki/topic/article.md`)
+- Skip links prefixed with `daily/` or `raw/` (these are cross-references, not articles)
+- Report links whose targets don't exist on disk
 
-### 3. Missing Cross-Links
+### 2. Orphan Pages (warning)
 
-Identify related articles that should link to each other but don't:
+Articles with zero inbound links:
+- For each article, count how many other articles link to it via `[[wikilink]]`
+- Report articles with 0 inbound links
+- Skip `_index.md`, `index.md`, and `log.md` files
 
-- Find articles that mention concepts covered by other articles without linking
-- Use Grep to search for article title keywords across the wiki
-- Report pairs of articles that likely should be cross-linked
+### 3. Orphan Sources (warning)
 
-### 4. Consistency and Contradictions
+Source files that haven't been compiled yet:
+- Check `raw/**/*.md` and `daily/YYYY-MM-DD.md` files against `output/state.json`
+- Report files not recorded in `state["ingested"]`
+- Suggest: `run /compile` for raw files, `run /compile --source daily` for daily logs
 
-Read articles within the same topic and across related topics to find:
+### 4. Stale Articles (warning)
 
-- Contradictory claims **within the same project** (e.g., different dates, numbers, or definitions for the same concept in articles sharing the same `project` value)
-- Inconsistent terminology within the same project (same concept referred to by different names)
-- Duplicate coverage within the same project (multiple articles covering the same ground)
+Source files that changed since last compilation:
+- Compare SHA-256 hash of each raw/ and daily/ file against the stored hash in `output/state.json`
+- Report files where current hash ≠ stored hash
+- Suggest recompile
 
-**Cross-project differences are expected, not errors.** Different projects may legitimately have different conventions, architectures, or definitions. Report these separately as informational "Cross-Project Divergences" rather than issues
+### 5. Missing Backlinks (suggestion, auto-fixable)
 
-### 5. Article Quality
+One-directional links that should be bidirectional:
+- If article A links to article B, check whether B links back to A
+- Report pairs where the return link is missing
+- Tag as `auto_fixable: true`
 
-Check each article against the required format:
+### 6. Sparse Articles (suggestion)
 
-- Missing **Key Takeaways** section
-- Missing **Related** section
-- Using paragraphs where bullet points are expected
-- Missing one-line summary (blockquote after title)
-- Empty or stub articles (fewer than 5 content lines)
+Articles under 200 words:
+- Count words in each article (excluding frontmatter and headings)
+- Report articles below the threshold
 
-### 6. Coverage Gaps
+### 7. Contradictions (warning, LLM check)
 
-Identify areas where the knowledge base is thin:
-
-- Concepts mentioned in articles but lacking their own dedicated article
-- Topics with only one article (potentially underdeveloped areas)
-- Suggest 3-5 new articles that would strengthen the knowledge base based on patterns in existing content
-
-### 7. Unprocessed Raw Files
-
-Check `raw/` for files that haven't been compiled:
-
-- Files without `processed: true` in frontmatter
-- Files with no frontmatter at all
-- Report count and filenames
+Conflicting claims across articles in the same project:
+- Uses Claude Agent SDK to read all wiki content and identify contradictions
+- Only flags contradictions **within the same project** (same `project` frontmatter value)
+- Cross-project differences are expected — report them separately as "Cross-Project Divergences"
+- Skip with `--structural-only` flag to avoid LLM cost
+- Scope to one project with `--project <name>`
 
 ## Output Report
 
-Write the report to `output/audit-YYYY-MM-DD.md` using today's date.
-
-### Report Format
+Write report to `output/audit-YYYY-MM-DD.md`. Format:
 
 ```markdown
-# Wiki Audit Report — YYYY-MM-DD
+# Audit Report — YYYY-MM-DD
 
-> Automated audit of the knowledge base.
+**Total issues:** N
+- Errors: X
+- Warnings: Y
+- Suggestions: Z
 
-## Summary
+## Errors
 
-- **Topics**: X total
-- **Articles**: Y total
-- **Projects**: N distinct projects
-- **Issues found**: Z
-- **Unprocessed raw files**: N
+- **[x]** `topic/article.md` — Broken link [[missing-target]] — target does not exist
 
-## Index Integrity
+## Warnings
 
-### Missing from Indexes
-- [list]
+- **[!]** `topic/article.md` — Orphan page — no other articles link to [[topic/article]]
+- **[!]** `raw/source.md` — Uncompiled raw file — run /compile to process
+- **[!]** `raw/source.md` — Source changed since last compilation — recompile to update
+- **[!]** (cross-article) — CONTRADICTION: [file1] vs [file2] - description
 
-### Ghost Entries
-- [list]
+## Suggestions
 
-## Broken Wiki Links
-
-| Source Article | Broken Link |
-|---|---|
-| path/to/article.md | [[missing-target]] |
-
-## Missing Cross-Links
-
-| Article A | Article B | Reason |
-|---|---|---|
-| path/a.md | path/b.md | A mentions concept covered in B |
-
-## Consistency Issues (within same project)
-
-- [list of contradictions or inconsistencies between articles sharing the same project value]
-
-## Cross-Project Divergences (informational)
-
-| Concept | Project A | Project B | Difference |
-|---|---|---|---|
-| order confirmation | backend: uses sync flow | driver: uses async events | Different architectural approaches |
-
-## Article Quality Issues
-
-| Article | Issue |
-|---|---|
-| path/to/article.md | Missing Key Takeaways section |
-
-## Coverage Gaps
-
-### Concepts Needing Articles
-- [concept] — mentioned in [[source-article]]
-
-### Suggested New Articles
-1. **article-name** in topic/ — rationale
-2. ...
-
-## Unprocessed Raw Files
-
-- raw/file1.md
-- raw/file2.txt
+- **[?]** `topic/article.md` — [[topic/article]] links to [[other]] but not vice versa (auto-fixable)
+- **[?]** `topic/sparse.md` — Sparse article — 87 words (min recommended: 200)
 ```
 
-## Execution Strategy
-
-To audit efficiently:
-
-1. **Build a file inventory** — Glob for all `.md` files in `wiki/` and `raw/`
-2. **Parse indexes first** — Read `_master-index.md` and all `_index.md` files to build the expected structure
-3. **Scan articles in batches** — Read articles by topic folder, checking format and extracting links
-4. **Cross-reference** — Compare extracted links against the file inventory
-5. **Write report** — Compile all findings into the output report
+After writing the report, print the path and a brief summary of counts.

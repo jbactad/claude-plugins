@@ -17,7 +17,13 @@ allowed-tools:
 
 # Query
 
-Answer questions by navigating the wiki's hierarchical structure and synthesizing information from relevant articles. Provide citations using `[[wiki links]]` so the user can trace claims back to source articles.
+Answer questions by consulting the wiki's article catalog (index-guided retrieval) and synthesizing relevant articles with `[[wiki link]]` citations. Backed by `${CLAUDE_SKILL_DIR}/scripts/query.py` — run directly for automation or batch use.
+
+```bash
+uv run python ${CLAUDE_SKILL_DIR}/scripts/query.py "How does X work?"
+uv run python ${CLAUDE_SKILL_DIR}/scripts/query.py "What is Y?" --file-back   # file answer to wiki/qa/
+uv run python ${CLAUDE_SKILL_DIR}/scripts/query.py "What about Z?" --project backend
+```
 
 ## Vault Discovery
 
@@ -44,11 +50,11 @@ Parse the user's question to identify:
 
 Start broad and narrow down:
 
-1. **Read `wiki/_master-index.md`** — identify which topics are relevant to the question
-2. **Read relevant `_index.md` files** — find specific articles that likely contain the answer
-3. **Read targeted articles** — extract the information needed
+1. **Read `wiki/index.md`** — the article catalog table gives a one-line summary of every article; use it to identify relevant articles without reading them all
+2. **Read `wiki/_master-index.md`** — for topic-level orientation if the catalog doesn't have enough detail
+3. **Read targeted articles** — only read articles identified as plausibly relevant
 
-This top-down approach avoids reading the entire wiki. Only read articles that are plausibly relevant.
+This index-guided approach avoids reading the entire wiki.
 
 ### 3. Search for Additional Hits
 
@@ -72,13 +78,15 @@ Compose a response that:
   - If cross-project articles are included, label them clearly (e.g., "From driver project:" or "(cross-project)")
   - If no project-matching articles exist, fall back to all articles and note the mismatch
 
-### 5. Handle "Report" Requests
+### 5. File Back (optional)
 
-If the user asks for a report or persistent output:
+If the user says "save this answer", "file it back", or passes `--file-back`:
 
-- Write the answer to `output/` with a descriptive filename (e.g., `output/query-topic-YYYY-MM-DD.md`)
-- Use the same citation format in the report
-- Include a **Sources** section at the bottom listing all referenced articles
+1. Create `wiki/qa/<slug>.md` with frontmatter `title`, `question`, and `filed` date
+2. Append a row to `wiki/index.md`: `| [[qa/slug]] | question summary | query | YYYY-MM-DD |`
+3. Append to `wiki/log.md`: `## [timestamp] query (filed) | question`
+
+For plain report output (not filed to wiki), write to `output/query-<topic>-YYYY-MM-DD.md`.
 
 ## Citation Format
 

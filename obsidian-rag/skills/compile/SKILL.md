@@ -18,7 +18,12 @@ allowed-tools:
 
 # Compile
 
-Process unprocessed source material from the vault's `raw/` directory into structured, interlinked wiki articles in `wiki/`.
+Process unprocessed source material into structured, interlinked wiki articles. Backed by `${CLAUDE_SKILL_DIR}/scripts/compile.py` — run directly for automation or CI use.
+
+Two source modes:
+- `raw/` (default) — user-dropped source files
+- `daily/` — auto-captured conversation logs from SessionEnd/PreCompact hooks
+- `all` — both sources
 
 ## Vault Discovery
 
@@ -28,15 +33,15 @@ Before any operation, resolve the vault path:
 2. Check if `wiki/_master-index.md` exists in the current working directory
 3. If neither, ask the user with `AskUserQuestion`
 
-Create any missing directories (`raw/`, `wiki/`, `output/`) silently. If `wiki/_master-index.md` does not exist, create it using the format from [vault-conventions.md](references/vault-conventions.md) before processing any files.
-
-See [vault-conventions.md](references/vault-conventions.md) for full vault structure, naming rules, and article format.
+Create any missing directories silently. If `wiki/_master-index.md` does not exist, create it before processing. See [vault-conventions.md](references/vault-conventions.md) for full vault structure, naming rules, and article format.
 
 ## Workflow
 
-### 1. Discover Unprocessed Files
+### 1. Determine Source and Discover Files
 
-Glob for all files in `raw/`:
+**Source: raw/** (default)
+
+Glob for files in `raw/`:
 
 ```
 raw/**/*.md
@@ -44,9 +49,15 @@ raw/**/*.txt
 raw/**/*.pdf
 ```
 
-To determine if a file has already been processed, check for a `processed: true` line in the file's YAML frontmatter (if any). Files without frontmatter or without `processed: true` are unprocessed.
+A file is unprocessed if it lacks `processed: true` in its YAML frontmatter.
 
-If the user asks to "recompile", "force compile", "reprocess", or "compile everything", ignore `processed: true` and treat all raw files as unprocessed.
+If the user says "recompile", "force compile", or "compile everything", treat all files as unprocessed.
+
+**Source: daily/**
+
+Glob for `daily/YYYY-MM-DD.md` files. These are auto-captured conversation logs. A daily file is processed if its SHA-256 hash matches the value stored in `output/state.json` under key `daily/YYYY-MM-DD.md`.
+
+**Source: all** — process both raw/ and daily/.
 
 ### 2. Process Each File
 
@@ -54,7 +65,7 @@ For each unprocessed file:
 
 1. **Read the file** and identify its core topic(s)
 2. **Read the `project` field** from the raw file's frontmatter. If absent and the vault contains articles from multiple projects, ask the user with `AskUserQuestion`
-3. **Determine topic folder(s)** — map to existing topics in `wiki/` or create new ones. For each new topic:
+3. **Determine topic folder(s)** — map to existing topics in `wiki/` or create new ones. For cross-cutting insights spanning multiple topics, use `wiki/connections/`. For daily logs, also consider `wiki/connections/` for cross-cutting insights. For each new topic:
    - Create the folder `wiki/<topic-name>/` (lowercase kebab-case)
    - Create `wiki/<topic-name>/_index.md` using the `_index.md` format from [vault-conventions.md](references/vault-conventions.md)
 4. **Write the wiki article** following the article format in [vault-conventions.md](references/vault-conventions.md):
@@ -69,8 +80,9 @@ For each unprocessed file:
 5. **Update the topic's `_index.md`** — add the new article entry alphabetically using the format `- [[topic-name/article-name]] — one-line description`
 6. **Update `wiki/_master-index.md`**:
    - If the topic is new, add `- [[topic-name/_index|Topic Display Name]] — one-line description` alphabetically
-   - If the topic already exists, no change needed
-7. **Mark the raw file as processed** — add or update YAML frontmatter with `processed: true` and `processed_date: YYYY-MM-DD`
+7. **Update `wiki/index.md`** — append a new row: `| [[path/article]] | one-line summary | source/file.md | YYYY-MM-DD |`
+8. **Append to `wiki/log.md`** — one entry per compile operation (see format in [vault-conventions.md](references/vault-conventions.md))
+9. **Mark raw files as processed** — add `processed: true` and `processed_date: YYYY-MM-DD` to frontmatter (raw/ only, not daily/)
 
 ### 3. Handle Multi-Topic Sources
 
@@ -95,9 +107,10 @@ After writing each article:
 After processing all files, print a summary:
 
 ```
-Compiled X files from raw/:
-- Created: article-1.md (topic-a), article-2.md (topic-b)
-- Updated indexes: topic-a/_index.md, topic-b/_index.md, _master-index.md
+Compiled X files:
+- [raw] source-1.md → topic-a/article-1.md, topic-b/article-2.md
+- [daily] 2026-04-08.md → connections/cross-topic.md
+- Updated indexes: wiki/index.md, wiki/log.md, _master-index.md, topic-a/_index.md
 - Cross-linked: 3 existing articles updated
 - Skipped: Y files (already processed)
 ```

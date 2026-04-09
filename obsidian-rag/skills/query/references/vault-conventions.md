@@ -5,12 +5,17 @@
 ```
 vault/
 ├── raw/          — inbox for source material (user drops files here)
+├── daily/        — auto-captured conversation logs (YYYY-MM-DD.md)
 ├── wiki/         — LLM-maintained knowledge base
 │   ├── _master-index.md   — entry point, lists all topics
+│   ├── index.md           — article catalog table (used by SessionStart hook)
+│   ├── log.md             — append-only build log
+│   ├── connections/       — cross-cutting articles spanning multiple topics
+│   ├── qa/                — question-answer articles (filed by /query --file-back)
 │   └── <topic>/           — one subfolder per topic (kebab-case)
 │       ├── _index.md      — lists all articles in this topic
 │       └── <article>.md   — individual articles (kebab-case)
-└── output/       — query results and generated reports
+└── output/       — audit reports and query exports
 ```
 
 ## Vault Discovery
@@ -21,7 +26,7 @@ Every operation must resolve the vault path before proceeding. Check in order:
 2. If `wiki/_master-index.md` exists in the current working directory, the vault is `.`
 3. Otherwise, ask the user for the vault path using `AskUserQuestion`
 
-Once resolved, verify the vault has the expected subdirectories (`raw/`, `wiki/`, `output/`). Create any missing directories silently.
+Once resolved, verify the vault has the expected subdirectories (`raw/`, `daily/`, `wiki/`, `wiki/connections/`, `wiki/qa/`, `output/`). Create any missing directories silently.
 
 ## Naming Conventions
 
@@ -108,6 +113,71 @@ Use double-bracket Obsidian links: `[[topic-folder/article-name]]`
 - Link to the file path relative to `wiki/` without the `.md` extension
 - Example: `[[machine-learning/transformer-architecture]]`
 - When referencing a concept that should have its own article but doesn't yet, still use wiki link syntax — this creates a discoverable "wanted" article
+
+## Operational File Formats
+
+### wiki/index.md (article catalog)
+
+Used by the SessionStart hook to inject context into every session.
+
+```markdown
+# Knowledge Base Article Catalog
+
+> Table of all articles. Used by the SessionStart hook to inject context into sessions.
+
+| Article | Summary | Source | Updated |
+|---------|---------|--------|---------|
+| [[topic/article-name]] | one-line summary | raw/source.md | 2026-04-08 |
+| [[connections/cross-topic]] | one-line summary | daily/2026-04-08.md | 2026-04-08 |
+```
+
+Every compile/query operation that creates or updates articles must append new rows to this table.
+
+### wiki/log.md (build log)
+
+Append-only log of all compile, query, and audit operations.
+
+```markdown
+# Build Log
+
+> Append-only record of all compile, query, and audit operations.
+
+## [2026-04-08T12:00:00] compile | source.md
+- Source: raw/source.md
+- Articles created: [[topic/article]], ...
+- Articles updated: [[topic/article]], ... (if any)
+
+## [2026-04-08T12:00:00] compile-daily | 2026-04-08.md
+- Source: daily/2026-04-08.md
+- Articles created: [[connections/cross-topic]], ...
+
+## [2026-04-08T12:00:00] query (filed) | question text here
+- Filed to: [[qa/slug]]
+```
+
+### daily/YYYY-MM-DD.md (conversation log)
+
+Auto-captured by the SessionEnd/PreCompact hooks. Each session appends a new entry.
+
+```markdown
+## [HH:MM] Session — one-line summary of the session
+
+### Context
+- Brief description of what was being worked on
+
+### Key Exchanges
+- Q: question asked
+- A: key point from the answer
+
+### Decisions Made
+- Decision and rationale
+
+### Lessons Learned
+- Insight or lesson
+
+### Action Items
+- [ ] Outstanding task or follow-up
+```
 
 ## Index File Formats
 
