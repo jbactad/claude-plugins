@@ -18,7 +18,7 @@ allowed-tools:
 
 # Compile
 
-Process unprocessed source material into structured, interlinked wiki articles. Backed by `${CLAUDE_SKILL_DIR}/scripts/compile.py` — run directly for automation or CI use.
+Process unprocessed source material into structured, interlinked wiki articles. Backed by `${CLAUDE_SKILL_DIR}/../../scripts/compile.py` — run directly for automation or CI use.
 
 Two source modes:
 - `raw/` (default) — user-dropped source files

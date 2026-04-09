@@ -18,12 +18,12 @@ allowed-tools:
 
 # Audit
 
-Perform a comprehensive health check of the wiki and produce an audit report. Backed by `${CLAUDE_SKILL_DIR}/scripts/lint.py` — run directly for automation or CI use.
+Perform a comprehensive health check of the wiki and produce an audit report. Backed by `${CLAUDE_SKILL_DIR}/../../scripts/lint.py` — run directly for automation or CI use.
 
 ```bash
-uv run python ${CLAUDE_SKILL_DIR}/scripts/lint.py                     # all checks
-uv run python ${CLAUDE_SKILL_DIR}/scripts/lint.py --structural-only   # skip LLM contradiction check
-uv run python ${CLAUDE_SKILL_DIR}/scripts/lint.py --project backend   # scope contradictions to one project
+uv run python ${CLAUDE_SKILL_DIR}/../../scripts/lint.py                     # all checks
+uv run python ${CLAUDE_SKILL_DIR}/../../scripts/lint.py --structural-only   # skip LLM contradiction check
+uv run python ${CLAUDE_SKILL_DIR}/../../scripts/lint.py --project backend   # scope contradictions to one project
 ```
 
 ## Vault Discovery
