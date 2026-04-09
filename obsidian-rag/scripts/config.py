@@ -31,21 +31,40 @@ def resolve_vault() -> Path:
     )
 
 
-VAULT_DIR = resolve_vault()
+def _make_vault_dirs(vault: Path) -> dict:
+    wiki = vault / "wiki"
+    return dict(
+        VAULT_DIR=vault,
+        RAW_DIR=vault / "raw",
+        DAILY_DIR=vault / "daily",
+        WIKI_DIR=wiki,
+        OUTPUT_DIR=vault / "output",
+        CONNECTIONS_DIR=wiki / "connections",
+        QA_DIR=wiki / "qa",
+        INDEX_FILE=wiki / "index.md",
+        LOG_FILE=wiki / "log.md",
+    )
 
 
-# ── Vault directories ──────────────────────────────────────────────────────────
-RAW_DIR = VAULT_DIR / "raw"
-DAILY_DIR = VAULT_DIR / "daily"
-WIKI_DIR = VAULT_DIR / "wiki"
-OUTPUT_DIR = VAULT_DIR / "output"
-
-# ── Wiki structure ─────────────────────────────────────────────────────────────
-CONNECTIONS_DIR = WIKI_DIR / "connections"    # cross-cutting insight articles
-QA_DIR = WIKI_DIR / "qa"                     # filed query answers
-
-INDEX_FILE = WIKI_DIR / "index.md"                   # merged topic navigator + article catalog
-LOG_FILE = WIKI_DIR / "log.md"                       # build log
+try:
+    _vault = resolve_vault()
+    _dirs = _make_vault_dirs(_vault)
+    VAULT_DIR: Path = _dirs["VAULT_DIR"]
+    RAW_DIR: Path = _dirs["RAW_DIR"]
+    DAILY_DIR: Path = _dirs["DAILY_DIR"]
+    WIKI_DIR: Path = _dirs["WIKI_DIR"]
+    OUTPUT_DIR: Path = _dirs["OUTPUT_DIR"]
+    CONNECTIONS_DIR: Path = _dirs["CONNECTIONS_DIR"]
+    QA_DIR: Path = _dirs["QA_DIR"]
+    INDEX_FILE: Path = _dirs["INDEX_FILE"]
+    LOG_FILE: Path = _dirs["LOG_FILE"]
+    VAULT_CONFIGURED = True
+except RuntimeError:
+    VAULT_CONFIGURED = False
+    # Provide dummy paths so imports don't fail — callers must check VAULT_CONFIGURED
+    VAULT_DIR = DAILY_DIR = RAW_DIR = WIKI_DIR = OUTPUT_DIR = Path("/dev/null")
+    CONNECTIONS_DIR = QA_DIR = VAULT_DIR
+    INDEX_FILE = LOG_FILE = VAULT_DIR
 
 # ── References ─────────────────────────────────────────────────────────────────
 CONVENTIONS_FILE = PLUGIN_DIR / "skills" / "compile" / "references" / "vault-conventions.md"

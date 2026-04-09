@@ -10,6 +10,7 @@ No API calls — pure local I/O.
 from __future__ import annotations
 
 import json
+import os
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -17,10 +18,16 @@ from pathlib import Path
 # Add scripts dir to path so config/utils are importable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-try:
-    from config import DAILY_DIR, INDEX_FILE, VAULT_DIR
-except RuntimeError:
+from config import DAILY_DIR, INDEX_FILE, VAULT_DIR, VAULT_CONFIGURED
+
+if not VAULT_CONFIGURED:
     sys.exit(0)  # No vault configured — skip silently
+
+# Persist vault path so SessionEnd/PreCompact hooks inherit it
+env_file = os.environ.get("CLAUDE_ENV_FILE")
+if env_file and not os.environ.get("OBSIDIAN_VAULT_PATH"):
+    with open(env_file, "a") as f:
+        f.write(f"OBSIDIAN_VAULT_PATH={VAULT_DIR}\n")
 
 MAX_CONTEXT_CHARS = 20_000
 MAX_LOG_LINES = 30

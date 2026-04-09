@@ -23,12 +23,8 @@ if os.environ.get("CLAUDE_INVOKED_BY"):
     sys.exit(0)
 
 # Add scripts dir to path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-try:
-    from config import SCRIPTS_DIR
-except RuntimeError:
-    sys.exit(0)  # No vault configured — skip silently
+SCRIPTS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPTS_DIR))
 
 logging.basicConfig(
     filename=str(SCRIPTS_DIR / "flush.log"),
@@ -36,6 +32,11 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s [session-end] %(message)s",
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+
+from config import VAULT_CONFIGURED
+if not VAULT_CONFIGURED:
+    logging.info("SKIP: no vault configured (OBSIDIAN_VAULT_PATH not set, not in vault dir)")
+    sys.exit(0)
 
 MAX_TURNS = 30
 MAX_CONTEXT_CHARS = 15_000

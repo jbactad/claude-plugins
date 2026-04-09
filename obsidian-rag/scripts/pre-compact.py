@@ -24,12 +24,8 @@ from pathlib import Path
 if os.environ.get("CLAUDE_INVOKED_BY"):
     sys.exit(0)
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-
-try:
-    from config import SCRIPTS_DIR
-except RuntimeError:
-    sys.exit(0)  # No vault configured — skip silently
+SCRIPTS_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(SCRIPTS_DIR))
 
 logging.basicConfig(
     filename=str(SCRIPTS_DIR / "flush.log"),
@@ -97,6 +93,11 @@ def main() -> None:
             hook_input = json.loads(fixed)
     except (json.JSONDecodeError, ValueError, EOFError) as e:
         logging.error("Failed to parse stdin: %s", e)
+        return
+
+    from config import VAULT_CONFIGURED
+    if not VAULT_CONFIGURED:
+        logging.info("SKIP: no vault configured")
         return
 
     session_id = hook_input.get("session_id", "unknown")
