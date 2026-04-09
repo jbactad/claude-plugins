@@ -23,9 +23,9 @@ allowed-tools:
 Answer questions by retrieving relevant wiki articles and synthesizing them with `[[wiki link]]` citations. Uses qmd hybrid search when available (BM25 + semantic + reranking), falls back to index-guided retrieval otherwise. Backed by `${CLAUDE_SKILL_DIR}/../../scripts/query.py` — run directly for automation or batch use.
 
 ```bash
-uv run python ${CLAUDE_SKILL_DIR}/../../scripts/query.py "How does X work?"
-uv run python ${CLAUDE_SKILL_DIR}/../../scripts/query.py "What is Y?" --file-back   # file answer to wiki/qa/
-uv run python ${CLAUDE_SKILL_DIR}/../../scripts/query.py "What about Z?" --project backend
+uv run --project ${CLAUDE_SKILL_DIR}/../.. python ${CLAUDE_SKILL_DIR}/../../scripts/query.py "How does X work?"
+uv run --project ${CLAUDE_SKILL_DIR}/../.. python ${CLAUDE_SKILL_DIR}/../../scripts/query.py "What is Y?" --file-back   # file answer to wiki/qa/
+uv run --project ${CLAUDE_SKILL_DIR}/../.. python ${CLAUDE_SKILL_DIR}/../../scripts/query.py "What about Z?" --project backend
 ```
 
 ## Vault Discovery
