@@ -30,10 +30,10 @@ Two source modes:
 Before any operation, resolve the vault path:
 
 1. Check env var `OBSIDIAN_VAULT_PATH`
-2. Check if `wiki/_master-index.md` exists in the current working directory
+2. Check if `wiki/master-index.md` exists in the current working directory
 3. If neither, ask the user with `AskUserQuestion`
 
-Create any missing directories silently. If `wiki/_master-index.md` does not exist, create it before processing. See [vault-conventions.md](references/vault-conventions.md) for full vault structure, naming rules, and article format.
+Create any missing directories silently. If `wiki/master-index.md` does not exist, create it before processing. See [vault-conventions.md](references/vault-conventions.md) for full vault structure, naming rules, and article format.
 
 ## Workflow
 
@@ -65,9 +65,7 @@ For each unprocessed file:
 
 1. **Read the file** and identify its core topic(s)
 2. **Read the `project` field** from the raw file's frontmatter. If absent and the vault contains articles from multiple projects, ask the user with `AskUserQuestion`
-3. **Determine topic folder(s)** — map to existing topics in `wiki/` or create new ones. For cross-cutting insights spanning multiple topics, use `wiki/connections/`. For daily logs, also consider `wiki/connections/` for cross-cutting insights. For each new topic:
-   - Create the folder `wiki/<topic-name>/` (lowercase kebab-case)
-   - Create `wiki/<topic-name>/_index.md` using the `_index.md` format from [vault-conventions.md](references/vault-conventions.md)
+3. **Determine topic folder(s)** — map to existing topics in `wiki/` or create new ones. For cross-cutting insights spanning multiple topics, use `wiki/connections/`. For each new topic, create the folder `wiki/<topic-name>/` (lowercase kebab-case)
 4. **Write the wiki article** following the article format in [vault-conventions.md](references/vault-conventions.md):
    - YAML frontmatter with `project`, `title`, `aliases`, `tags`, `sources` (list of originating files), `created`, and `updated` fields
    - One-line summary blockquote
@@ -78,12 +76,10 @@ For each unprocessed file:
    - `[[wiki links]]` to related concepts across topics
    - **Related** section
    - **Sources** section linking back to originating daily logs or raw files
-5. **Update the topic's `_index.md`** — add the new article entry alphabetically using the format `- [[topic-name/article-name]] — one-line description`
-6. **Update `wiki/_master-index.md`**:
-   - If the topic is new, add `- [[topic-name/_index|Topic Display Name]] — one-line description` alphabetically
-7. **Update `wiki/index.md`** — append a new row: `| [[path/article]] | one-line summary | source/file.md | YYYY-MM-DD |`
-8. **Append to `wiki/log.md`** — one entry per compile operation (see format in [vault-conventions.md](references/vault-conventions.md))
-9. **Mark raw files as processed** — add `processed: true` and `processed_date: YYYY-MM-DD` to frontmatter as a human-readable marker (raw/ only, not daily/). The primary tracking is hash-based via `output/state.json`
+5. **Update `wiki/master-index.md`** — if the topic is new, add `- **Topic Display Name** (`topic-name/`) — one-line description` alphabetically
+6. **Update `wiki/index.md`** — append a new row: `| [[path/article]] | one-line summary | source/file.md | YYYY-MM-DD |`
+7. **Append to `wiki/log.md`** — one entry per compile operation (see format in [vault-conventions.md](references/vault-conventions.md))
+8. **Mark raw files as processed** — add `processed: true` and `processed_date: YYYY-MM-DD` to frontmatter as a human-readable marker (raw/ only, not daily/). The primary tracking is hash-based via `output/state.json`
 
 ### 3. Handle Multi-Topic Sources
 
@@ -91,7 +87,6 @@ When a source file spans multiple topics:
 
 - Create a primary article in the most relevant topic
 - Create shorter summary articles in secondary topics that link back to the primary
-- Update all affected `_index.md` files
 - Cross-link between the primary and summary articles
 
 ### 4. Cross-Link with Existing Articles
@@ -111,7 +106,7 @@ After processing all files, print a summary:
 Compiled X files:
 - [raw] source-1.md → topic-a/article-1.md, topic-b/article-2.md
 - [daily] 2026-04-08.md → connections/cross-topic.md
-- Updated indexes: wiki/index.md, wiki/log.md, _master-index.md, topic-a/_index.md
+- Updated indexes: wiki/index.md, wiki/log.md, master-index.md
 - Cross-linked: 3 existing articles updated
 - Skipped: Y files (already processed)
 ```

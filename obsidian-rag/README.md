@@ -18,13 +18,12 @@ vault/
 ├── raw/          — inbox: drop source files here
 ├── daily/        — auto-captured conversation logs (YYYY-MM-DD.md)
 ├── wiki/         — LLM-maintained knowledge base
-│   ├── _master-index.md   — topic list
+│   ├── master-index.md    — topic navigator
 │   ├── index.md           — article catalog (injected at session start)
 │   ├── log.md             — append-only build log
 │   ├── connections/       — cross-cutting articles spanning multiple topics
 │   ├── qa/                — filed query answers
 │   └── <topic>/           — one subfolder per topic
-│       ├── _index.md
 │       └── <article>.md
 └── output/       — audit reports and query exports
 ```

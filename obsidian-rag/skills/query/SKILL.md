@@ -33,7 +33,7 @@ uv run python ${CLAUDE_SKILL_DIR}/scripts/query.py "What about Z?" --project bac
 Before any operation, resolve the vault path:
 
 1. Check env var `OBSIDIAN_VAULT_PATH`
-2. Check if `wiki/_master-index.md` exists in the current working directory
+2. Check if `wiki/master-index.md` exists in the current working directory
 3. If neither, ask the user with `AskUserQuestion`
 
 See [vault-conventions.md](references/vault-conventions.md) for vault structure and wiki link format.
@@ -74,7 +74,7 @@ Use hybrid search for precise, scalable retrieval:
 **If qmd is not available — index-guided fallback:**
 
 1. **Read `wiki/index.md`** — one-line catalog of every article; use it to identify relevant articles without reading them all. If `index.md` has no article rows (empty table), skip to step 2
-2. **Read `wiki/_master-index.md`** — for topic-level orientation; then read the relevant `<topic>/_index.md` files to find specific articles
+2. **Read `wiki/master-index.md`** — for topic-level orientation
 3. **Read targeted articles** — only articles identified as plausibly relevant
 
 ### 3. Search for Additional Hits (index-guided fallback only)

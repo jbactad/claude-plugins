@@ -91,15 +91,13 @@ def list_wiki_articles() -> list[Path]:
     """List all wiki article files, excluding index and log files."""
     articles = []
     skip = {
-        WIKI_DIR / "_master-index.md",
+        WIKI_DIR / "master-index.md",
         WIKI_DIR / "index.md",
         WIKI_DIR / "log.md",
     }
     for md_file in WIKI_DIR.rglob("*.md"):
         if md_file in skip:
             continue
-        if md_file.name.startswith("_"):
-            continue  # skip _index.md files
         articles.append(md_file)
     return sorted(articles)
 

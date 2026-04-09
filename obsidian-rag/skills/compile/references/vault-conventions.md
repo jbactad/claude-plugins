@@ -7,13 +7,12 @@ vault/
 ├── raw/          — inbox for source material (user drops files here)
 ├── daily/        — auto-captured conversation logs (YYYY-MM-DD.md)
 ├── wiki/         — LLM-maintained knowledge base
-│   ├── _master-index.md   — entry point, lists all topics
+│   ├── master-index.md    — topic navigator (lists all topics)
 │   ├── index.md           — article catalog table (used by SessionStart hook)
 │   ├── log.md             — append-only build log
 │   ├── connections/       — cross-cutting articles spanning multiple topics
 │   ├── qa/                — question-answer articles (filed by /query --file-back)
 │   └── <topic>/           — one subfolder per topic (kebab-case)
-│       ├── _index.md      — lists all articles in this topic
 │       └── <article>.md   — individual articles (kebab-case)
 └── output/       — audit reports and query exports
 ```
@@ -23,7 +22,7 @@ vault/
 Every operation must resolve the vault path before proceeding. Check in order:
 
 1. If env var `OBSIDIAN_VAULT_PATH` is set, use that path
-2. If `wiki/_master-index.md` exists in the current working directory, the vault is `.`
+2. If `wiki/master-index.md` exists in the current working directory, the vault is `.`
 3. Otherwise, ask the user for the vault path using `AskUserQuestion`
 
 Once resolved, verify the vault has the expected subdirectories (`raw/`, `daily/`, `wiki/`, `wiki/connections/`, `wiki/qa/`, `output/`). Create any missing directories silently.
@@ -32,7 +31,7 @@ Once resolved, verify the vault has the expected subdirectories (`raw/`, `daily/
 
 - **Topic folders**: lowercase kebab-case (e.g., `machine-learning/`, `distributed-systems/`)
 - **Article files**: lowercase kebab-case with `.md` extension (e.g., `retrieval-augmented-generation.md`)
-- **Index files**: always prefixed with underscore (`_master-index.md`, `_index.md`)
+- **Index files**: `master-index.md` (topic navigator), `index.md` (flat article catalog)
 - **Raw files**: timestamped prefix recommended (`2026-04-08-topic-name.md`)
 - **Output files**: descriptive name with date (`audit-2026-04-08.md`, `query-result-2026-04-08.md`)
 
@@ -181,7 +180,7 @@ Auto-captured by the SessionEnd/PreCompact hooks. Each session appends a new ent
 
 ## Index File Formats
 
-### _master-index.md
+### master-index.md (topic navigator)
 
 ```markdown
 # Knowledge Base Index
@@ -190,30 +189,14 @@ Auto-captured by the SessionEnd/PreCompact hooks. Each session appends a new ent
 
 ## Topics
 
-- [[topic-name/_index|Topic Display Name]] — one-line description
-- [[another-topic/_index|Another Topic]] — one-line description
+- **Topic Display Name** (`topic-name/`) — one-line description
+- **Another Topic** (`another-topic/`) — one-line description
 ```
 
 Sort topics alphabetically.
 
-### _index.md (per topic)
-
-```markdown
-# Topic Display Name
-
-> One-line description of this topic area.
-
-## Articles
-
-- [[topic-name/article-one]] — one-line description
-- [[topic-name/article-two]] — one-line description
-```
-
-Sort articles alphabetically within each topic index.
-
 ## Cross-Linking Guidelines
 
 - Link to related concepts whenever they are mentioned in article content
-- If an article spans multiple topics, create entries in each relevant topic's `_index.md`
-- Prefer specific links (`[[ml/attention-mechanism]]`) over vague ones (`[[ml/_index]]`)
+- Prefer specific links (`[[ml/attention-mechanism]]`) over broad topic references
 - When a linked target doesn't exist yet, keep the link — it flags a coverage gap for auditing

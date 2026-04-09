@@ -68,17 +68,16 @@ async def compile_source(source_path: Path, source_type: str, state: dict) -> fl
 Follow the vault conventions exactly (article format, naming, indexes, cross-links).
 
 After writing articles, update:
-1. Each affected topic's `_index.md` (add new article entries alphabetically)
-2. `wiki/_master-index.md` (add new topics if created)
-3. `wiki/index.md` (add new rows to the table: `| [[path]] | summary | {source_path.name} | {today_iso()} |`)
-4. Append to `wiki/log.md`:
+1. `wiki/master-index.md` (add new topics if created)
+2. `wiki/index.md` (add new rows to the table: `| [[path]] | summary | {source_path.name} | {today_iso()} |`)
+3. Append to `wiki/log.md`:
    ```
    ## [{timestamp}] compile | {source_path.name}
    - Source: raw/{source_path.name}
    - Articles created: [[topic/article]], ...
    - Articles updated: [[topic/article]], ... (if any)
    ```
-5. Mark the raw file as processed by adding to its YAML frontmatter:
+4. Mark the raw file as processed by adding to its YAML frontmatter:
    ```
    processed: true
    processed_date: {today_iso()}
@@ -91,10 +90,9 @@ relevant topic folders. For cross-cutting insights that span multiple topics,
 create articles in `wiki/connections/`.
 
 After writing articles, update:
-1. Each affected topic's `_index.md` (add new article entries alphabetically)
-2. `wiki/_master-index.md` (add new topics if created)
-3. `wiki/index.md` (add new rows: `| [[path]] | summary | daily/{source_path.name} | {today_iso()} |`)
-4. Append to `wiki/log.md`:
+1. `wiki/master-index.md` (add new topics if created)
+2. `wiki/index.md` (add new rows: `| [[path]] | summary | daily/{source_path.name} | {today_iso()} |`)
+3. Append to `wiki/log.md`:
    ```
    ## [{timestamp}] compile-daily | {source_path.name}
    - Source: daily/{source_path.name}
@@ -108,7 +106,7 @@ After writing articles, update:
 
 {conventions}
 
-## Current Topic Index (wiki/_master-index.md)
+## Current Topic Index (wiki/master-index.md)
 
 {master_index}
 

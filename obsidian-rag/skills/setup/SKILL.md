@@ -22,7 +22,7 @@ Initialize a new Obsidian vault or upgrade an existing one to work with obsidian
 ## Step 1: Resolve Vault Path
 
 1. Check env var `OBSIDIAN_VAULT_PATH`
-2. Check if `wiki/_master-index.md` exists in the current working directory
+2. Check if `wiki/master-index.md` exists in the current working directory
 3. Otherwise ask the user with `AskUserQuestion`: "What is the path to the vault you want to set up?"
 
 ## Step 2: Detect Mode
@@ -31,7 +31,7 @@ Inspect the vault to determine what's missing:
 
 - `raw/`, `wiki/`, `output/`, `daily/` — base directories
 - `wiki/connections/`, `wiki/qa/` — article type directories
-- `wiki/_master-index.md` — topic list index
+- `wiki/master-index.md` — topic list index
 - `wiki/index.md` — article catalog table (used by SessionStart hook)
 - `wiki/log.md` — build log
 - `CLAUDE.md` — vault instructions
@@ -53,7 +53,7 @@ Create any that don't exist (silently):
 
 See [vault-conventions.md](references/vault-conventions.md) for all file formats.
 
-**`wiki/_master-index.md`** — if missing:
+**`wiki/master-index.md`** — if missing:
 ```markdown
 # Knowledge Base Index
 
@@ -84,7 +84,7 @@ See [vault-conventions.md](references/vault-conventions.md) for all file formats
 **`CLAUDE.md`** — if missing, create with full vault structure and skills table (see [vault-conventions.md](references/vault-conventions.md) for canonical content). If it exists, read it and check for completeness against the expected content:
 
 - Vault structure section lists all directories: `raw/`, `daily/`, `wiki/`, `output/`
-- Wiki structure mentions: `wiki/_master-index.md`, `wiki/index.md`, `wiki/log.md`, `wiki/connections/`, `wiki/qa/`
+- Wiki structure mentions: `wiki/master-index.md`, `wiki/index.md`, `wiki/log.md`, `wiki/connections/`, `wiki/qa/`
 - Skills table includes all five skills: `compile`, `audit`, `query`, `capture`, `setup`
 
 If anything is missing or outdated, ask the user: "Your CLAUDE.md is missing some sections added in the latest version. Update it?" — then apply only the missing additions without rewriting existing content.
@@ -134,7 +134,7 @@ Created:
 Already existed (unchanged):
   · raw/
   · wiki/
-  · wiki/_master-index.md
+  · wiki/master-index.md
   · CLAUDE.md
   · output/
 

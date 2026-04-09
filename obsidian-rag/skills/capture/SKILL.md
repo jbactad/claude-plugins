@@ -23,7 +23,7 @@ Quickly save information to the vault's `raw/` directory for later processing by
 Before any operation, resolve the vault path:
 
 1. Check env var `OBSIDIAN_VAULT_PATH`
-2. Check if `wiki/_master-index.md` exists in the current working directory
+2. Check if `wiki/master-index.md` exists in the current working directory
 3. If neither, ask the user with `AskUserQuestion`
 
 Create `raw/` if it doesn't exist.
