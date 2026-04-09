@@ -18,7 +18,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 try:
-    from config import DAILY_DIR, INDEX_FILE, VAULT_DIR
+    from config import DAILY_DIR, INDEX_FILE, MASTER_INDEX_FILE, VAULT_DIR
 except RuntimeError:
     sys.exit(0)  # No vault configured — skip silently
 
@@ -43,8 +43,17 @@ def build_context() -> str:
     today = datetime.now(timezone.utc).astimezone()
     parts = [f"## Today\n{today.strftime('%A, %B %d, %Y')}"]
 
+    index_content = None
     if INDEX_FILE.exists():
-        index_content = INDEX_FILE.read_text(encoding="utf-8")
+        raw = INDEX_FILE.read_text(encoding="utf-8")
+        # Only use index.md if it has article rows (more than just the header)
+        if raw.count("\n|") > 1:
+            index_content = raw
+
+    if index_content is None and MASTER_INDEX_FILE.exists():
+        index_content = MASTER_INDEX_FILE.read_text(encoding="utf-8")
+
+    if index_content:
         parts.append(f"## Knowledge Base Index\n\n{index_content}")
     else:
         parts.append("## Knowledge Base Index\n\n(empty — run /compile to build the knowledge base)")

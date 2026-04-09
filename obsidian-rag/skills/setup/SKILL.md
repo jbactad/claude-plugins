@@ -22,7 +22,7 @@ Initialize a new Obsidian vault or upgrade an existing one to work with obsidian
 ## Step 1: Resolve Vault Path
 
 1. Check env var `OBSIDIAN_VAULT_PATH`
-2. Check if `wiki/` exists in the current working directory
+2. Check if `wiki/_master-index.md` exists in the current working directory
 3. Otherwise ask the user with `AskUserQuestion`: "What is the path to the vault you want to set up?"
 
 ## Step 2: Detect Mode

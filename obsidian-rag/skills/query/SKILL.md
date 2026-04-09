@@ -73,8 +73,8 @@ Use hybrid search for precise, scalable retrieval:
 
 **If qmd is not available — index-guided fallback:**
 
-1. **Read `wiki/index.md`** — one-line catalog of every article; use it to identify relevant articles without reading them all
-2. **Read `wiki/_master-index.md`** — for topic-level orientation if the catalog isn't sufficient
+1. **Read `wiki/index.md`** — one-line catalog of every article; use it to identify relevant articles without reading them all. If `index.md` has no article rows (empty table), skip to step 2
+2. **Read `wiki/_master-index.md`** — for topic-level orientation; then read the relevant `<topic>/_index.md` files to find specific articles
 3. **Read targeted articles** — only articles identified as plausibly relevant
 
 ### 3. Search for Additional Hits (index-guided fallback only)

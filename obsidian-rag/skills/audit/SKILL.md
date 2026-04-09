@@ -53,7 +53,7 @@ Scan all articles in `wiki/` for `[[wikilinks]]` and verify each target exists:
 Articles with zero inbound links:
 - For each article, count how many other articles link to it via `[[wikilink]]`
 - Report articles with 0 inbound links
-- Skip `_index.md`, `index.md`, and `log.md` files
+- Skip `_index.md`, `_master-index.md`, `index.md`, and `log.md` files
 
 ### 3. Orphan Sources (warning)
 

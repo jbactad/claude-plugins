@@ -1,7 +1,7 @@
 {
   "name": "obsidian-rag",
   "description": "General-purpose Obsidian vault manager that turns Claude into a librarian for any knowledge base — compile sources into wiki articles, audit consistency, query with citations, and capture notes.",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "author": {
     "name": "jbactad"
   }

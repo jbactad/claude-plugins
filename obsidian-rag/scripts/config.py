@@ -22,7 +22,7 @@ def resolve_vault() -> Path:
 
     # Check if cwd looks like a vault
     cwd = Path.cwd()
-    if (cwd / "wiki").exists():
+    if (cwd / "wiki" / "_master-index.md").exists():
         return cwd
 
     raise RuntimeError(
