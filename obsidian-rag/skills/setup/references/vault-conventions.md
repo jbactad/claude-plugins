@@ -7,12 +7,12 @@ vault/
 ├── raw/          — inbox for source material (user drops files here)
 ├── daily/        — auto-captured conversation logs (YYYY-MM-DD.md)
 ├── wiki/         — LLM-maintained knowledge base
-│   ├── master-index.md    — topic navigator (lists all topics)
-│   ├── index.md           — article catalog table (used by SessionStart hook)
+│   ├── index.md           — topic navigator + article catalog (used by SessionStart hook)
 │   ├── log.md             — append-only build log
 │   ├── connections/       — cross-cutting articles spanning multiple topics
 │   ├── qa/                — question-answer articles (filed by /query --file-back)
 │   └── <topic>/           — one subfolder per topic (kebab-case)
+│       ├── index.md       — lists all articles in this topic
 │       └── <article>.md   — individual articles (kebab-case)
 └── output/       — audit reports and query exports
 ```
@@ -22,7 +22,7 @@ vault/
 Every operation must resolve the vault path before proceeding. Check in order:
 
 1. If env var `OBSIDIAN_VAULT_PATH` is set, use that path
-2. If `wiki/master-index.md` exists in the current working directory, the vault is `.`
+2. If `wiki/index.md` exists in the current working directory, the vault is `.`
 3. Otherwise, ask the user for the vault path using `AskUserQuestion`
 
 Once resolved, verify the vault has the expected subdirectories (`raw/`, `daily/`, `wiki/`, `wiki/connections/`, `wiki/qa/`, `output/`). Create any missing directories silently.
@@ -31,7 +31,7 @@ Once resolved, verify the vault has the expected subdirectories (`raw/`, `daily/
 
 - **Topic folders**: lowercase kebab-case (e.g., `machine-learning/`, `distributed-systems/`)
 - **Article files**: lowercase kebab-case with `.md` extension (e.g., `retrieval-augmented-generation.md`)
-- **Index files**: `master-index.md` (topic navigator), `index.md` (flat article catalog)
+- **Index files**: `wiki/index.md` (top-level), `wiki/<topic>/index.md` (per-topic)
 - **Raw files**: timestamped prefix recommended (`2026-04-08-topic-name.md`)
 - **Output files**: descriptive name with date (`audit-2026-04-08.md`, `query-result-2026-04-08.md`)
 
@@ -115,14 +115,21 @@ Use double-bracket Obsidian links: `[[topic-folder/article-name]]`
 
 ## Operational File Formats
 
-### wiki/index.md (article catalog)
+### wiki/index.md (top-level index)
 
-Used by the SessionStart hook to inject context into every session.
+Merged topic navigator and article catalog. Used by the SessionStart hook to inject context into every session.
 
 ```markdown
-# Knowledge Base Article Catalog
+# Knowledge Base Index
 
-> Table of all articles. Used by the SessionStart hook to inject context into sessions.
+> Topics and articles in this vault.
+
+## Topics
+
+- **Topic Display Name** (`topic-name/`) — one-line description
+- **Another Topic** (`another-topic/`) — one-line description
+
+## Articles
 
 | Article | Summary | Source | Updated |
 |---------|---------|--------|---------|
@@ -130,7 +137,24 @@ Used by the SessionStart hook to inject context into every session.
 | [[connections/cross-topic]] | one-line summary | daily/2026-04-08.md | 2026-04-08 |
 ```
 
-Every compile/query operation that creates or updates articles must append new rows to this table.
+Sort topics alphabetically. Append article rows in chronological order.
+
+### wiki/<topic>/index.md (per-topic index)
+
+Lists all articles within a topic. Created when a new topic folder is created.
+
+```markdown
+# Topic Display Name
+
+> One-line description of this topic area.
+
+## Articles
+
+- [[topic-name/article-one]] — one-line description
+- [[topic-name/article-two]] — one-line description
+```
+
+Sort articles alphabetically.
 
 ### wiki/log.md (build log)
 
@@ -178,25 +202,9 @@ Auto-captured by the SessionEnd/PreCompact hooks. Each session appends a new ent
 - [ ] Outstanding task or follow-up
 ```
 
-## Index File Formats
-
-### master-index.md (topic navigator)
-
-```markdown
-# Knowledge Base Index
-
-> Master index of all topics in the wiki.
-
-## Topics
-
-- **Topic Display Name** (`topic-name/`) — one-line description
-- **Another Topic** (`another-topic/`) — one-line description
-```
-
-Sort topics alphabetically.
-
 ## Cross-Linking Guidelines
 
 - Link to related concepts whenever they are mentioned in article content
+- If an article spans multiple topics, create entries in each relevant topic's `index.md`
 - Prefer specific links (`[[ml/attention-mechanism]]`) over broad topic references
 - When a linked target doesn't exist yet, keep the link — it flags a coverage gap for auditing

@@ -31,7 +31,7 @@ uv run python ${CLAUDE_SKILL_DIR}/scripts/lint.py --project backend   # scope co
 Before any operation, resolve the vault path:
 
 1. Check env var `OBSIDIAN_VAULT_PATH`
-2. Check if `wiki/master-index.md` exists in the current working directory
+2. Check if `wiki/index.md` exists in the current working directory
 3. If neither, ask the user with `AskUserQuestion`
 
 See [vault-conventions.md](references/vault-conventions.md) for full vault structure and conventions.
@@ -53,7 +53,7 @@ Scan all articles in `wiki/` for `[[wikilinks]]` and verify each target exists:
 Articles with zero inbound links:
 - For each article, count how many other articles link to it via `[[wikilink]]`
 - Report articles with 0 inbound links
-- Skip `master-index.md`, `index.md`, and `log.md` files
+- Skip `index.md` (top-level and per-topic) and `log.md` files
 
 ### 3. Orphan Sources (warning)
 

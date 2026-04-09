@@ -22,7 +22,7 @@ def resolve_vault() -> Path:
 
     # Check if cwd looks like a vault
     cwd = Path.cwd()
-    if (cwd / "wiki" / "master-index.md").exists():
+    if (cwd / "wiki" / "index.md").exists():
         return cwd
 
     raise RuntimeError(
@@ -44,8 +44,7 @@ OUTPUT_DIR = VAULT_DIR / "output"
 CONNECTIONS_DIR = WIKI_DIR / "connections"    # cross-cutting insight articles
 QA_DIR = WIKI_DIR / "qa"                     # filed query answers
 
-MASTER_INDEX_FILE = WIKI_DIR / "master-index.md"   # topic list (skill-compatible)
-INDEX_FILE = WIKI_DIR / "index.md"                   # table catalog (used by session-start)
+INDEX_FILE = WIKI_DIR / "index.md"                   # merged topic navigator + article catalog
 LOG_FILE = WIKI_DIR / "log.md"                       # build log
 
 # ── References ─────────────────────────────────────────────────────────────────

@@ -11,7 +11,6 @@ from config import (
     CONNECTIONS_DIR,
     INDEX_FILE,
     LOG_FILE,
-    MASTER_INDEX_FILE,
     QA_DIR,
     RAW_DIR,
     DAILY_DIR,
@@ -91,13 +90,14 @@ def list_wiki_articles() -> list[Path]:
     """List all wiki article files, excluding index and log files."""
     articles = []
     skip = {
-        WIKI_DIR / "master-index.md",
         WIKI_DIR / "index.md",
         WIKI_DIR / "log.md",
     }
     for md_file in WIKI_DIR.rglob("*.md"):
         if md_file in skip:
             continue
+        if md_file.name == "index.md":
+            continue  # skip per-topic index.md files
         articles.append(md_file)
     return sorted(articles)
 
@@ -105,21 +105,16 @@ def list_wiki_articles() -> list[Path]:
 # ── Index helpers ──────────────────────────────────────────────────────────────
 
 def read_wiki_index() -> str:
-    """Read the table-format article catalog."""
+    """Read the merged topic navigator + article catalog."""
     if INDEX_FILE.exists():
         return INDEX_FILE.read_text(encoding="utf-8")
     return (
         "# Knowledge Base Index\n\n"
+        "## Topics\n\n"
+        "## Articles\n\n"
         "| Article | Summary | Source | Updated |\n"
         "|---------|---------|--------|---------|"
     )
-
-
-def read_master_index() -> str:
-    """Read the topic-list master index."""
-    if MASTER_INDEX_FILE.exists():
-        return MASTER_INDEX_FILE.read_text(encoding="utf-8")
-    return "# Knowledge Base Index\n\n## Topics\n"
 
 
 def read_all_wiki_content() -> str:

@@ -38,7 +38,6 @@ from utils import (
     list_daily_logs,
     list_raw_files,
     load_state,
-    read_master_index,
     read_wiki_index,
     save_state,
 )
@@ -58,8 +57,7 @@ async def compile_source(source_path: Path, source_type: str, state: dict) -> fl
 
     source_content = source_path.read_text(encoding="utf-8")
     conventions = CONVENTIONS_FILE.read_text(encoding="utf-8") if CONVENTIONS_FILE.exists() else ""
-    master_index = read_master_index()
-    article_index = read_wiki_index()
+    wiki_index = read_wiki_index()
     timestamp = now_iso()
 
     if source_type == "raw":
@@ -68,8 +66,8 @@ async def compile_source(source_path: Path, source_type: str, state: dict) -> fl
 Follow the vault conventions exactly (article format, naming, indexes, cross-links).
 
 After writing articles, update:
-1. `wiki/master-index.md` (add new topics if created)
-2. `wiki/index.md` (add new rows to the table: `| [[path]] | summary | {source_path.name} | {today_iso()} |`)
+1. Each affected topic's `wiki/<topic>/index.md` (add new article entries alphabetically)
+2. `wiki/index.md` Topics section (add new topics if created) and Articles table (append new rows: `| [[path]] | summary | {source_path.name} | {today_iso()} |`)
 3. Append to `wiki/log.md`:
    ```
    ## [{timestamp}] compile | {source_path.name}
@@ -90,8 +88,8 @@ relevant topic folders. For cross-cutting insights that span multiple topics,
 create articles in `wiki/connections/`.
 
 After writing articles, update:
-1. `wiki/master-index.md` (add new topics if created)
-2. `wiki/index.md` (add new rows: `| [[path]] | summary | daily/{source_path.name} | {today_iso()} |`)
+1. Each affected topic's `wiki/<topic>/index.md` (add new article entries alphabetically)
+2. `wiki/index.md` Topics section (add new topics if created) and Articles table (append new rows: `| [[path]] | summary | daily/{source_path.name} | {today_iso()} |`)
 3. Append to `wiki/log.md`:
    ```
    ## [{timestamp}] compile-daily | {source_path.name}
@@ -106,13 +104,9 @@ After writing articles, update:
 
 {conventions}
 
-## Current Topic Index (wiki/master-index.md)
+## Current Index (wiki/index.md)
 
-{master_index}
-
-## Current Article Catalog (wiki/index.md)
-
-{article_index}
+{wiki_index}
 
 ## Source File: {source_path.name}
 
