@@ -13,11 +13,14 @@ allowed-tools:
   - Bash
   - Write
   - AskUserQuestion
+  - mcp__qmd__query
+  - mcp__qmd__get
+  - mcp__qmd__multi_get
 ---
 
 # Query
 
-Answer questions by consulting the wiki's article catalog (index-guided retrieval) and synthesizing relevant articles with `[[wiki link]]` citations. Backed by `${CLAUDE_SKILL_DIR}/scripts/query.py` — run directly for automation or batch use.
+Answer questions by retrieving relevant wiki articles and synthesizing them with `[[wiki link]]` citations. Uses qmd hybrid search when available (BM25 + semantic + reranking), falls back to index-guided retrieval otherwise. Backed by `${CLAUDE_SKILL_DIR}/scripts/query.py` — run directly for automation or batch use.
 
 ```bash
 uv run python ${CLAUDE_SKILL_DIR}/scripts/query.py "How does X work?"
@@ -46,19 +49,37 @@ Parse the user's question to identify:
 - **Scope** — specific topic or cross-cutting across the knowledge base
 - **Project context** — if the user mentions a project name (e.g., "in backend", "for the driver app"), note it as a filter. If the current working directory is inside a project directory, use that as the default project context
 
-### 2. Navigate the Index Hierarchy
+### 2. Retrieve Relevant Articles
 
-Start broad and narrow down:
+**If `mcp__qmd__query` is available (qmd plugin installed) — preferred:**
 
-1. **Read `wiki/index.md`** — the article catalog table gives a one-line summary of every article; use it to identify relevant articles without reading them all
-2. **Read `wiki/_master-index.md`** — for topic-level orientation if the catalog doesn't have enough detail
-3. **Read targeted articles** — only read articles identified as plausibly relevant
+Use hybrid search for precise, scalable retrieval:
 
-This index-guided approach avoids reading the entire wiki.
+```json
+{
+  "searches": [
+    { "type": "lex", "query": "<2–4 key terms from the question>" },
+    { "type": "vec", "query": "<full natural language question>" }
+  ],
+  "collections": ["vault"],
+  "limit": 10
+}
+```
 
-### 3. Search for Additional Hits
+- First search gets 2× weight in fusion — put the strongest query first
+- Add `"intent": "<disambiguation hint>"` when the query terms are ambiguous
+- Use `mcp__qmd__get` to retrieve full article content by path or `#docid`
+- Skip step 3 — qmd's hybrid retrieval covers keyword and semantic matching
 
-After index-guided navigation, use Grep to find mentions the index might miss:
+**If qmd is not available — index-guided fallback:**
+
+1. **Read `wiki/index.md`** — one-line catalog of every article; use it to identify relevant articles without reading them all
+2. **Read `wiki/_master-index.md`** — for topic-level orientation if the catalog isn't sufficient
+3. **Read targeted articles** — only articles identified as plausibly relevant
+
+### 3. Search for Additional Hits (index-guided fallback only)
+
+When qmd is not available, supplement index navigation with Grep:
 
 - Search for key terms from the question across `wiki/**/*.md`
 - Check results for articles not already identified via the index
@@ -82,7 +103,7 @@ Compose a response that:
 
 If the user says "save this answer", "file it back", or passes `--file-back`:
 
-1. Create `wiki/qa/<slug>.md` with frontmatter `title`, `question`, and `filed` date
+1. Create `wiki/qa/<slug>.md` following the Q&A article format in [vault-conventions.md](references/vault-conventions.md): frontmatter with `title`, `question`, `consulted` (list of articles read), and `filed` date; `## Answer`, `## Sources Consulted`, and `## Follow-Up Questions` sections
 2. Append a row to `wiki/index.md`: `| [[qa/slug]] | question summary | query | YYYY-MM-DD |`
 3. Append to `wiki/log.md`: `## [timestamp] query (filed) | question`
 

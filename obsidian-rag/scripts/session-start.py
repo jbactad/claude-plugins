@@ -17,7 +17,10 @@ from pathlib import Path
 # Add scripts dir to path so config/utils are importable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from config import DAILY_DIR, INDEX_FILE, VAULT_DIR
+try:
+    from config import DAILY_DIR, INDEX_FILE, VAULT_DIR
+except RuntimeError:
+    sys.exit(0)  # No vault configured — skip silently
 
 MAX_CONTEXT_CHARS = 20_000
 MAX_LOG_LINES = 30

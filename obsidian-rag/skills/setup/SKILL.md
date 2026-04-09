@@ -4,7 +4,8 @@ description: >
   Initializes a new Obsidian vault or upgrades an existing one to work
   with the obsidian-rag plugin. This skill should be used when the user
   asks to "set up my vault", "initialize obsidian-rag", "upgrade my vault",
-  "set up the knowledge base", or is configuring the plugin for the first time.
+  "update the setup", "set up the knowledge base", or is configuring the
+  plugin for the first time.
 allowed-tools:
   - Read
   - Write
@@ -80,11 +81,43 @@ See [vault-conventions.md](references/vault-conventions.md) for all file formats
 
 ```
 
-**`CLAUDE.md`** — if missing, create with vault structure and skills table. If it exists, check whether it mentions obsidian-rag skills — if not, ask the user if they want the skills table added.
+**`CLAUDE.md`** — if missing, create with full vault structure and skills table (see [vault-conventions.md](references/vault-conventions.md) for canonical content). If it exists, read it and check for completeness against the expected content:
+
+- Vault structure section lists all directories: `raw/`, `daily/`, `wiki/`, `output/`
+- Wiki structure mentions: `wiki/_master-index.md`, `wiki/index.md`, `wiki/log.md`, `wiki/connections/`, `wiki/qa/`
+- Skills table includes all five skills: `compile`, `audit`, `query`, `capture`, `setup`
+
+If anything is missing or outdated, ask the user: "Your CLAUDE.md is missing some sections added in the latest version. Update it?" — then apply only the missing additions without rewriting existing content.
 
 **`.claude/rules/wiki-conventions.md`** — if missing, create with standard wiki constraints (article format, index sync rules, raw file protection). See [vault-conventions.md](references/vault-conventions.md) for the canonical rules content.
 
-## Step 5: Report
+## Step 5: Configure qmd (Optional)
+
+qmd provides hybrid search (BM25 + semantic + LLM reranking) that makes the query skill scale past ~500 articles. It's a separate plugin from `tobi/qmd`.
+
+Check if qmd is installed:
+
+```bash
+qmd status 2>/dev/null && echo "installed" || echo "not installed"
+```
+
+**If installed**, register the vault's wiki as a collection and generate embeddings:
+
+```bash
+qmd collection add <vault_path>/wiki --name vault
+qmd context add qmd://vault "Knowledge base wiki articles"
+qmd embed
+```
+
+After each `/compile` run, keep the index current:
+
+```bash
+qmd update && qmd embed
+```
+
+**If not installed**, note it in the report as an optional next step.
+
+## Step 6: Report
 
 Print a summary of what was created vs what already existed:
 
@@ -109,4 +142,8 @@ Next steps:
   1. Set OBSIDIAN_VAULT_PATH=/path/to/vault in your shell profile
   2. Drop source files in raw/ and run /compile
   3. The SessionStart hook injects the wiki index into every session automatically
+  4. (Optional) Enable hybrid search at scale:
+       /plugin marketplace add tobi/qmd
+       /plugin install qmd@qmd
+       qmd collection add wiki/ --name vault && qmd embed
 ```

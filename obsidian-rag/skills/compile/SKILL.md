@@ -49,7 +49,7 @@ raw/**/*.txt
 raw/**/*.pdf
 ```
 
-A file is unprocessed if it lacks `processed: true` in its YAML frontmatter.
+A file is unprocessed if it has no entry in `output/state.json` or its SHA-256 hash differs from the stored value.
 
 If the user says "recompile", "force compile", or "compile everything", treat all files as unprocessed.
 
@@ -69,20 +69,21 @@ For each unprocessed file:
    - Create the folder `wiki/<topic-name>/` (lowercase kebab-case)
    - Create `wiki/<topic-name>/_index.md` using the `_index.md` format from [vault-conventions.md](references/vault-conventions.md)
 4. **Write the wiki article** following the article format in [vault-conventions.md](references/vault-conventions.md):
-   - YAML frontmatter with `project` field carried from the raw file
-   - Title derived from the source content
-   - One-line summary
+   - YAML frontmatter with `project`, `title`, `aliases`, `tags`, `sources` (list of originating files), `created`, and `updated` fields
+   - One-line summary blockquote
    - **Key Takeaways** section with 3-7 bullet points
-   - Content using bullet points over paragraphs
+   - **Details** section with encyclopedia-style paragraphs for deeper explanation
+   - Content using bullet points for enumerable items
    - Mermaid diagram(s) where the content warrants it (see Mermaid Guidelines below)
    - `[[wiki links]]` to related concepts across topics
-   - **Related** section at the bottom
+   - **Related** section
+   - **Sources** section linking back to originating daily logs or raw files
 5. **Update the topic's `_index.md`** — add the new article entry alphabetically using the format `- [[topic-name/article-name]] — one-line description`
 6. **Update `wiki/_master-index.md`**:
    - If the topic is new, add `- [[topic-name/_index|Topic Display Name]] — one-line description` alphabetically
 7. **Update `wiki/index.md`** — append a new row: `| [[path/article]] | one-line summary | source/file.md | YYYY-MM-DD |`
 8. **Append to `wiki/log.md`** — one entry per compile operation (see format in [vault-conventions.md](references/vault-conventions.md))
-9. **Mark raw files as processed** — add `processed: true` and `processed_date: YYYY-MM-DD` to frontmatter (raw/ only, not daily/)
+9. **Mark raw files as processed** — add `processed: true` and `processed_date: YYYY-MM-DD` to frontmatter as a human-readable marker (raw/ only, not daily/). The primary tracking is hash-based via `output/state.json`
 
 ### 3. Handle Multi-Topic Sources
 

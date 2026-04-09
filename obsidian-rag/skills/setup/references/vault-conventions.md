@@ -76,6 +76,13 @@ Every wiki article must follow this structure:
 ```markdown
 ---
 project: <source project, if applicable>
+title: "Article Title"
+aliases: []
+tags: []
+sources:
+  - "raw/source.md"
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
 ---
 
 # Article Title
@@ -84,27 +91,37 @@ project: <source project, if applicable>
 
 ## Key Takeaways
 
-- Bullet point 1
+- Bullet point 1 (quick-scan bullets)
 - Bullet point 2
 - Bullet point 3
 
+## Details
+
+Deeper encyclopedia-style explanation. Use paragraphs for nuance, context, and relationships that don't fit in bullets. Include specific facts, numbers, and definitions.
+
 ## Content
 
-- Use bullet points over paragraphs
+- Use bullets for enumerable items, lists, and comparisons
 - Organize with subheadings as needed
 - Use [[wiki links]] to connect related concepts across topics
-- Include specific facts, not vague summaries
 
 ## Related
 
 - [[topic/article-name]] — brief description of relationship
 - [[other-topic/other-article]] — brief description of relationship
+
+## Sources
+
+- [[daily/YYYY-MM-DD]] — initial discovery
+- [[daily/YYYY-MM-DD]] — updated with new information
 ```
 
 ### Required Sections
 
 - **Key Takeaways**: 3-7 bullet points summarizing the most important insights
+- **Details**: Encyclopedia-style paragraphs for deeper explanation (omit only if the article is purely a reference list)
 - **Related**: Links to related articles using `[[wiki links]]` format
+- **Sources**: Links back to originating daily logs or raw files (`[[daily/YYYY-MM-DD]]` or `[[raw/filename]]`)
 
 ### Wiki Link Format
 
@@ -113,6 +130,81 @@ Use double-bracket Obsidian links: `[[topic-folder/article-name]]`
 - Link to the file path relative to `wiki/` without the `.md` extension
 - Example: `[[machine-learning/transformer-architecture]]`
 - When referencing a concept that should have its own article but doesn't yet, still use wiki link syntax — this creates a discoverable "wanted" article
+
+## Connection Article Format
+
+Articles in `wiki/connections/` capture cross-cutting insights linking 2+ concepts. Create one when a source or conversation reveals a non-obvious relationship between topics.
+
+```markdown
+---
+project: <source project, if applicable>
+title: "Connection: X and Y"
+connects:
+  - "topic-a/article-x"
+  - "topic-b/article-y"
+sources:
+  - "daily/YYYY-MM-DD"
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+---
+
+# Connection: X and Y
+
+> One-line summary of the relationship.
+
+## The Connection
+
+[What links these concepts — the shared pattern, mechanism, or constraint]
+
+## Key Insight
+
+[The non-obvious relationship — why this connection matters]
+
+## Evidence
+
+[Specific examples from conversations or source material]
+
+## Related
+
+- [[topic-a/article-x]]
+- [[topic-b/article-y]]
+
+## Sources
+
+- [[daily/YYYY-MM-DD]] — session where this connection was discovered
+```
+
+## Q&A Article Format
+
+Articles in `wiki/qa/` file answers to queries for future reuse. Created by the query skill with `--file-back`.
+
+```markdown
+---
+project: <source project, if applicable>
+title: "Q: Original Question"
+question: "The exact question asked"
+consulted:
+  - "topic/article-1"
+  - "topic/article-2"
+filed: YYYY-MM-DD
+---
+
+# Q: Original Question
+
+## Answer
+
+[The synthesized answer with [[wikilinks]] to sources]
+
+## Sources Consulted
+
+- [[topic/article-1]] — relevant because...
+- [[topic/article-2]] — provided context on...
+
+## Follow-Up Questions
+
+- What about edge case X?
+- How does this interact with Y?
+```
 
 ## Operational File Formats
 

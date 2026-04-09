@@ -184,11 +184,21 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Compile sources into wiki articles")
     parser.add_argument("--source", choices=["raw", "daily", "all"], default="raw")
     parser.add_argument("--all", action="store_true", help="Force recompile all")
+    parser.add_argument("--file", help="Compile a specific file (path relative to vault root, e.g. raw/source.md or daily/2026-04-01.md)")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
     state = load_state()
-    pending = get_pending(args.source, args.all, state)
+
+    if args.file:
+        file_path = ROOT_DIR / args.file
+        if not file_path.exists():
+            print(f"File not found: {file_path}")
+            sys.exit(1)
+        stype = "daily" if args.file.startswith("daily/") else "raw"
+        pending = [(file_path, stype)]
+    else:
+        pending = get_pending(args.source, args.all, state)
 
     if not pending:
         print("Nothing to compile — all sources are up to date.")

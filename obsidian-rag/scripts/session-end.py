@@ -25,7 +25,10 @@ if os.environ.get("CLAUDE_INVOKED_BY"):
 # Add scripts dir to path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from config import SCRIPTS_DIR
+try:
+    from config import SCRIPTS_DIR
+except RuntimeError:
+    sys.exit(0)  # No vault configured — skip silently
 
 logging.basicConfig(
     filename=str(SCRIPTS_DIR / "flush.log"),
