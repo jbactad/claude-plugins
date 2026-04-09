@@ -34,6 +34,7 @@ description: |
 tools: ["Read", "Grep", "Glob", "Bash"]
 model: sonnet
 color: blue
+disallowedTools: ["Agent"]
 maxTurns: 30
 ---
 

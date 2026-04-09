@@ -32,7 +32,7 @@ description: |
   </commentary>
   </example>
 tools: ["Read", "Grep", "Glob", "Bash"]
-disallowedTools: ["Edit", "Write"]
+disallowedTools: ["Edit", "Write", "Agent"]
 model: sonnet
 color: yellow
 maxTurns: 20

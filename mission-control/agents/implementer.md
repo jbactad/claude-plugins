@@ -35,6 +35,7 @@ tools: ["Read", "Grep", "Glob", "Bash", "Edit", "Write"]
 model: sonnet
 color: green
 isolation: worktree
+disallowedTools: ["Agent"]
 maxTurns: 50
 ---
 
