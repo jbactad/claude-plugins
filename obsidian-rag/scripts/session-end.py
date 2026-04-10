@@ -129,8 +129,11 @@ def main() -> None:
     context_file.write_text(context, encoding="utf-8")
 
     flush_script = SCRIPTS_DIR / "flush.py"
-    cmd = [sys.executable, str(flush_script), str(context_file), session_id]
+    plugin_dir = SCRIPTS_DIR.parent
+    cmd = ["uv", "run", "--directory", str(plugin_dir), "python", str(flush_script), str(context_file), session_id]
 
+    # On Windows, use CREATE_NO_WINDOW to avoid flash console window.
+    # Do NOT use DETACHED_PROCESS or start_new_session — it breaks the Agent SDK's subprocess I/O.
     creation_flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
 
     try:
@@ -139,7 +142,6 @@ def main() -> None:
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             creationflags=creation_flags,
-            start_new_session=(sys.platform != "win32"),
         )
         logging.info("Spawned flush.py for session %s (%d turns)", session_id, turn_count)
     except Exception as e:

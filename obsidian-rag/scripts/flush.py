@@ -26,7 +26,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from config import DAILY_DIR, SCRIPTS_DIR, today_iso, now_iso
+from config import DAILY_DIR, PLUGIN_DIR, SCRIPTS_DIR, today_iso, now_iso
 
 LAST_FLUSH_FILE = SCRIPTS_DIR / "last-flush.json"
 COMPILE_AFTER_HOUR = 18  # 6 PM local time
@@ -112,13 +112,20 @@ If nothing is worth saving, respond with exactly: FLUSH_OK
 
 {context}"""
 
+    stderr_lines: list[str] = []
+
+    def _capture_stderr(line: str) -> None:
+        stderr_lines.append(line)
+
     response = ""
     try:
         async for message in query(
             prompt=prompt,
             options=ClaudeAgentOptions(
+                cwd=str(PLUGIN_DIR),
                 allowed_tools=[],
                 max_turns=2,
+                stderr=_capture_stderr,
             ),
         ):
             if isinstance(message, AssistantMessage):
@@ -129,7 +136,8 @@ If nothing is worth saving, respond with exactly: FLUSH_OK
                 pass
     except Exception as e:
         import traceback
-        logging.error("Agent SDK error: %s\n%s", e, traceback.format_exc())
+        stderr_output = "\n".join(stderr_lines[-20:]) if stderr_lines else "(no stderr)"
+        logging.error("Agent SDK error: %s\nstderr: %s\n%s", e, stderr_output, traceback.format_exc())
         response = f"FLUSH_ERROR: {type(e).__name__}: {e}"
 
     return response
@@ -164,16 +172,14 @@ def maybe_trigger_compilation() -> None:
 
     logging.info("Triggering end-of-day compilation (after %d:00)", COMPILE_AFTER_HOUR)
 
-    cmd = [sys.executable, str(compile_script), "--source", "daily"]
+    cmd = ["uv", "run", "--directory", str(PLUGIN_DIR), "python", str(compile_script), "--source", "daily"]
     kwargs: dict = {}
     if sys.platform == "win32":
         kwargs["creationflags"] = sp.CREATE_NO_WINDOW
-    else:
-        kwargs["start_new_session"] = True
 
     try:
         log_handle = open(str(SCRIPTS_DIR / "compile.log"), "a")
-        sp.Popen(cmd, stdout=log_handle, stderr=sp.STDOUT, **kwargs)
+        sp.Popen(cmd, stdout=log_handle, stderr=sp.STDOUT, cwd=str(PLUGIN_DIR), **kwargs)
     except Exception as e:
         logging.error("Failed to spawn compile.py: %s", e)
 
