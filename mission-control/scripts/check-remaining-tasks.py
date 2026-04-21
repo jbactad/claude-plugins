@@ -17,6 +17,9 @@ if agent_id:
 if stop_hook_active:
     sys.exit(0)
 
+if os.environ.get('MISSION_CONTROL_RESUME') != '1':
+    sys.exit(0)
+
 mission_file = os.path.join(os.environ.get('CLAUDE_PROJECT_DIR', ''), '.mission-control/missions/active.json')
 
 if not os.path.isfile(mission_file):
