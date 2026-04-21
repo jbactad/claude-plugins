@@ -1,42 +1,29 @@
-#!/bin/bash
-set -euo pipefail
+#!/usr/bin/env python3
+import json
+import os
+import sys
 
-MISSION_FILE="${CLAUDE_PROJECT_DIR}/.mission-control/missions/active.json"
+mission_file = os.path.join(os.environ.get('CLAUDE_PROJECT_DIR', ''), '.mission-control/missions/active.json')
 
-if [ ! -f "$MISSION_FILE" ]; then
-  exit 0
-fi
+if not os.path.isfile(mission_file):
+    sys.exit(0)
 
-# Parse hook input: extract agent_id and source
-HOOK_DATA=$(python3 -c "
-import json, sys
 try:
-    o = json.load(sys.stdin)
-    print(o.get('agent_id', ''))
-    print(o.get('source', 'startup'))
+    hook_input = json.load(sys.stdin)
 except Exception:
-    print('')
-    print('startup')
-" 2>/dev/null)
+    hook_input = {}
 
-AGENT_ID=$(echo "$HOOK_DATA" | sed -n '1p')
-SOURCE=$(echo "$HOOK_DATA" | sed -n '2p')
+agent_id = hook_input.get('agent_id', '')
+source = hook_input.get('source', 'startup')
 
-# Never inject into sub-agent sessions
-if [ -n "$AGENT_ID" ]; then
-  exit 0
-fi
+if agent_id:
+    sys.exit(0)
 
-# Inject on resume (session recovery), or on startup only when explicitly requested
-if [ "$SOURCE" != "resume" ] && [ "${MISSION_CONTROL_RESUME:-}" != "1" ]; then
-  exit 0
-fi
-
-python3 -c "
-import json, sys
+if source != 'resume' and os.environ.get('MISSION_CONTROL_RESUME') != '1':
+    sys.exit(0)
 
 try:
-    with open(sys.argv[1]) as f:
+    with open(mission_file) as f:
         data = json.load(f)
 except Exception:
     sys.exit(0)
@@ -50,17 +37,13 @@ in_progress = [t.get('name') or t.get('id') for t in tasks if t.get('status') ==
 failed = [t.get('name') or t.get('id') for t in tasks if t.get('status') == 'failed']
 
 print('[Mission Control] Active mission detected:')
-print('')
+print()
 print('  Mission: ' + name)
 print('  Status:  ' + status)
 print('  Progress: ' + str(completed) + '/' + str(total) + ' tasks completed')
-
 if in_progress:
     print('  In Progress: ' + ', '.join(in_progress))
-
 if failed:
     print('  Failed: ' + ', '.join(failed))
-
-print('')
+print()
 print('Use /checkpoint for full status or /debrief to close the mission.')
-" "$MISSION_FILE" 2>/dev/null

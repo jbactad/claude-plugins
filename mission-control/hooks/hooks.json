@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/load-mission-state.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/load-mission-state.py"
           }
         ]
       }
@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-remaining-tasks.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/check-remaining-tasks.py"
           }
         ]
       }
@@ -28,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-delegation.sh"
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/validate-delegation.py"
           }
         ]
       }

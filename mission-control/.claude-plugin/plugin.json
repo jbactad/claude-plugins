@@ -1,6 +1,6 @@
 {
   "name": "mission-control",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Autonomous AI orchestration engine — decomposes goals into tasks, executes with specialized agents, learns from outcomes, and delivers results with minimal human intervention.",
   "author": {
     "name": "jbactad"
