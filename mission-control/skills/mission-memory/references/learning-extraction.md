@@ -124,7 +124,7 @@ The file follows the format documented in `memory-format.md`: YAML frontmatter w
 
 ### Good Extraction
 
-**Mission context:** A full-stack feature mission failed at Phase 4 (frontend implementation) because the implementer imported from `@automaker/server` directly instead of using the shared `@automaker/types` package.
+**Mission context:** A full-stack feature mission failed at Phase 4 (frontend implementation) because the implementer imported from `@myapp/server` directly instead of using the shared `@myapp/types` package.
 
 **Extracted learning:**
 
@@ -143,11 +143,11 @@ category: gotcha
 
 # Frontend Must Not Import from Server Package
 
-The frontend (`apps/ui`) must never import directly from `@automaker/server`. Shared types, interfaces, and constants must come from `@automaker/types` or other `libs/` packages.
+The frontend (`apps/ui`) must never import directly from `@myapp/server`. Shared types, interfaces, and constants must come from `@myapp/types` or other `libs/` packages.
 
-Direct server imports cause build failures because the UI build does not resolve server-side modules. The error manifests as "Module not found: @automaker/server" during Vite compilation.
+Direct server imports cause build failures because the UI build does not resolve server-side modules. The error manifests as "Module not found: @myapp/server" during Vite compilation.
 
-If a type exists in the server but not in `@automaker/types`, move the type to `@automaker/types` first, then import from there in both server and UI.
+If a type exists in the server but not in `@myapp/types`, move the type to `@myapp/types` first, then import from there in both server and UI.
 ```
 
 **Why this is good:**

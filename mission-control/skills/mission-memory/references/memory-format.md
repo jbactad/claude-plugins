@@ -142,15 +142,15 @@ category: architecture
 Packages in `libs/` follow a strict dependency chain. A package can only import from packages above it in the hierarchy:
 
 ```
-@automaker/types        (no dependencies)
+@myapp/types        (no dependencies)
     |
-@automaker/utils        (depends on types)
-@automaker/prompts      (depends on types)
-@automaker/platform     (depends on types)
-@automaker/model-resolver    (depends on types)
-@automaker/dependency-resolver (depends on types)
+@myapp/utils        (depends on types)
+@myapp/prompts      (depends on types)
+@myapp/platform     (depends on types)
+@myapp/model-resolver    (depends on types)
+@myapp/dependency-resolver (depends on types)
     |
-@automaker/git-utils    (depends on types, utils, platform)
+@myapp/git-utils    (depends on types, utils, platform)
     |
 apps/server, apps/ui    (can depend on any package)
 ```
