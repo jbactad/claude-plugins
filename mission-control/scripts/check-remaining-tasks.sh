@@ -5,19 +5,15 @@ set -euo pipefail
 INPUT=$(cat)
 
 # Parse agent_id and stop_hook_active from hook input
-HOOK_DATA=$(echo "$INPUT" | node -e "
-  let d = '';
-  process.stdin.on('data', c => d += c);
-  process.stdin.on('end', () => {
-    try {
-      const o = JSON.parse(d);
-      console.log(o.agent_id || '');
-      console.log(o.stop_hook_active || false);
-    } catch (e) {
-      console.log('');
-      console.log('false');
-    }
-  });
+HOOK_DATA=$(echo "$INPUT" | python3 -c "
+import json, sys
+try:
+    o = json.load(sys.stdin)
+    print(o.get('agent_id', ''))
+    print(str(o.get('stop_hook_active', False)).lower())
+except Exception:
+    print('')
+    print('false')
 " 2>/dev/null)
 
 AGENT_ID=$(echo "$HOOK_DATA" | sed -n '1p')
@@ -40,17 +36,16 @@ if [ ! -f "$MISSION_FILE" ]; then
 fi
 
 # Count remaining (non-completed) tasks
-REMAINING=$(node -e "
-  const fs = require('fs');
-  try {
-    const d = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
-    const tasks = d.tasks || [];
-    const remaining = tasks.filter(t => t.status !== 'completed').length;
-    console.log(remaining);
-  } catch (e) {
-    console.log('0');
-  }
-" "$MISSION_FILE" 2>/dev/null || echo "0")
+REMAINING=$(echo "$MISSION_FILE" | python3 -c "
+import json, sys
+try:
+    with open(sys.stdin.read().strip()) as f:
+        data = json.load(f)
+    tasks = data.get('tasks', [])
+    print(sum(1 for t in tasks if t.get('status') != 'completed'))
+except Exception:
+    print('0')
+" 2>/dev/null || echo "0")
 
 if [[ "$REMAINING" =~ ^[0-9]+$ ]] && [ "$REMAINING" -gt 0 ]; then
   echo "Mission Control: $REMAINING task(s) remaining in active mission. Consider running /checkpoint or /debrief before ending the session." >&2

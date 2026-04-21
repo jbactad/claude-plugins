@@ -8,19 +8,15 @@ if [ ! -f "$MISSION_FILE" ]; then
 fi
 
 # Parse hook input: extract agent_id and source
-HOOK_DATA=$(node -e "
-  let d = '';
-  process.stdin.on('data', c => d += c);
-  process.stdin.on('end', () => {
-    try {
-      const o = JSON.parse(d);
-      console.log(o.agent_id || '');
-      console.log(o.source || 'startup');
-    } catch (e) {
-      console.log('');
-      console.log('startup');
-    }
-  });
+HOOK_DATA=$(python3 -c "
+import json, sys
+try:
+    o = json.load(sys.stdin)
+    print(o.get('agent_id', ''))
+    print(o.get('source', 'startup'))
+except Exception:
+    print('')
+    print('startup')
 " 2>/dev/null)
 
 AGENT_ID=$(echo "$HOOK_DATA" | sed -n '1p')
@@ -36,36 +32,35 @@ if [ "$SOURCE" != "resume" ] && [ "${MISSION_CONTROL_RESUME:-}" != "1" ]; then
   exit 0
 fi
 
-node -e "
-  const fs = require('fs');
-  try {
-    const data = JSON.parse(fs.readFileSync(process.argv[1], 'utf8'));
+python3 -c "
+import json, sys
 
-    const name = data.name || 'Unnamed mission';
-    const status = data.status || 'unknown';
-    const tasks = data.tasks || [];
-    const total = tasks.length;
-    const completed = tasks.filter(t => t.status === 'completed').length;
-    const inProgress = tasks.filter(t => t.status === 'in_progress');
-    const failed = tasks.filter(t => t.status === 'failed');
+try:
+    with open(sys.argv[1]) as f:
+        data = json.load(f)
+except Exception:
+    sys.exit(0)
 
-    console.log('[Mission Control] Active mission detected:');
-    console.log('');
-    console.log('  Mission: ' + name);
-    console.log('  Status:  ' + status);
-    console.log('  Progress: ' + completed + '/' + total + ' tasks completed');
+name = data.get('name', 'Unnamed mission')
+status = data.get('status', 'unknown')
+tasks = data.get('tasks', [])
+total = len(tasks)
+completed = sum(1 for t in tasks if t.get('status') == 'completed')
+in_progress = [t.get('name') or t.get('id') for t in tasks if t.get('status') == 'in_progress']
+failed = [t.get('name') or t.get('id') for t in tasks if t.get('status') == 'failed']
 
-    if (inProgress.length > 0) {
-      console.log('  In Progress: ' + inProgress.map(t => t.name || t.id).join(', '));
-    }
+print('[Mission Control] Active mission detected:')
+print('')
+print('  Mission: ' + name)
+print('  Status:  ' + status)
+print('  Progress: ' + str(completed) + '/' + str(total) + ' tasks completed')
 
-    if (failed.length > 0) {
-      console.log('  Failed: ' + failed.map(t => t.name || t.id).join(', '));
-    }
+if in_progress:
+    print('  In Progress: ' + ', '.join(in_progress))
 
-    console.log('');
-    console.log('Use /checkpoint for full status or /debrief to close the mission.');
-  } catch (e) {
-    process.exit(0);
-  }
+if failed:
+    print('  Failed: ' + ', '.join(failed))
+
+print('')
+print('Use /checkpoint for full status or /debrief to close the mission.')
 " "$MISSION_FILE" 2>/dev/null
