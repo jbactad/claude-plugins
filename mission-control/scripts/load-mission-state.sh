@@ -1,12 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-# SessionStart hook: Load active mission state and inject it as context.
-#
-# If .mission-control/missions/active.json exists, reads the file and outputs a
-# formatted summary to stdout. Claude receives this output as injected
-# context at the start of the session.
-#
-# If no active mission exists, exits silently (exit 0, no output).
 
 MISSION_FILE="${CLAUDE_PROJECT_DIR}/.mission-control/missions/active.json"
 
@@ -14,7 +7,35 @@ if [ ! -f "$MISSION_FILE" ]; then
   exit 0
 fi
 
-# Use node to parse JSON and produce a human-readable summary
+# Parse hook input: extract agent_id and source
+HOOK_DATA=$(node -e "
+  let d = '';
+  process.stdin.on('data', c => d += c);
+  process.stdin.on('end', () => {
+    try {
+      const o = JSON.parse(d);
+      console.log(o.agent_id || '');
+      console.log(o.source || 'startup');
+    } catch (e) {
+      console.log('');
+      console.log('startup');
+    }
+  });
+" 2>/dev/null)
+
+AGENT_ID=$(echo "$HOOK_DATA" | sed -n '1p')
+SOURCE=$(echo "$HOOK_DATA" | sed -n '2p')
+
+# Never inject into sub-agent sessions
+if [ -n "$AGENT_ID" ]; then
+  exit 0
+fi
+
+# Inject on resume (session recovery), or on startup only when explicitly requested
+if [ "$SOURCE" != "resume" ] && [ "${MISSION_CONTROL_RESUME:-}" != "1" ]; then
+  exit 0
+fi
+
 node -e "
   const fs = require('fs');
   try {
@@ -45,7 +66,6 @@ node -e "
     console.log('');
     console.log('Use /checkpoint for full status or /debrief to close the mission.');
   } catch (e) {
-    // Malformed JSON or read error — exit silently
     process.exit(0);
   }
 " "$MISSION_FILE" 2>/dev/null
