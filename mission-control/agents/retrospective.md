@@ -31,7 +31,7 @@ description: |
   Retrospective agents analyze mission state and logs — they never need to write or run commands.
   </commentary>
   </example>
-tools: ["Read", "Grep", "Glob"]
+tools: ["Read", "Grep", "Glob", "TaskCreate", "TaskGet", "TaskList", "TaskOutput", "TaskStop", "TaskUpdate", "SendMessage"]
 disallowedTools: ["Edit", "Write", "Bash", "Agent"]
 model: sonnet
 color: magenta

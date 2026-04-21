@@ -31,7 +31,7 @@ description: |
   Migrations need explicit dependency mapping to identify safe parallelism and rollback points.
   </commentary>
   </example>
-tools: ["Read", "Grep", "Glob", "Bash"]
+tools: ["Read", "Grep", "Glob", "Bash", "TaskCreate", "TaskGet", "TaskList", "TaskOutput", "TaskStop", "TaskUpdate", "SendMessage"]
 model: sonnet
 color: blue
 disallowedTools: ["Agent"]

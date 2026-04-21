@@ -31,7 +31,7 @@ description: |
   Isolated worktree prevents partial changes from contaminating the working branch during implementation.
   </commentary>
   </example>
-tools: ["Read", "Grep", "Glob", "Bash", "Edit", "Write"]
+tools: ["Read", "Grep", "Glob", "Bash", "Edit", "Write", "TaskCreate", "TaskGet", "TaskList", "TaskOutput", "TaskStop", "TaskUpdate", "SendMessage"]
 model: sonnet
 color: green
 isolation: worktree

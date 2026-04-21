@@ -31,7 +31,7 @@ description: |
   Research phase ensures implementers have complete file ownership lists before they start.
   </commentary>
   </example>
-tools: ["Read", "Grep", "Glob", "Bash"]
+tools: ["Read", "Grep", "Glob", "Bash", "TaskCreate", "TaskGet", "TaskList", "TaskOutput", "TaskStop", "TaskUpdate", "SendMessage"]
 disallowedTools: ["Edit", "Write", "Agent"]
 model: haiku
 color: cyan
