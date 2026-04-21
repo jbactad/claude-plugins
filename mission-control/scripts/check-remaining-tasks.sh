@@ -1,30 +1,34 @@
 #!/bin/bash
 set -euo pipefail
-# Stop hook: Check for remaining tasks in the active mission.
-#
-# Reads hook input from stdin (JSON with stop_hook_active field).
-# If stop_hook_active is true, exits 0 immediately to prevent looping.
-#
-# If .mission-control/missions/active.json exists and has incomplete tasks,
-# outputs a warning to stderr and exits 2 (which prevents Claude from
-# stopping and asks it to remind the user about the active mission).
-#
-# If no active mission exists or all tasks are complete, exits 0.
 
 # Read hook input from stdin
 INPUT=$(cat)
 
-# Check if the stop hook is already active to prevent infinite loops
-STOP_ACTIVE=$(echo "$INPUT" | node -e "
-  const fs = require('fs');
-  try {
-    const d = JSON.parse(fs.readFileSync('/dev/stdin', 'utf8'));
-    console.log(d.stop_hook_active || false);
-  } catch (e) {
-    console.log('false');
-  }
-" 2>/dev/null || echo "false")
+# Parse agent_id and stop_hook_active from hook input
+HOOK_DATA=$(echo "$INPUT" | node -e "
+  let d = '';
+  process.stdin.on('data', c => d += c);
+  process.stdin.on('end', () => {
+    try {
+      const o = JSON.parse(d);
+      console.log(o.agent_id || '');
+      console.log(o.stop_hook_active || false);
+    } catch (e) {
+      console.log('');
+      console.log('false');
+    }
+  });
+" 2>/dev/null)
 
+AGENT_ID=$(echo "$HOOK_DATA" | sed -n '1p')
+STOP_ACTIVE=$(echo "$HOOK_DATA" | sed -n '2p')
+
+# Never block sub-agents from stopping
+if [ -n "$AGENT_ID" ]; then
+  exit 0
+fi
+
+# Prevent infinite loops if stop hook is already active
 if [ "$STOP_ACTIVE" = "true" ]; then
   exit 0
 fi
