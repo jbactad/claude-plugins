@@ -1,0 +1,8 @@
+# Runtime + generated (not source)
+.venv/
+uv.lock
+scripts/__pycache__/
+scripts/*.log
+scripts/last-flush.json
+scripts/state.json
+scripts/session-flush-*.md
