@@ -19,6 +19,7 @@ os.environ["CLAUDE_INVOKED_BY"] = "memory_flush"
 import asyncio
 import json
 import logging
+import re
 import sys
 import time
 from datetime import datetime, timezone
@@ -30,6 +31,15 @@ from config import DAILY_DIR, PLUGIN_DIR, SCRIPTS_DIR, today_iso, now_iso
 
 LAST_FLUSH_FILE = SCRIPTS_DIR / "last-flush.json"
 COMPILE_AFTER_HOUR = 18  # 6 PM local time
+
+# Sentinel the flush agent returns when a session holds nothing worth recording.
+# Matched exactly against the stripped response — a substring match would discard
+# any entry that merely mentions the sentinel.
+SENTINEL_NOTHING = "NOTHING_TO_SAVE"
+
+# Plugins may prefix agent output (e.g. message-timestamps emits "[18:53:58] ").
+# Stripped before sentinel matching and before the entry reaches the vault.
+PREFIX_RE = re.compile(r"^\s*\[\d{1,2}:\d{2}(?::\d{2})?\]\s*")
 
 logging.basicConfig(
     filename=str(SCRIPTS_DIR / "flush.log"),
@@ -81,9 +91,12 @@ async def run_flush(context: str) -> str:
         query,
     )
 
-    prompt = f"""Review the conversation context below and respond with a concise summary
-of important items that should be preserved in the daily knowledge log.
-Do NOT use any tools — return plain text only.
+    prompt = f"""Extract the durable knowledge from the conversation below into an entry
+for the daily knowledge log. Do NOT use any tools — return plain text only.
+
+Default to saving. A real work session almost always contains something worth keeping:
+what was being worked on, what was decided, what was learned, what is still open.
+Write the entry unless the conversation is genuinely empty of content.
 
 Format your response as a structured entry with these sections (omit empty ones):
 
@@ -101,12 +114,11 @@ Format your response as a structured entry with these sections (omit empty ones)
 **Action Items:**
 - [ ] [Follow-ups or TODOs mentioned]
 
-Skip:
-- Routine tool calls or file reads
-- Trivial or obvious content
-- Back-and-forth clarifications with no knowledge value
+Leave out routine tool calls, file reads, and clarifications that carry no knowledge —
+but their presence is not a reason to discard the session. Summarize what remains.
 
-If nothing is worth saving, respond with exactly: FLUSH_OK
+Respond with exactly {SENTINEL_NOTHING} only when there is nothing at all to record:
+a bare greeting, an aborted session with no work, or context with no factual content.
 
 ## Conversation Context
 
@@ -126,6 +138,10 @@ If nothing is worth saving, respond with exactly: FLUSH_OK
                 allowed_tools=[],
                 max_turns=2,
                 stderr=_capture_stderr,
+                # Judge the transcript on its own terms. Without this the agent inherits
+                # the user's CLAUDE.md, hooks, and output-style plugins, which pull the
+                # summary toward whatever tone/brevity those enforce.
+                setting_sources=[],
             ),
         ):
             if isinstance(message, AssistantMessage):
@@ -218,14 +234,19 @@ def main() -> None:
 
     response = asyncio.run(run_flush(context))
 
-    if "FLUSH_OK" in response:
-        logging.info("FLUSH_OK — nothing worth saving")
-    elif "FLUSH_ERROR" in response:
-        logging.error("Flush error: %s", response)
-        append_to_daily_log(response)
+    entry = PREFIX_RE.sub("", response).strip()
+    logging.info("Agent response (%d chars): %s", len(entry), entry[:500].replace("\n", " | "))
+
+    if entry.startswith("FLUSH_ERROR"):
+        # Errors are operator signal, not knowledge — keep them out of the vault.
+        logging.error("Flush failed, nothing written: %s", entry)
+    elif entry == SENTINEL_NOTHING:
+        logging.info("%s — nothing worth saving", SENTINEL_NOTHING)
+    elif not entry:
+        logging.warning("Empty agent response, nothing written")
     else:
-        logging.info("Saved to daily log (%d chars)", len(response))
-        append_to_daily_log(response)
+        logging.info("Saved to daily log (%d chars)", len(entry))
+        append_to_daily_log(entry)
 
     save_flush_state({"session_id": session_id, "timestamp": time.time()})
     context_file.unlink(missing_ok=True)

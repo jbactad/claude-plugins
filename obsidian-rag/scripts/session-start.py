@@ -15,6 +15,12 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+# Recursion guard: exit immediately if this session was spawned by flush.py, which
+# runs Claude Code, which fires SessionStart again. Without this the flush agent's
+# own session receives the full knowledge index as context.
+if os.environ.get("CLAUDE_INVOKED_BY"):
+    sys.exit(0)
+
 # Add scripts dir to path so config/utils are importable
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
