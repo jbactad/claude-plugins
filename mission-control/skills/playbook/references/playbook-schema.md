@@ -20,21 +20,24 @@ The file name (without `.md`) is the playbook name used in commands:
 ---
 name: <string>                    # Required. Unique playbook identifier. Must match the filename.
 description: <string>             # Required. One-line description shown in `/playbook list`.
-planningDepth: <lite|spec|full>   # Required. How deeply the mission planner should plan.
+planningDepth: <skip|lite|spec|full>
+                                  # Required. How deeply the mission planner should plan.
+                                  #   skip  — No task graph. Execute directly with tools.
                                   #   lite  — Minimal planning. Suitable for well-understood, low-risk tasks.
                                   #   spec  — Produce a specification before implementation. Good default.
                                   #   full  — Detailed planning with dependency graphs, rollback points,
                                   #           and file ownership. Use for risky or large-scope missions.
-requireApproval: <boolean>        # Optional. Default: false. If true, the orchestrator pauses after
-                                  #   planning and waits for human approval before executing.
-riskTier: <0|1|2>                 # Required. Default risk tier for tasks in this playbook.
+requireApproval: <never|tier1+|tier2+|always>
+                                  # Optional. Default: tier2+. Lowest risk tier that requires human
+                                  #   approval before the orchestrator executes a task.
+riskTier: <0|1|2|3>               # Required. Default risk tier for tasks in this playbook.
                                   #   0 — Low risk. No reviewer needed.
                                   #   1 — Medium risk. Reviewer required.
                                   #   2 — High risk. Reviewer required, consider opus model.
+                                  #   3 — Critical. Human confirmation before any irreversible action.
 defaultModel: <string>            # Optional. Default: "sonnet". The model to use for agents unless
                                   #   overridden at the phase or task level. Values: haiku, sonnet, opus.
-useWorktrees: <boolean>           # Optional. Default: false. If true, implementation agents work in
-                                  #   isolated git worktrees.
+maxConcurrentAgents: <integer>    # Optional. Default: 3. Cap on agents running at once during a phase.
 ---
 ```
 
@@ -52,7 +55,6 @@ The body is standard markdown. It must contain a `## Phases` section with one or
 - **Parallel**: <true|false>
 - **Depends On**: <none | Phase N, Phase M>
 - **Model**: <haiku|sonnet|opus>          (optional, overrides defaultModel)
-- **Isolation**: <none|worktree>          (optional, overrides useWorktrees)
 
 #### Tasks
 1. <Task description for this phase. Use {goal} to reference the mission goal.>
@@ -79,7 +81,6 @@ The body is standard markdown. It must contain a `## Phases` section with one or
 | Parallel | Yes | Whether agents within this phase run in parallel (`true`) or sequentially (`false`). |
 | Depends On | Yes | Phase dependencies. Use `none` for phases with no dependencies. Reference phases by name: `Phase 1`, `Phase 2`, etc. Multiple dependencies: `Phase 1, Phase 2`. |
 | Model | No | Override the playbook's `defaultModel` for this phase. Useful when a specific phase needs a stronger or weaker model. |
-| Isolation | No | Override the playbook's `useWorktrees` for this phase. Use `worktree` for isolated execution, `none` for shared workspace. |
 
 ### Variable Substitution
 
@@ -94,7 +95,7 @@ The placeholder `{goal}` is replaced with the mission goal text at runtime. Use 
 ## Rules
 
 1. **Phase names must be unique.** No two phases can share the same name within a playbook.
-2. **`depends_on` must reference existing phase names.** Referencing a non-existent phase causes a validation error.
+2. **`Depends On` must reference existing phase names.** Referencing a non-existent phase causes a validation error.
 3. **At least 2 phases are required.** A single-phase playbook provides no value over a direct task assignment.
 4. **No circular dependencies.** Phase A cannot depend on Phase B if Phase B depends on Phase A (directly or transitively).
 5. **Parallel phases cannot have internal ordering.** If a phase has `Parallel: true` and multiple agents, all agents start simultaneously. Use separate phases if ordering matters.
@@ -109,10 +110,10 @@ Below is a complete custom playbook for an API-first development workflow:
 name: api-first
 description: Design and implement API endpoints with contract-first development.
 planningDepth: spec
-requireApproval: false
+requireApproval: tier2+
 riskTier: 1
 defaultModel: sonnet
-useWorktrees: true
+maxConcurrentAgents: 3
 ---
 
 ## Phases
@@ -144,7 +145,6 @@ This phase is read-only. The researcher must not suggest changes, only report fa
 - **Agents**: implementer
 - **Parallel**: false
 - **Depends On**: Phase 2
-- **Isolation**: worktree
 
 #### Tasks
 1. Implement route handlers following the contract from Phase 2.

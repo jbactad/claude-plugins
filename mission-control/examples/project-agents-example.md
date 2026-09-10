@@ -97,7 +97,7 @@ Context: Follow existing endpoint patterns in src/api/
 
 ## Format Rules
 
-- **`subagent_type`** must be one of: `Explore`, `Plan`, `Bash`, `general-purpose`
+- **`subagent_type`** must name an agent that exists in the session: a built-in type (`general-purpose`, `Explore`, `Plan`) or a project agent defined under `.claude/agents/`
 - **`model`** must be one of: `haiku`, `sonnet`, `opus`
 - **Type names** should be kebab-case and descriptive (e.g., `frontend-expert`, not `fe`)
 - **Notes** column is shown in the agent registry but not required

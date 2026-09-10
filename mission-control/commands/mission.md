@@ -15,20 +15,13 @@ Launch a new autonomous mission. This command initializes mission state, loads s
 
 If `$ARGUMENTS` is provided and non-empty, use it as the mission goal. Skip the interactive prompt.
 
-If `$ARGUMENTS` is empty, ask the user for the mission goal:
+If `$ARGUMENTS` is empty, ask the user inline for the mission goal — a goal is free text, so do not use `AskUserQuestion` here:
 
 ```
-AskUserQuestion:
-  question: "What is the goal of this mission?"
-  options:
-    - "New Feature: [describe]"
-    - "Bug Fix: [describe]"
-    - "Refactoring: [describe]"
-    - "Migration: [describe]"
-    - "Other: [describe]"
+What is the goal of this mission? (e.g. "New feature: add SSO login", "Bug fix: orders page crashes on empty cart")
 ```
 
-Capture the user's response as the mission goal. If they selected a category prefix (e.g., "New Feature:"), retain it -- it informs planning depth and playbook matching later.
+Capture the response as the mission goal. If the user gives a category prefix, retain it -- it informs planning depth and playbook matching later.
 
 ### Step 2: Load Settings
 
@@ -43,7 +36,6 @@ defaultModel: sonnet
 defaultPlanningDepth: spec
 requireApproval: tier2+
 maxConcurrentAgents: 3
-useWorktrees: true
 autoReview: true
 autoTest: true
 testCommand: ""
@@ -63,7 +55,6 @@ Model: [defaultModel]
 Planning: [defaultPlanningDepth]
 Approval: [requireApproval]
 Max Agents: [maxConcurrentAgents]
-Worktrees: [useWorktrees]
 Auto-Review: [autoReview]
 Auto-Test: [autoTest] ([testCommand] or "no test command")
 Retry: [retryOnFailure] (max [maxRetries], escalate: [escalateModelOnRetry])
@@ -134,7 +125,7 @@ Invoke the **orchestrate** skill workflow. The orchestrate skill defines a 7-ste
 2. **Risk Assessment** -- Assign an overall risk tier (Tier 0-3) based on scope and impact.
 3. **Decompose** -- Spawn the mission-planner agent to produce a task dependency graph. If a playbook was selected, pass its phases as the decomposition template.
 4. **Pattern Selection** -- Choose an orchestration pattern (fan-out, pipeline, explore-then-act, competitive, iterative, supervisor) based on the task graph structure.
-5. **Launch** -- Begin executing tasks in dependency order, respecting `maxConcurrentAgents`. Spawn agents for each task.
+5. **Launch** -- Begin executing tasks in dependency order, spawning agents with the `Agent` tool and never exceeding `maxConcurrentAgents` at once.
 6. **Monitor** -- Track task completion, handle failures (retry with model escalation if enabled), run reviewer agents for Tier 1+ tasks.
 7. **Close** -- When all tasks complete, produce a completion summary. If `autoLearn` is enabled, trigger learning extraction.
 
@@ -176,7 +167,6 @@ Save the initial mission state to `.mission-control/missions/active.json`:
     "requireApproval": "<from effective settings>",
     "maxConcurrentAgents": 3,
     "defaultModel": "sonnet",
-    "useWorktrees": true,
     "autoReview": true,
     "autoTest": true,
     "testCommand": "",

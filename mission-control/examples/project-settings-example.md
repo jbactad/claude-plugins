@@ -22,9 +22,6 @@ maxConcurrentAgents: 3          # Maximum parallel agents during execution
 testCommand: ""                 # Shell command to run tests (e.g., "npm test", "pytest")
 devCommand: ""                  # Shell command to start dev server (e.g., "npm run dev")
 
-# Isolation
-useWorktrees: true              # Run implementer agents in isolated git worktrees
-
 # Quality Gates
 autoReview: true                # Automatically spawn reviewer agent for Tier 1+ tasks
 autoTest: true                  # Automatically run testCommand after implementation
@@ -67,7 +64,6 @@ defaultModel: haiku
 defaultPlanningDepth: lite
 requireApproval: never
 maxConcurrentAgents: 5
-useWorktrees: false
 autoReview: false
 autoTest: false
 retryOnFailure: false
@@ -89,7 +85,6 @@ requireApproval: always
 maxConcurrentAgents: 2
 testCommand: "npm run test:all"
 devCommand: "npm run dev"
-useWorktrees: true
 autoReview: true
 autoTest: true
 retryOnFailure: true
@@ -117,7 +112,6 @@ defaultPlanningDepth: spec
 requireApproval: tier1+
 maxConcurrentAgents: 3
 testCommand: "pytest -x"
-useWorktrees: true
 autoReview: true
 autoTest: true
 retryOnFailure: true

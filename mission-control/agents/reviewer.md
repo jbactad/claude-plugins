@@ -31,7 +31,7 @@ description: |
   Review wave runs after all implementation is done, with reviewers checking each task independently.
   </commentary>
   </example>
-tools: ["Read", "Grep", "Glob", "Bash", "TaskCreate", "TaskGet", "TaskList", "TaskOutput", "TaskStop", "TaskUpdate", "SendMessage"]
+tools: ["Read", "Grep", "Glob", "Bash", "SendMessage"]
 disallowedTools: ["Edit", "Write", "Agent"]
 model: sonnet
 color: yellow

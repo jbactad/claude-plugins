@@ -2,7 +2,7 @@
 
 Autonomous AI orchestration engine for Claude Code.
 
-Mission Control takes high-level goals, decomposes them into task dependency graphs, executes tasks with specialized agents in isolated git worktrees, learns from outcomes, and delivers results with minimal human intervention. It brings multi-agent coordination to Claude Code through a structured 7-step operational workflow with risk-gated autonomy, adaptive execution, and persistent memory.
+Mission Control takes high-level goals, decomposes them into task dependency graphs, executes tasks with specialized agents, learns from outcomes, and delivers results with minimal human intervention. It brings multi-agent coordination to Claude Code through a structured 7-step operational workflow with risk-gated autonomy, adaptive execution, and persistent memory.
 
 ## Features
 
@@ -12,7 +12,7 @@ Mission Control takes high-level goals, decomposes them into task dependency gra
 - **Playbooks**: Reusable mission templates for common workflows (full-stack feature, bug investigation, refactoring, security audit, migration)
 - **Mission memory**: Cross-session learnings extracted from completed missions, automatically applied to future work
 - **Adaptive execution**: Model escalation on failure (haiku to sonnet to opus), automatic task splitting, mid-mission replanning
-- **4-level customization**: Organization, project, mission, and task-level settings with cascading overrides
+- **3-level customization**: Project, mission, and task-level settings with cascading overrides
 
 ## Quick Start
 
@@ -46,7 +46,7 @@ Mission Control will scope the work, assess risk, decompose it into tasks, assig
 |-------|-------------|
 | `mission-planner` | Decomposes high-level goals into task dependency graphs with risk tiers, agent assignments, file ownership, and parallel grouping. |
 | `researcher` | Read-only codebase exploration and analysis. Finds patterns, maps dependencies, answers questions. Never modifies files. |
-| `implementer` | Writes production-quality code from detailed task specifications. Runs in isolated git worktrees. Follows existing patterns. |
+| `implementer` | Writes production-quality code from detailed task specifications. Follows existing patterns. Leaves changes uncommitted for review. |
 | `reviewer` | Independent quality assurance. Validates against acceptance criteria, checks for bugs, security issues, and architectural violations. Produces pass/fail verdict. |
 | `retrospective` | Post-mission learning extraction. Analyzes outcomes, identifies patterns and anti-patterns, produces structured learnings for mission memory. |
 
@@ -55,8 +55,8 @@ Mission Control will scope the work, assess risk, decompose it into tasks, assig
 | Skill | Description |
 |-------|-------------|
 | `orchestrate` | Core 7-step workflow for coordinating multiple agents through a structured mission. Auto-invoked when Claude detects multi-agent work is needed. |
-| `playbook-knowledge` | Knowledge about creating and using mission playbooks. Referenced by the `/playbook` command. |
-| `mission-memory-knowledge` | Knowledge about the mission memory system -- how learnings are extracted, scored, stored, and applied. |
+| `playbook` | Knowledge about creating and using mission playbooks. Referenced by the `/playbook` command. |
+| `mission-memory` | Knowledge about the mission memory system -- how learnings are extracted, scored, stored, and applied. |
 
 ## Configuration
 
@@ -69,7 +69,6 @@ defaultPlanningDepth: spec
 requireApproval: tier2+
 maxConcurrentAgents: 3
 testCommand: "npm test"
-useWorktrees: true
 autoReview: true
 autoTest: true
 retryOnFailure: true
@@ -91,7 +90,7 @@ See `examples/project-settings-example.md` for a complete settings reference wit
 
 ## Customization Hierarchy
 
-Settings cascade through four levels. Each level overrides the one above it:
+Settings cascade through three levels. Each level overrides the one above it:
 
 ```
 Project settings       (.mission-control/settings.md)
@@ -148,7 +147,7 @@ Mission Control uses lifecycle hooks for session continuity and observability:
 
 - **SessionStart**: Detects active missions and injects status context
 - **Stop**: Warns when stopping with incomplete tasks
-- **PreToolUse[Task]**: Logs agent delegation events for retrospective analysis
+- **PreToolUse[Agent]**: Logs agent delegation events for retrospective analysis
 
 ## License
 

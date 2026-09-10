@@ -24,7 +24,7 @@ If the file exists, parse it and extract the mission ID, name, goal, status, tas
 
 ### Step 2: Gather Task Statuses
 
-Run `TaskList` to get the current statuses of all tasks tracked by the Task tool. Cross-reference with the tasks recorded in `active.json`.
+`active.json` is the only record of task state — Mission Control does not use a shared task list. Read the `tasks` array and, if agents from this mission are still running, reconcile it against what they have reported so far in the conversation before producing the report.
 
 For each task in the mission state, determine its current status:
 - **completed** -- task finished successfully

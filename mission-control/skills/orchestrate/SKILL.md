@@ -21,8 +21,8 @@ You are coordinating a multi-agent mission. Follow this 7-step workflow precisel
 
 Before scoping, load configuration from available sources:
 
-1. Read `.mission-control/settings.md` — project-level settings (defaultModel, maxConcurrentAgents, requireApproval, retryOnFailure, maxRetries, escalateModelOnRetry, autoReview, autoTest, autoLearn, memoryEnabled, testCommand, devCommand, useWorktrees, custom agent types).
-2. If the file does not exist, proceed with built-in defaults: model=sonnet, maxConcurrentAgents=3, requireApproval=tier2+, retryOnFailure=true, maxRetries=2, escalateModelOnRetry=true, autoReview=true, autoTest=true, autoLearn=true, memoryEnabled=true.
+1. Read `.mission-control/settings.md` — project-level settings (defaultModel, defaultPlanningDepth, maxConcurrentAgents, requireApproval, retryOnFailure, maxRetries, escalateModelOnRetry, autoReview, autoTest, autoLearn, memoryEnabled, testCommand, devCommand, custom agent types).
+2. If the file does not exist, proceed with built-in defaults: defaultModel=sonnet, defaultPlanningDepth=spec, maxConcurrentAgents=3, requireApproval=tier2+, retryOnFailure=true, maxRetries=2, escalateModelOnRetry=true, autoReview=true, autoTest=true, autoLearn=true, memoryEnabled=true.
 
 Mission-level overrides (from user request or playbook) win over project settings.
 
@@ -105,17 +105,17 @@ Load the agent registry before decomposing. Read `.mission-control/settings.md` 
 
 **Built-in agents:**
 
-| Agent           | subagent_type                     | Role                                           | Default Model | Isolation |
-| --------------- | --------------------------------- | ---------------------------------------------- | ------------- | --------- |
-| mission-planner | `mission-control:mission-planner` | Goal decomposition into task dependency graphs | sonnet        | none      |
-| researcher      | `mission-control:researcher`      | Read-only codebase exploration and analysis    | haiku         | none      |
-| implementer     | `mission-control:implementer`     | Code implementation from specifications        | sonnet        | worktree  |
-| reviewer        | `mission-control:reviewer`        | Independent quality assurance and validation   | sonnet        | none      |
-| retrospective   | `mission-control:retrospective`   | Post-mission learning extraction               | sonnet        | none      |
+| Agent           | subagent_type                     | Role                                           | Default Model |
+| --------------- | --------------------------------- | ---------------------------------------------- | ------------- |
+| mission-planner | `mission-control:mission-planner` | Goal decomposition into task dependency graphs | sonnet        |
+| researcher      | `mission-control:researcher`      | Read-only codebase exploration and analysis    | haiku         |
+| implementer     | `mission-control:implementer`     | Code implementation from specifications        | sonnet        |
+| reviewer        | `mission-control:reviewer`        | Independent quality assurance and validation   | sonnet        |
+| retrospective   | `mission-control:retrospective`   | Post-mission learning extraction               | sonnet        |
 
-Always use the exact `subagent_type` value shown above when spawning built-in agents. This ensures each agent runs with the correct tool permissions and isolation settings defined in its agent file. In particular, `mission-control:implementer` must be used for all implementation tasks — it is the only agent type that runs in an isolated git worktree.
+Always use the exact `subagent_type` value shown above when spawning built-in agents. This ensures each agent runs with the correct tool permissions defined in its agent file. Never substitute a generic type for a built-in agent — spawning `Explore` instead of `mission-control:researcher` loses the agent's system prompt and tool restrictions.
 
-Custom agents from `.mission-control/settings.md` extend (never replace) the built-in agents. Each custom agent maps to one of the four core `subagent_type` values: `Explore`, `Plan`, `Bash`, or `general-purpose`. Never apply the `mission-control:*` prefix to custom agents — only built-in agents have registered agent files under that namespace.
+Custom agents from `.mission-control/settings.md` extend (never replace) the built-in agents. Each custom agent maps to a `subagent_type` that exists in the session: a built-in type (`general-purpose`, `Explore`, `Plan`) or a project agent defined under `.claude/agents/`. Never apply the `mission-control:*` prefix to custom agents — only this plugin's agents have registered agent files under that namespace.
 
 Output the merged registry, including the exact `subagent_type` to use for each agent:
 
@@ -125,7 +125,7 @@ AGENT REGISTRY
 Built-in:
   mission-planner  → mission-control:mission-planner
   researcher       → mission-control:researcher
-  implementer      → mission-control:implementer  (isolated worktree)
+  implementer      → mission-control:implementer
   reviewer         → mission-control:reviewer
   retrospective    → mission-control:retrospective
 Custom:
@@ -260,15 +260,17 @@ Reference [references/orchestration-patterns.md](references/orchestration-patter
 
 Select the execution mode based on mission characteristics:
 
-| Mission Characteristics                     | Execution Mode                           |
-| ------------------------------------------- | ---------------------------------------- |
-| Sequential work or same files               | Direct tools (no subagents)              |
-| 2-3 independent read-only queries           | Standalone subagents (no team)           |
-| Parallel work (3+ agents or any writes)     | **Agent-team (DEFAULT)**                 |
-| Parallel work + agent-to-agent coordination | Agent-team with peer messaging           |
-| High risk (Tier 2+)                         | Agent-team + dedicated reviewer teammate |
+| Mission Characteristics                     | Execution Mode                             |
+| ------------------------------------------- | ------------------------------------------ |
+| Sequential work or same files               | Direct tools (no subagents)                |
+| 2-3 independent read-only queries           | Unnamed subagents (fire and forget)        |
+| Parallel work (3+ agents or any writes)     | **Named agents (DEFAULT)**                 |
+| Parallel work + agent-to-agent coordination | Named agents + peer messaging              |
+| High risk (Tier 2+)                         | Named agents + dedicated reviewer agent    |
 
-Default to agent-team mode. Only use standalone subagents for trivial fan-out of 2-3 read-only research agents where no coordination is needed. Only use direct tools for `skip` planning depth.
+Spawning with a `name` is what makes an agent addressable: you and the other agents can reach it later with `SendMessage`. Where agent teams are enabled in the session (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, interactive session), a named agent launches as a team teammate with its own session. There is no team creation or teardown step — the team forms as you spawn named agents and is cleaned up when the session ends.
+
+Two limits shape the plan: agents you spawn cannot spawn agents of their own, and permission prompts from every agent surface in your session. Keep the orchestrator as the only delegating layer.
 
 State your pattern and execution mode choice explicitly:
 
@@ -276,34 +278,35 @@ State your pattern and execution mode choice explicitly:
 ORCHESTRATION
 ---------------------------------------------------------------------
 Pattern:        [Pattern name]
-Execution Mode: [direct / standalone / agent-team / agent-team+messaging]
+Execution Mode: [direct / unnamed / named / named+messaging]
 Rationale:      [One sentence justification]
 ---------------------------------------------------------------------
 ```
 
 ---
 
-## Step 5: Create Team & Launch Agents
+## Step 5: Launch Agents
 
 Execute this step NOW. Do not describe what you plan to do. Act.
 
-### 5a. Create the Team
+### 5a. Record the Task Graph
 
-Use `TeamCreate` to establish the team:
+`.mission-control/missions/active.json` is the single source of truth for task state. Before spawning anything, write every subtask from Step 3 into its `tasks` array with `status: "pending"`, its dependencies, risk tier, file ownership, model, and acceptance criteria.
+
+Mission Control does not use a shared task list. Every status transition — pending, in_progress, completed, failed, blocked, cancelled — is recorded by you in `active.json` as agents report back. `/checkpoint` reads that file, so state that never lands in the file is invisible to the user.
+
+### 5b. Spawn the First Wave
+
+Identify every task with no dependencies (Wave 1). Spawn agents for all of them in a single message, up to `maxConcurrentAgents`. If the wave holds more ready tasks than that limit, spawn the first batch and hold the rest until slots free up — do not exceed the limit just because the tasks are independent.
+
+Spawn each agent with the `Agent` tool:
 
 ```
-TeamCreate(team_name: "<mission-name>", description: "<brief mission description>")
+Agent(subagent_type: "<exact type from the registry>",
+      name: "<short-kebab-name>",
+      model: "<haiku|sonnet|opus>",
+      prompt: "<self-contained prompt>")
 ```
-
-Name the team after the mission goal (kebab-case, descriptive).
-
-### 5b. Create Tasks with Dependencies
-
-Use `TaskCreate` for every subtask from Step 3. Set up dependencies with `TaskUpdate(addBlockedBy)` to enforce execution order.
-
-### 5c. Spawn All Independent Agents in ONE Message
-
-Identify every task with no dependencies (Wave 1). Spawn agents for ALL of them in a single message. Do not spawn them one at a time.
 
 For each agent, write a self-contained prompt that includes:
 
@@ -312,7 +315,8 @@ For each agent, write a self-contained prompt that includes:
 3. **Task specification** — Precisely what to find, implement, or validate.
 4. **Expected output format** — What the deliverable looks like (report, code, review verdict).
 5. **Constraints** — Forbidden actions, file ownership boundaries, risk tier.
-6. **Task management** — "Claim your task via TaskUpdate when starting. Mark it completed when done."
+6. **Verification** — When `autoTest` is true and `testCommand` is set, give the agent the exact command to run.
+7. **Completion signal** — "End your report with `TASK <id>: COMPLETE`, `TASK <id>: BLOCKED — <reason>`, or `TASK <id>: FAILED — <reason>`." You use this line to update `active.json`.
 
 Choose the right model per agent:
 
@@ -320,9 +324,11 @@ Choose the right model per agent:
 - `sonnet` — Moderate complexity, most implementation work (default).
 - `opus` — Complex reasoning, architecture decisions, security review.
 
-For Tier 1+ tasks, spawn a reviewer agent AFTER the implementation agent completes. Never spawn implementer and reviewer for the same work simultaneously.
+When `autoReview` is true, every Tier 1+ task gets a reviewer agent spawned AFTER its implementation agent completes. Never spawn implementer and reviewer for the same work simultaneously. When `autoReview` is false, Tier 2+ tasks still require a reviewer — the setting can only turn off review for Tier 1.
 
-### 5d. Save Mission State
+Agents you spawn without a `name` cannot be messaged afterwards. Use unnamed spawns only for trivial read-only fan-out where you need nothing but the final report.
+
+### 5c. Save Mission State
 
 Save the mission state to `.mission-control/missions/active.json`. Include the mission scope, risk tier, task graph, pattern, settings, and current status. This enables session recovery if the conversation is interrupted.
 
@@ -344,25 +350,15 @@ Save the mission state to `.mission-control/missions/active.json`. Include the m
 }
 ```
 
-### Standalone Subagent Fallback
-
-Only skip team creation for trivial fan-out of 2-3 read-only research agents where no coordination is needed. In that case, launch standalone `Task` calls without `team_name`.
-
-### Example Team Launch
+### Example Launch
 
 ```
-TeamCreate(team_name: "preferences-feature", description: "Add user preferences page")
+[Spawn 4 agents in ONE message — all with no dependencies, maxConcurrentAgents = 4]
 
-TaskCreate(subject: "Find auth patterns", ...)
-TaskCreate(subject: "Find routing config", ...)
-TaskCreate(subject: "Find theme implementation", ...)
-TaskCreate(subject: "Find i18n config", ...)
-
-[Spawn 4 agents in ONE message — all with no dependencies]
-Task(team_name: "preferences-feature", name: "researcher-auth", subagent_type: "mission-control:researcher", ...)
-Task(team_name: "preferences-feature", name: "researcher-routing", subagent_type: "mission-control:researcher", ...)
-Task(team_name: "preferences-feature", name: "researcher-theme", subagent_type: "mission-control:researcher", ...)
-Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "mission-control:researcher", ...)
+Agent(subagent_type: "mission-control:researcher", name: "researcher-auth", model: "haiku", prompt: "...")
+Agent(subagent_type: "mission-control:researcher", name: "researcher-routing", model: "haiku", prompt: "...")
+Agent(subagent_type: "mission-control:researcher", name: "researcher-theme", model: "haiku", prompt: "...")
+Agent(subagent_type: "mission-control:researcher", name: "researcher-i18n", model: "haiku", prompt: "...")
 ```
 
 ---
@@ -371,7 +367,7 @@ Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "
 
 ### 6a. Track Progress
 
-Use `TaskList` to check team progress after each wave. Teammates send messages when they complete tasks or need help.
+Agents report back when they finish, and named agents can message you mid-flight. As each report arrives, write the outcome into `active.json` immediately — task status, result summary, artifacts, timestamps. Do not batch these updates until the end of the wave: an interrupted session keeps only what was written.
 
 ### 6b. Produce Checkpoint Reports
 
@@ -414,7 +410,7 @@ Apply these adjustments in real time:
 
 ### 6d. Launch Next Waves
 
-After each wave, identify tasks whose dependencies are now satisfied. Spawn agents for all newly unblocked tasks in a single message. Use `TaskUpdate` to assign owners and update status.
+After each wave, identify tasks whose dependencies are now satisfied. Spawn agents for all newly unblocked tasks in a single message, still respecting `maxConcurrentAgents`. Update each task's `status`, `assignedAgent`, and `startedAt` in `active.json` as you spawn.
 
 ### 6e. Save Checkpoint to Mission State
 
@@ -481,8 +477,8 @@ category: pattern | gotcha | architecture | tooling | prompt
 
 ### 7e. Clean Up
 
-1. Send shutdown requests to all teammates via `SendMessage(type: "shutdown_request")`.
-2. Delete the team with `TeamDelete` after all teammates confirm shutdown.
+1. Ask every named agent still running to shut down, by name, via `SendMessage`. An agent can decline and explain why — if it does, resolve the reason before closing the mission.
+2. Confirm no agent is still working before you present the completion summary. Shared team directories are removed automatically when the session ends; there is no teardown tool to call.
 
 ---
 
@@ -496,15 +492,15 @@ Apply these principles throughout every mission:
 
 3. **Use playbooks when available.** If a playbook matches the mission type, use it. Playbooks encode proven task graphs and save decomposition time. Suggest matches but allow the user to override.
 
-4. **Default to teams.** Create a team for any mission with 3+ agents or any agent that writes files. Only skip teams for trivial fan-out of 2-3 read-only agents.
+4. **Name your agents.** Spawn with a `name` for any mission with 3+ agents or any agent that writes files, so you can message it, redirect it, or ask it to shut down. Only skip names for trivial fan-out of 2-3 read-only agents.
 
 5. **Optimize for throughput.** Assign work to complete the critical path fastest. Do not distribute work equally — optimize for the longest dependency chain.
 
-6. **Use TaskList for visibility.** Check `TaskList` between waves to track progress and unblock work. Do not proceed blindly.
+6. **Keep `active.json` current.** It is the only record of mission progress and the only thing `/checkpoint` can read. Update it as each agent reports, not at the end of the mission.
 
-7. **Coordinate via messages.** Use `SendMessage` to direct teammates, share context from earlier waves, or reassign work when plans change.
+7. **Coordinate via messages.** Use `SendMessage` to direct named agents, share context from earlier waves, or reassign work when plans change.
 
-8. **Replace stalled agents immediately.** Do not wait on undefined blockers. Spawn a replacement teammate with a clearer, more constrained prompt.
+8. **Replace stalled agents immediately.** Do not wait on undefined blockers. Spawn a replacement agent with a clearer, more constrained prompt.
 
 9. **Escalate uncertainty early.** If blocked on a decision, present options to the user with one recommended path. Do not guess on ambiguous requirements.
 
@@ -512,7 +508,7 @@ Apply these principles throughout every mission:
 
 11. **Launch in parallel.** If two tasks have no dependency between them, spawn agents in the same message. Sequential launches of independent work kill throughput.
 
-12. **Clean shutdown.** Always send `shutdown_request` to all teammates and `TeamDelete` when the mission is complete. Do not leave orphaned agents.
+12. **Clean shutdown.** Ask every named agent to shut down when the mission is complete. Do not leave agents running against a closed mission.
 
 13. **Never duplicate work.** Do not repeat searches you already delegated to agents. Trust agent outputs unless there is reason to doubt them.
 
@@ -550,7 +546,7 @@ Never do these:
 
 ### Step 1 — Scope the Mission
 
-Settings loaded from `.mission-control/settings.md`: testCommand="npm test", useWorktrees=true, autoReview=true.
+Settings loaded from `.mission-control/settings.md`: testCommand="npm test", maxConcurrentAgents=4, autoReview=true.
 
 No matching playbook found. No relevant learnings loaded (fresh project).
 
@@ -693,44 +689,39 @@ Rationale:      4 independent research tasks fan out, then sequential plan/imple
 
 ### Step 5 — Launch
 
-**Wave 1:** Launch Tasks 1-4 in a single message with 4 `Task` tool calls:
+**Wave 1:** Launch Tasks 1-4 in a single message with 4 `Agent` calls (`maxConcurrentAgents` = 4):
 
 ```
-TeamCreate(team_name: "preferences-feature", description: "Add user preferences page with dark mode, language, and notifications")
-
-TaskCreate(subject: "Find settings/preferences patterns", ...)
-TaskCreate(subject: "Find routing config", ...)
-TaskCreate(subject: "Find theme/dark-mode implementation", ...)
-TaskCreate(subject: "Find i18n configuration", ...)
-
-Task(team_name: "preferences-feature", name: "researcher-settings", subagent_type: "Explore", model: "haiku",
+Agent(name: "researcher-settings", subagent_type: "mission-control:researcher", model: "haiku",
   prompt: "You are a researcher: read-only codebase exploration specialist.
   Task: Find all existing settings or preferences UI patterns in this project.
   Search for: settings pages, preferences components, user configuration UI.
   Report: file paths, component structure, state management approach, API patterns used.
-  Claim task 'Find settings/preferences patterns' via TaskUpdate. Mark completed when done.")
+  End your report with `TASK 1: COMPLETE` or `TASK 1: BLOCKED — <reason>`.")
 
-Task(team_name: "preferences-feature", name: "researcher-routing", subagent_type: "Explore", model: "haiku",
+Agent(name: "researcher-routing", subagent_type: "mission-control:researcher", model: "haiku",
   prompt: "You are a researcher: read-only codebase exploration specialist.
   Task: Find the routing configuration and layout components.
   Search for: route definitions, layout wrappers, navigation components, page templates.
   Report: exact file paths, how new routes are added, which layout wraps authenticated pages.
-  Claim task 'Find routing config' via TaskUpdate. Mark completed when done.")
+  End your report with `TASK 2: COMPLETE` or `TASK 2: BLOCKED — <reason>`.")
 
-Task(team_name: "preferences-feature", name: "researcher-theme", subagent_type: "Explore", model: "haiku",
+Agent(name: "researcher-theme", subagent_type: "mission-control:researcher", model: "haiku",
   prompt: "You are a researcher: read-only codebase exploration specialist.
   Task: Find the current theme and dark mode implementation.
   Search for: theme provider, dark mode toggle, CSS variables, theme context.
   Report: architecture of the theme system, how to toggle dark mode, where theme state is stored.
-  Claim task 'Find theme/dark-mode implementation' via TaskUpdate. Mark completed when done.")
+  End your report with `TASK 3: COMPLETE` or `TASK 3: BLOCKED — <reason>`.")
 
-Task(team_name: "preferences-feature", name: "researcher-i18n", subagent_type: "Explore", model: "haiku",
+Agent(name: "researcher-i18n", subagent_type: "mission-control:researcher", model: "haiku",
   prompt: "You are a researcher: read-only codebase exploration specialist.
   Task: Find the i18n and language configuration.
   Search for: i18n provider, translation files, language switching, namespace registration.
   Report: i18n library used, how translations are organized, how to add a new namespace, how language selection is persisted.
-  Claim task 'Find i18n configuration' via TaskUpdate. Mark completed when done.")
+  End your report with `TASK 4: COMPLETE` or `TASK 4: BLOCKED — <reason>`.")
 ```
+
+Record all four tasks as `in_progress` in `active.json` as they launch.
 
 Save mission state to `.mission-control/missions/active.json`.
 

@@ -171,7 +171,7 @@ How risk tier interacts with other mission settings:
 | **Approval required** | No | No (auto) | Yes (`tier2+`) | Yes (always) |
 | **Review agent** | Optional | Required (non-author) | Required (dedicated) | Required + human |
 | **Test requirement** | None | Existing tests pass | Existing + new tests | Existing + new + adversarial |
-| **Worktree isolation** | Optional | Recommended | Required | Required |
+| **File ownership** | Advisory | One owner per file | One owner per file, no shared edits | One owner per file, changes staged for human review |
 | **Concurrent execution** | Unlimited | Up to `maxConcurrentAgents` | Sequential preferred | Sequential only |
 | **Checkpoint frequency** | End of mission | Per wave | Per task | Per action |
 | **Rollback documentation** | Not required | Commit hash noted | Full rollback plan | Contingency plan + dry run |

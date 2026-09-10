@@ -132,10 +132,10 @@ Multiple agents attempt the same task with different approaches. A judge selects
 | Judge | reviewer | Benchmark all three, evaluate code complexity, select best approach. |
 
 **Key considerations:**
-- Each competitor must work in a separate worktree (`isolation: worktree`).
+- Each competitor must own a distinct set of files, or produce its output as a written proposal rather than edits, so the attempts cannot overwrite each other.
 - The judge needs clear criteria defined upfront (performance target, complexity budget).
 - Expensive: N times the implementation cost. Reserve for high-value decisions.
-- Non-winning worktrees should be cleaned up.
+- Discard the non-winning attempts explicitly; do not leave half-applied alternatives in the tree.
 
 ---
 

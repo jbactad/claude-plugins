@@ -30,7 +30,6 @@ Five playbooks ship with mission-control. Each defines a complete phase structur
 |---------|-------|
 | planningDepth | spec |
 | riskTier | 1 |
-| useWorktrees | true |
 | defaultModel | sonnet (researchers use haiku) |
 | maxConcurrentAgents | 4 |
 
@@ -68,7 +67,6 @@ Five playbooks ship with mission-control. Each defines a complete phase structur
 |---------|-------|
 | planningDepth | lite |
 | riskTier | 1 |
-| useWorktrees | true |
 | defaultModel | sonnet |
 | maxConcurrentAgents | 1 |
 
@@ -108,7 +106,6 @@ Five playbooks ship with mission-control. Each defines a complete phase structur
 |---------|-------|
 | planningDepth | full |
 | riskTier | 1 |
-| useWorktrees | true |
 | defaultModel | sonnet |
 | maxConcurrentAgents | 1 |
 
@@ -146,7 +143,6 @@ Five playbooks ship with mission-control. Each defines a complete phase structur
 |---------|-------|
 | planningDepth | spec |
 | riskTier | 2 |
-| useWorktrees | false |
 | defaultModel | sonnet (all researchers use sonnet) |
 | maxConcurrentAgents | 4 |
 
@@ -184,7 +180,6 @@ Five playbooks ship with mission-control. Each defines a complete phase structur
 |---------|-------|
 | planningDepth | full |
 | riskTier | 2 |
-| useWorktrees | true |
 | defaultModel | sonnet |
 | maxConcurrentAgents | 1 |
 | requireApproval | true |

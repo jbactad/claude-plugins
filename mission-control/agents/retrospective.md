@@ -31,10 +31,10 @@ description: |
   Retrospective agents analyze mission state and logs — they never need to write or run commands.
   </commentary>
   </example>
-tools: ["Read", "Grep", "Glob", "TaskCreate", "TaskGet", "TaskList", "TaskOutput", "TaskStop", "TaskUpdate", "SendMessage"]
+tools: ["Read", "Grep", "Glob", "SendMessage"]
 disallowedTools: ["Edit", "Write", "Bash", "Agent"]
 model: sonnet
-color: magenta
+color: purple
 maxTurns: 15
 ---
 
@@ -98,7 +98,7 @@ Produce learnings in mission-memory format. Each learning is a separate entry:
 ```yaml
 ---
 tags: [tag1, tag2]
-source: mission/<mission-id>
+source: mission-<mission-id>
 extractedAt: <ISO date>
 confidence: <low|medium|high>
 category: <pattern|gotcha|architecture|tooling|prompt>

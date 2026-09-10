@@ -1,7 +1,7 @@
 ---
 name: playbook
 description: This skill should be used when the user asks about "playbooks", "available playbook types", "create a custom playbook", "which playbook fits", or "reusable mission templates". Also use when deciding whether a built-in playbook matches a mission type or when the user needs guidance on orchestration workflow selection.
-user-invokable: false
+user-invocable: false
 ---
 
 # Playbook System
@@ -12,7 +12,7 @@ Playbooks are reusable mission templates stored as markdown files with YAML fron
 
 - **Consistency.** The same type of mission gets the same proven structure every time. No variance from one run to the next.
 - **Speed.** Skip the planning phase for well-understood mission types. The playbook already encodes the right phase ordering, agent types, and model choices.
-- **Best practices.** Playbooks encode lessons learned from past missions: which phases to parallelize, where to insert quality gates, when to use worktrees, and which risk tiers to assign.
+- **Best practices.** Playbooks encode lessons learned from past missions: which phases to parallelize, where to insert quality gates, and which risk tiers to assign.
 - **Customizability.** Teams can create project-specific playbooks that encode their own conventions, preferred agent configurations, and domain-specific workflows.
 
 ## Built-In Playbooks
@@ -74,7 +74,7 @@ Project playbooks override built-in playbooks of the same name. If you want to c
 When the orchestrator runs Step 3 (task decomposition), it checks whether a playbook is active:
 
 1. **With a playbook**: The playbook's phases become the task decomposition skeleton. The mission planner fills in task-specific details (file ownership, acceptance criteria, exact prompts) but follows the phase ordering, agent assignments, and parallelism rules defined in the playbook.
-2. **Without a playbook**: The mission planner decomposes the goal from scratch, choosing its own phase structure, agent types, and parallelism strategy based on the orchestration patterns in [references/orchestration-patterns.md](references/orchestration-patterns.md).
+2. **Without a playbook**: The mission planner decomposes the goal from scratch, choosing its own phase structure, agent types, and parallelism strategy based on the orchestration patterns documented by the `orchestrate` skill.
 
 Playbooks and orchestration patterns are complementary. A playbook pre-selects which orchestration pattern to use (e.g., `full-stack-feature` uses a Pipeline pattern, `security-audit` uses Fan-Out/Fan-In), while orchestration patterns are the lower-level building blocks that the planner can combine freely when no playbook is active.
 

@@ -1,7 +1,7 @@
 ---
 name: mission-memory
 description: This skill should be used when the user asks about "mission learnings", "memory files", "view or manage memory", "how the learning system works", or wants to understand how mission-control persists and loads learnings from past missions.
-user-invokable: false
+user-invocable: false
 ---
 
 # Mission Memory System

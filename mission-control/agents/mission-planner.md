@@ -31,7 +31,7 @@ description: |
   Migrations need explicit dependency mapping to identify safe parallelism and rollback points.
   </commentary>
   </example>
-tools: ["Read", "Grep", "Glob", "Bash", "TaskCreate", "TaskGet", "TaskList", "TaskOutput", "TaskStop", "TaskUpdate", "SendMessage"]
+tools: ["Read", "Grep", "Glob", "Bash", "SendMessage"]
 model: sonnet
 color: blue
 disallowedTools: ["Agent"]
@@ -80,6 +80,7 @@ For each task, determine:
   - `Tier 0` -- Low risk. Docs, comments, simple renames, config changes. No reviewer needed.
   - `Tier 1` -- Medium risk. New feature code, refactors within one module, test additions. Reviewer required.
   - `Tier 2` -- High risk. Cross-module changes, API modifications, security-related code, database migrations, public interface changes. Reviewer required; consider opus model.
+  - `Tier 3` -- Critical risk. Irreversible actions, regulated data, production data deletion, anything where failure causes a severe incident. Reviewer required, opus model, and explicit human confirmation before the task runs. Flag the task as requiring approval in the Notes field.
 - **File ownership**: List every file the task will create or modify. A file must belong to exactly one task.
 - **Dependencies**: List task IDs that must complete before this task can start.
 
@@ -107,7 +108,7 @@ Output each task as a structured card:
 - **Title**: <concise title>
 - **Agent**: <agent-type>
 - **Model**: <haiku|sonnet|opus>
-- **Risk**: <Tier 0|Tier 1|Tier 2>
+- **Risk**: <Tier 0|Tier 1|Tier 2|Tier 3>
 - **Dependencies**: <comma-separated task-ids, or "none">
 - **Files**:
   - <path/to/file1> (create|modify)
@@ -139,7 +140,7 @@ After all task cards, output the execution plan:
 ## Rules
 
 1. **Never split one file across multiple agent tasks.** If two tasks need the same file, either combine the tasks or sequence them with a dependency.
-2. **Always assign a reviewer task for Tier 1 and Tier 2 tasks.** Skipping review for risky changes leads to production incidents.
+2. **Always assign a reviewer task for Tier 1 and above.** Skipping review for risky changes leads to production incidents.
 3. **Choose the cheapest sufficient model.** Do not use opus where sonnet suffices. Do not use sonnet where haiku suffices.
 4. **Research before implementation.** If the goal touches unfamiliar parts of the codebase, insert a researcher task before implementation tasks.
 5. **Prefer small tasks over large ones.** Smaller tasks are easier to review, easier to retry on failure, and enable more parallelism.

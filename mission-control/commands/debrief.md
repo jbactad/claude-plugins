@@ -121,7 +121,7 @@ Create the `.mission-control/memory/` directory if it does not exist.
 
 **Learning file format**:
 
-Each learning is saved as a separate file or appended to an existing category file. The filename matches the category (e.g., `patterns.md`, `gotchas.md`, `architecture.md`, `tooling.md`, `prompts.md`).
+Each learning is saved as its own file, named with a descriptive kebab-case slug of the learning itself (`vitest-root-flag.md`, `circular-dep-gotcha.md`) — not the category. One learning per file, no index file.
 
 ```markdown
 ---
@@ -147,7 +147,7 @@ category: <pattern|gotcha|architecture|tooling|prompt>
 - `tooling` -- Build, test, deploy, or development workflow patterns.
 - `prompt` -- Effective prompt patterns for agent instructions.
 
-When appending to an existing category file, add the new learning under a new heading. Do not overwrite existing content. Update the frontmatter `tags` array to include any new tags from the appended learning.
+If a learning duplicates an existing file's insight, update that file instead of creating a new one: raise or lower its `confidence`, add tags, and sharpen the body. Never overwrite an unrelated learning.
 
 **If `autoLearn` is disabled**: Skip learning extraction. Display: "Auto-learn is disabled. Skipping learning extraction. Enable autoLearn in settings to capture mission learnings."
 
