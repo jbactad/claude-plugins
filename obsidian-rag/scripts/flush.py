@@ -3,11 +3,15 @@
 Background memory flush agent — extracts important knowledge from a conversation
 transcript and appends it to today's daily log.
 
-Spawned by session-end.py or pre-compact.py as a detached background process.
-Uses the Claude Agent SDK to decide what's worth saving.
+Spawned by the SessionEnd, PreCompact and Stop hooks (via capture.py) as a background
+process. Uses the Claude Agent SDK to decide what's worth saving.
 
 Usage:
-    python flush.py <context_file.md> <session_id>
+    python flush.py <manifest.json>
+
+The manifest lists one or more chunks of not-yet-captured turns, each with the local
+date its turns happened on. Each chunk is summarized separately and appended to that
+date's daily log.
 """
 
 from __future__ import annotations
@@ -21,15 +25,14 @@ import json
 import logging
 import re
 import sys
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from config import DAILY_DIR, PLUGIN_DIR, SCRIPTS_DIR, today_iso, now_iso
+from config import DAILY_DIR, PLUGIN_DIR, SCRIPTS_DIR, today_iso
+from shared import file_lock, read_json
 
-LAST_FLUSH_FILE = SCRIPTS_DIR / "last-flush.json"
 COMPILE_AFTER_HOUR = 18  # 6 PM local time
 
 # Sentinel the flush agent returns when a session holds nothing worth recording.
@@ -41,6 +44,29 @@ SENTINEL_NOTHING = "NOTHING_TO_SAVE"
 # Stripped before sentinel matching and before the entry reaches the vault.
 PREFIX_RE = re.compile(r"^\s*\[\d{1,2}:\d{2}(?::\d{2})?\]\s*")
 
+# Every real entry opens with this heading. The agent sometimes writes the sentinel,
+# then reconsiders in prose ("Wait — that's wrong...") before or instead of writing
+# the entry; anything ahead of the heading is that chatter, never knowledge.
+ENTRY_START = "**Context:**"
+
+
+def parse_entry(response: str) -> tuple[str, bool]:
+    """Turn the agent's raw reply into a vault entry.
+
+    Returns (entry, reconsidered). An empty entry means nothing should be written.
+    `reconsidered` is True when the agent opened with the sentinel but then kept
+    talking without producing an entry: it changed its mind, so a retry is warranted.
+    """
+    text = PREFIX_RE.sub("", response).strip()
+    start = text.find(ENTRY_START)
+    if start != -1:
+        return text[start:].strip(), False
+    if text == SENTINEL_NOTHING:
+        return "", False
+    if text.startswith(SENTINEL_NOTHING):
+        return "", True
+    return text, False
+
 logging.basicConfig(
     filename=str(SCRIPTS_DIR / "flush.log"),
     level=logging.INFO,
@@ -49,39 +75,35 @@ logging.basicConfig(
 )
 
 
-def load_flush_state() -> dict:
-    if LAST_FLUSH_FILE.exists():
-        try:
-            return json.loads(LAST_FLUSH_FILE.read_text(encoding="utf-8"))
-        except (json.JSONDecodeError, OSError):
-            pass
-    return {}
+def entry_heading(chunk: dict) -> str:
+    """`### Session (09:12–10:40) · backend · feature/x` — when and where the turns happened."""
+    start, end = chunk.get("start", ""), chunk.get("end", "")
+    span = start if start == end else f"{start}–{end}"
+    location = chunk.get("location", "")
+    return f"### Session ({span})" + (f" · {location}" if location else "")
 
 
-def save_flush_state(state: dict) -> None:
-    LAST_FLUSH_FILE.write_text(json.dumps(state), encoding="utf-8")
+def append_to_daily_log(content: str, date: str, heading: str) -> None:
+    """Append a session entry to the daily log for `date` (YYYY-MM-DD)."""
+    log_path = DAILY_DIR / f"{date}.md"
+    DAILY_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Parallel sessions flush concurrently; serialize writers so entries never interleave
+    # and the header is written exactly once.
+    with file_lock(log_path):
+        if not log_path.exists():
+            log_path.write_text(f"# Daily Log: {date}\n\n## Sessions\n\n", encoding="utf-8")
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(f"{heading}\n\n{content}\n\n")
 
 
-def append_to_daily_log(content: str) -> None:
-    """Append a session entry to today's daily log."""
-    today = datetime.now(timezone.utc).astimezone()
-    log_path = DAILY_DIR / f"{today.strftime('%Y-%m-%d')}.md"
+RETRY_NOTE = f"""A previous attempt answered {SENTINEL_NOTHING} and then said the session
+did hold content worth recording. Write the entry now, starting with {ENTRY_START}
 
-    if not log_path.exists():
-        DAILY_DIR.mkdir(parents=True, exist_ok=True)
-        log_path.write_text(
-            f"# Daily Log: {today.strftime('%Y-%m-%d')}\n\n## Sessions\n\n",
-            encoding="utf-8",
-        )
-
-    time_str = today.strftime("%H:%M")
-    entry = f"### Session ({time_str})\n\n{content}\n\n"
-
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(entry)
+"""
 
 
-async def run_flush(context: str) -> str:
+async def run_flush(context: str, preamble: str = "") -> str:
     """Use Claude Agent SDK to extract worth-keeping knowledge from conversation context."""
     from claude_agent_sdk import (
         AssistantMessage,
@@ -91,7 +113,7 @@ async def run_flush(context: str) -> str:
         query,
     )
 
-    prompt = f"""Extract the durable knowledge from the conversation below into an entry
+    prompt = preamble + f"""Extract the durable knowledge from the conversation below into an entry
 for the daily knowledge log. Do NOT use any tools — return plain text only.
 
 Default to saving. A real work session almost always contains something worth keeping:
@@ -119,6 +141,10 @@ but their presence is not a reason to discard the session. Summarize what remain
 
 Respond with exactly {SENTINEL_NOTHING} only when there is nothing at all to record:
 a bare greeting, an aborted session with no work, or context with no factual content.
+
+Decide before you write. Your reply is either the entry, starting with {ENTRY_START},
+or the single word {SENTINEL_NOTHING} and nothing else. Never write the sentinel and
+then reconsider; never add commentary before or after the entry.
 
 ## Conversation Context
 
@@ -200,28 +226,10 @@ def maybe_trigger_compilation() -> None:
         logging.error("Failed to spawn compile.py: %s", e)
 
 
-def main() -> None:
-    if len(sys.argv) < 3:
-        logging.error("Usage: flush.py <context_file.md> <session_id>")
-        sys.exit(1)
-
-    context_file = Path(sys.argv[1])
-    session_id = sys.argv[2]
-
-    logging.info("Started for session %s", session_id)
-
+def flush_chunk(session_id: str, chunk: dict) -> None:
+    context_file = Path(chunk["file"])
     if not context_file.exists():
         logging.error("Context file not found: %s", context_file)
-        return
-
-    # Deduplication: skip if same session flushed within 60 seconds
-    state = load_flush_state()
-    if (
-        state.get("session_id") == session_id
-        and time.time() - state.get("timestamp", 0) < 60
-    ):
-        logging.info("Skipping duplicate flush for session %s", session_id)
-        context_file.unlink(missing_ok=True)
         return
 
     context = context_file.read_text(encoding="utf-8").strip()
@@ -230,26 +238,56 @@ def main() -> None:
         context_file.unlink(missing_ok=True)
         return
 
-    logging.info("Flushing %d chars for session %s", len(context), session_id)
+    logging.info(
+        "Flushing %d chars for session %s (%s %s–%s)",
+        len(context), session_id, chunk["date"], chunk.get("start"), chunk.get("end"),
+    )
 
     response = asyncio.run(run_flush(context))
+    logging.info("Agent response (%d chars): %s", len(response), response[:500].replace("\n", " | "))
+    entry, reconsidered = parse_entry(response)
 
-    entry = PREFIX_RE.sub("", response).strip()
-    logging.info("Agent response (%d chars): %s", len(entry), entry[:500].replace("\n", " | "))
+    if reconsidered:
+        logging.info("Agent reversed its %s without writing an entry, retrying once", SENTINEL_NOTHING)
+        response = asyncio.run(run_flush(context, preamble=RETRY_NOTE))
+        logging.info("Retry response (%d chars): %s", len(response), response[:500].replace("\n", " | "))
+        entry, reconsidered = parse_entry(response)
 
     if entry.startswith("FLUSH_ERROR"):
-        # Errors are operator signal, not knowledge — keep them out of the vault.
-        logging.error("Flush failed, nothing written: %s", entry)
-    elif entry == SENTINEL_NOTHING:
-        logging.info("%s — nothing worth saving", SENTINEL_NOTHING)
+        # Errors are operator signal, not knowledge — keep them out of the vault. The
+        # session cursor has already moved past these turns, so keep the context for a
+        # manual replay instead of deleting it.
+        failed = context_file.with_name(f"failed-{context_file.name}")
+        context_file.rename(failed)
+        logging.error("Flush failed, nothing written, context kept at %s: %s", failed, entry)
+        return
+    if reconsidered:
+        logging.warning("Agent reversed its %s again without an entry, nothing written", SENTINEL_NOTHING)
     elif not entry:
-        logging.warning("Empty agent response, nothing written")
+        logging.info("%s — nothing worth saving", SENTINEL_NOTHING)
     else:
-        logging.info("Saved to daily log (%d chars)", len(entry))
-        append_to_daily_log(entry)
-
-    save_flush_state({"session_id": session_id, "timestamp": time.time()})
+        logging.info("Saved to daily log %s (%d chars)", chunk["date"], len(entry))
+        append_to_daily_log(entry, chunk["date"], entry_heading(chunk))
     context_file.unlink(missing_ok=True)
+
+
+def main() -> None:
+    if len(sys.argv) < 2:
+        logging.error("Usage: flush.py <manifest.json>")
+        sys.exit(1)
+
+    manifest_path = Path(sys.argv[1])
+    manifest = read_json(manifest_path)
+    session_id = manifest.get("session_id", "unknown")
+    chunks = manifest.get("chunks", [])
+    logging.info("Started for session %s (%s, %d chunks)", session_id, manifest.get("reason"), len(chunks))
+
+    for chunk in chunks:
+        try:
+            flush_chunk(session_id, chunk)
+        except Exception as e:
+            logging.exception("Chunk %s failed for session %s: %s", chunk.get("file"), session_id, e)
+    manifest_path.unlink(missing_ok=True)
 
     maybe_trigger_compilation()
 

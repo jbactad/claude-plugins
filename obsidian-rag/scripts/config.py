@@ -71,7 +71,11 @@ CONVENTIONS_FILE = PLUGIN_DIR / "skills" / "compile" / "references" / "vault-con
 
 # ── Plugin state (stored alongside scripts, not in the vault) ──────────────────
 STATE_FILE = SCRIPTS_DIR / "state.json"
-LAST_FLUSH_FILE = SCRIPTS_DIR / "last-flush.json"
+
+# Capture state that must survive plugin updates. Each version installs to a fresh
+# directory, so session cursors kept under SCRIPTS_DIR would reset on every update
+# and make every open session re-summarize its history.
+DATA_DIR = Path(os.environ.get("OBSIDIAN_RAG_DATA_DIR", Path.home() / ".claude" / "obsidian-rag"))
 
 
 # ── Time helpers ───────────────────────────────────────────────────────────────

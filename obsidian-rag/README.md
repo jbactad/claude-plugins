@@ -5,7 +5,7 @@ General-purpose Obsidian vault manager for Claude Code. Turns Claude into a libr
 ## Features
 
 - **5 skills**: compile, audit, query, capture, setup
-- **3 lifecycle hooks**: automatic session capture and wiki context injection
+- **4 lifecycle hooks**: incremental session capture and wiki context injection
 - **Index-guided retrieval**: reads article catalog to answer questions without loading the full wiki
 - **qmd integration**: optional hybrid search (BM25 + semantic + reranking) for vaults with 500+ articles
 - **Project-scoped articles**: multi-project vaults supported via `project:` frontmatter
@@ -98,10 +98,13 @@ Hooks are installed at **user scope** and fire across all Claude Code sessions. 
 | Hook | Behavior |
 |------|----------|
 | `SessionStart` | Injects `wiki/index.md` and the most recent daily log into every session as context |
-| `SessionEnd` | Captures the conversation transcript; spawns a background flush process to extract learnings into `daily/YYYY-MM-DD.md` |
-| `PreCompact` | Same as SessionEnd — fires before auto-compaction to preserve context that summarization would discard |
+| `SessionEnd` | Hands every turn not yet captured to a background flush process that extracts learnings into `daily/YYYY-MM-DD.md` |
+| `PreCompact` | Same capture before auto-compaction (5+ new turns), so long sessions are logged while the work is fresh |
+| `Stop` | Runs after every turn; captures an open session once 40 new turns pile up, 10+ turns are 2 hours old, or the turns cross midnight |
 
-The flush process uses the Claude Agent SDK to decide what's worth saving, then appends a structured entry to the daily log. After 6 PM local time, it also triggers `compile.py --source daily` as a detached background process if today's log has changed since last compilation.
+Capture is incremental: each session keeps a cursor in `~/.claude/obsidian-rag/cursors/` (override with `OBSIDIAN_RAG_DATA_DIR`; kept outside the plugin so updates don't reset it), so every turn is summarized exactly once however long the session runs, and parallel sessions never re-log each other's work. New turns are grouped by the local date they happened on and split into chunks of up to 15,000 characters; each chunk becomes one entry in that date's log, headed with its time span, repo and branch.
+
+The flush process uses the Claude Agent SDK to decide what's worth saving, then appends a structured entry to the daily log under a file lock. If a flush call fails, its context is kept as `~/.claude/obsidian-rag/pending/failed-*.md` for replay. After 6 PM local time, it also triggers `compile.py --source daily` as a detached background process if today's log has changed since last compilation.
 
 ## Installation
 

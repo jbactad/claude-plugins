@@ -180,10 +180,10 @@ Append-only log of all compile, query, and audit operations.
 
 ### daily/YYYY-MM-DD.md (conversation log)
 
-Auto-captured by the SessionEnd/PreCompact hooks. Each session appends a new entry.
+Auto-captured by the SessionEnd, PreCompact and Stop hooks. Each entry covers the turns since that session's previous capture and is filed under the date those turns happened.
 
 ```markdown
-## [HH:MM] Session — one-line summary of the session
+### Session (HH:MM–HH:MM) · repo · branch
 
 ### Context
 - Brief description of what was being worked on

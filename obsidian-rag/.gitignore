@@ -6,3 +6,5 @@ scripts/*.log
 scripts/last-flush.json
 scripts/state.json
 scripts/session-flush-*.md
+scripts/flush-context-*.md
+scripts/*.lock
