@@ -30,7 +30,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from config import DAILY_DIR, PLUGIN_DIR, SCRIPTS_DIR, today_iso
+from config import DAILY_DIR, PLUGIN_DIR, SCRIPTS_DIR, STATE_FILE, today_iso
 from shared import file_lock, read_json
 
 COMPILE_AFTER_HOUR = 18  # 6 PM local time
@@ -194,16 +194,16 @@ def maybe_trigger_compilation() -> None:
         return
 
     today_log = f"{today_iso()}.md"
-    state_file = SCRIPTS_DIR / "state.json"
-    if state_file.exists():
+    state_key = f"daily/{today_log}"  # compile.py keys entries as "<source_type>/<name>"
+    if STATE_FILE.exists():
         try:
-            state = json.loads(state_file.read_text(encoding="utf-8"))
+            state = json.loads(STATE_FILE.read_text(encoding="utf-8"))
             ingested = state.get("ingested", {})
-            if today_log in ingested:
+            if state_key in ingested:
                 from utils import file_hash
                 log_path = DAILY_DIR / today_log
                 if log_path.exists():
-                    if ingested[today_log].get("hash") == file_hash(log_path):
+                    if ingested[state_key].get("hash") == file_hash(log_path):
                         return  # already compiled and unchanged
         except (json.JSONDecodeError, OSError):
             pass

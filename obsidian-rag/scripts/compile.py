@@ -28,7 +28,7 @@ from config import (
     CONVENTIONS_FILE,
     DAILY_DIR,
     RAW_DIR,
-    SCRIPTS_DIR,
+    VAULT_DIR,
     WIKI_DIR,
     now_iso,
     today_iso,
@@ -42,7 +42,6 @@ from utils import (
     save_state,
 )
 
-ROOT_DIR = SCRIPTS_DIR.parent
 
 
 async def compile_source(source_path: Path, source_type: str, state: dict) -> float:
@@ -183,11 +182,12 @@ def main() -> None:
     state = load_state()
 
     if args.file:
-        file_path = ROOT_DIR / args.file
+        # Relative paths are vault-relative; uv runs this from the plugin directory.
+        file_path = VAULT_DIR / args.file
         if not file_path.exists():
             print(f"File not found: {file_path}")
             sys.exit(1)
-        stype = "daily" if args.file.startswith("daily/") else "raw"
+        stype = "daily" if file_path.parent == DAILY_DIR else "raw"
         pending = [(file_path, stype)]
     else:
         pending = get_pending(args.source, args.all, state)

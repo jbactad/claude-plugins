@@ -69,8 +69,10 @@ except RuntimeError:
 # ── References ─────────────────────────────────────────────────────────────────
 CONVENTIONS_FILE = PLUGIN_DIR / "skills" / "compile" / "references" / "vault-conventions.md"
 
-# ── Plugin state (stored alongside scripts, not in the vault) ──────────────────
-STATE_FILE = SCRIPTS_DIR / "state.json"
+# ── Compile state (in the vault, where the compile and audit skills read it) ───
+# Each plugin version installs to a fresh directory, so state kept under
+# SCRIPTS_DIR forgot every compiled file on update and drifted from the vault.
+STATE_FILE = OUTPUT_DIR / "state.json"
 
 # Capture state that must survive plugin updates. Each version installs to a fresh
 # directory, so session cursors kept under SCRIPTS_DIR would reset on every update
