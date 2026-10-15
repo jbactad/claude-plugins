@@ -59,6 +59,14 @@ def build_context() -> str:
     index_content = None
     if INDEX_FILE.exists():
         index_content = INDEX_FILE.read_text(encoding="utf-8")
+        # Inject topics only. The article catalog grows with the vault and crowds
+        # out the session context; the query skill reads it from index.md on demand.
+        articles_at = index_content.find("\n## Articles")
+        if articles_at != -1:
+            index_content = (
+                index_content[:articles_at]
+                + f"\n\n(Article catalog omitted; see {INDEX_FILE.relative_to(VAULT_DIR)} or use the query skill.)\n"
+            )
 
     if index_content:
         parts.append(f"## Knowledge Base Index\n\n{index_content}")
